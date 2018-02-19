@@ -1,0 +1,30 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/m/m_beck52/projects/mclattice2/lib/enhance.cpp
+enhance.hpp
+/home/m/m_beck52/projects/mclattice2/lib/enhance.hpp
+
+/home/m/m_beck52/projects/mclattice2/lib/enhance.hpp
+ostream
+-
+cstdint
+-
+algorithm
+-
+random
+-
+iterator
+-
+type_traits
+-
+string
+-
+sys/stat.h
+-
+
