@@ -13,12 +13,16 @@ int main(int argc, char **argv) {
     
 
     MCHost mchost;
-    //  enhance::seed = std::random_device{}();
+//     enhance::seed = std::random_device{}();
     enhance::seed = 123456789;
     enhance::rand_engine.seed(enhance::seed);
 
-    mchost.setup("in.txt");
+    
+//     mchost.setupRun("in.txt");
 //     mchost.run();
+
+    
+    mchost.setupOptimization("in.txt");
     mchost.optimizeOmega();
     
 

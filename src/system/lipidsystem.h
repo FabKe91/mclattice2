@@ -26,10 +26,9 @@ public:
     
     const boost::multi_array<int,2> getOrderParas();
     const boost::multi_array<int,2> getTypes();
-    int getMeanOrder(int type);
-    std::vector<int> getOrderDestr(int type);
+    int getMeanOrder();
+    std::vector<int> getOrderDestr();
 
-    double calcFreeEnergie(int); //calcFreeEnergie of pair-partner 0 or 1
     double calcSwapEnthalpy();
     double calcHostFreeEnerg();
 

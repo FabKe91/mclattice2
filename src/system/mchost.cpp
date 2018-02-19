@@ -1,6 +1,6 @@
 #include "mchost.h"
 
-void MCHost::setup(std::string filename)
+void MCHost::setupRun(std::string filename)
 {
 
     inputfile.reset(new InputFile(filename));
@@ -26,15 +26,51 @@ void MCHost::setup(std::string filename)
     steps=inputfile->paras["steps"];
     kBT=kB*T;
     imageRate=inputfile->paras["imageRate"];
+}
+
+void MCHost::setupOptimization(std::string filename)
+{
+
+    inputfile.reset(new InputFile(filename));
+
+    
+    lipidproperties.reset(new LipidProperties());
+    lipidproperties->readParas(inputfile);
+    
+
+    lipidsystem.readParas(inputfile,lipidproperties);
+    lipidsystem.setup();
+    
+    
+    T=inputfile->paras["T"];
+    kB=inputfile->paras["kB"];
+    steps=inputfile->paras["steps"];
+    kBT=kB*T;
+    imageRate=inputfile->paras["imageRate"];
     
    
     
 
 }
 
+
+
 void MCHost::optimizeOmega()
 {
-    auto start = std::chrono::system_clock::now();
+
+    //initual guess
+    for(int i=0;i<=(int)inputfile->paras["maxOrderIndex"];i++) lipidproperties->entropyFunction[0][i]=1;
+    
+    lipidsystem.getOrderDestr();
+    
+    while(true)
+    {
+        runUntilEquilibrium();
+    }
+}
+
+void MCHost::runUntilEquilibrium()
+{
     unsigned int t=0;
     
     
@@ -61,8 +97,6 @@ void MCHost::optimizeOmega()
                 lipidsystem.fluctuateBack();
                 notAcceptedFlucs++;
             }
-            
-            
             else
             {
                 lipidsystem.setPartner();
@@ -76,14 +110,18 @@ void MCHost::optimizeOmega()
                     notAcceptedSwaps++;
                 }
             }
-            
-            if(t%imageRate==0)
-            {
-            datafile->writeStep(lipidsystem);
+        }
+        loopCounter++;
+        std::cout<<"mean order: "<<lipidsystem.getMeanOrder()<<std::endl;
+        if (loopCounter %100==0)
+        {
             std::cout<<"t: "<<t<<" flucAccepRate: "<< (t-notAcceptedFlucs)/(double)t<<" swapAccepRate: "<< (t-notAcceptedFlucs-notAcceptedSwaps)/(double)(t-notAcceptedFlucs)<<std::endl;
-            std::chrono::duration<double> elapsed_seconds=std::chrono::system_clock::now()-start;
-            std::cout<<"time per step: "<<elapsed_seconds.count()/t<<"    mean order: "<<lipidsystem.getMeanOrder(0)<<std::endl;
-            }
+            std::cout<<"mean order:  last: "<<meanOrder<<" now: "<<lipidsystem.getMeanOrder()<<std::endl;
+            
+            if (std::abs(lipidsystem.getMeanOrder()-meanOrder)<=1) break;
+            
+            meanOrder=lipidsystem.getMeanOrder();
+
         }
     }
 }
@@ -133,7 +171,7 @@ void MCHost::run()
         datafile->writeStep(lipidsystem);
         std::cout<<"t: "<<t<<" flucAccepRate: "<< (t-notAcceptedFlucs)/(double)t<<" swapAccepRate: "<< (t-notAcceptedFlucs-notAcceptedSwaps)/(double)(t-notAcceptedFlucs)<<std::endl;
         std::chrono::duration<double> elapsed_seconds=std::chrono::system_clock::now()-start;
-        std::cout<<"time per step: "<<elapsed_seconds.count()/t<<"    mean order: "<<lipidsystem.getMeanOrder(0)<<std::endl;
+        std::cout<<"time per step: "<<elapsed_seconds.count()/t<<"    mean order: "<<lipidsystem.getMeanOrder()<<std::endl;
         }
     }
 }

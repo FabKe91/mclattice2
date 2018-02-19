@@ -6,11 +6,11 @@
 
 #IncludeRegexTransform: 
 
-/home/m/m_beck52/projects/mclattice2/lib/enhance.cpp
+/home/marlon/Documents/Uni/MasterCHemie/projektmodul/MCLattice2/lib/enhance.cpp
 enhance.hpp
-/home/m/m_beck52/projects/mclattice2/lib/enhance.hpp
+/home/marlon/Documents/Uni/MasterCHemie/projektmodul/MCLattice2/lib/enhance.hpp
 
-/home/m/m_beck52/projects/mclattice2/lib/enhance.hpp
+/home/marlon/Documents/Uni/MasterCHemie/projektmodul/MCLattice2/lib/enhance.hpp
 ostream
 -
 cstdint

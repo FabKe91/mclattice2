@@ -10,16 +10,12 @@ double DavitNN(double temp, double order)
 {
    double Tm        = 323;
    double mag       = 10.;
-        
    double sign      = -2*Tm<temp+1;
-
    double x_Tshift  = 0.65 + 0.4 / (1 + std::exp( mag * (-(temp - Tm)) ) );
-
    double y_Tc      = 0.61 - 0.7 * sign;
    double y_Tf      = 0.042 + 0.018 * sign;
    double y_Tmag    = 1.5 - 1.0 * sign;
    double y_Tshift  = sign * (y_Tmag / (1 + std::exp(-(y_Tf * std::abs(Tm - temp)))) ) ;
-
    double k         = 1.8 + 12.2 / (1 + std::exp( mag * (-(Tm - temp)) ) );
 
    return ( 4.12 + y_Tc + y_Tshift + sign * 0.5 / (1 + std::exp(-k * (order - x_Tshift))) );
@@ -75,6 +71,10 @@ void LipidProperties::readParas(std::shared_ptr<InputFile> _inputfile)
         }
     }
 }
+
+
+
+
 
 double LipidProperties::polynom(std::vector<double>& coeff, double x)
 {

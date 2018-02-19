@@ -42,7 +42,7 @@ void Lipidsystem::setup()
 }
 
 
-int Lipidsystem::getMeanOrder(int type)
+int Lipidsystem::getMeanOrder()
 {
     #ifndef NDEBUG
     std::cout<<"Lipidsystem::getMeanOrder"<<std::endl;
@@ -54,17 +54,14 @@ int Lipidsystem::getMeanOrder(int type)
     {
         for(int j=0;j<height;j++)
         {   
-            if(lipids[map[i][j]].getType()==type)
-            {
-                count++;
-                mean += lipids[map[i][j]].getOrderPara();
-            }
+            count++;
+            mean += lipids[map[i][j]].getOrderPara();
         }
     }
     return mean/count;
 }
 
-std::vector<int> Lipidsystem::getOrderDestr(int type)
+std::vector<int> Lipidsystem::getOrderDestr()
 {
     std::vector<int> destr((int)inputfile->paras["maxOrderIndex"]+1,0);
     int count=0;
@@ -72,11 +69,8 @@ std::vector<int> Lipidsystem::getOrderDestr(int type)
     {
         for(int j=0;j<height;j++)
         {   
-            if(lipids[map[i][j]].getType()==type)
-            {
-                count++;
-                destr[lipids[map[i][j]].getOrderPara()]++;
-            }
+            count++;
+            destr[lipids[map[i][j]].getOrderPara()]++;
         }
     }
     

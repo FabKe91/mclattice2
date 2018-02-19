@@ -1,1 +1,1 @@
-/usr/bin/g++  -fPIC -std=c++11 -O3 -DNDEBUG  -shared -Wl,-soname,libenhance.so -o libenhance.so CMakeFiles/enhance.dir/lib/enhance.cpp.o 
+/usr/bin/c++  -fPIC -std=c++11 -O3 -DNDEBUG  -shared -Wl,-soname,libenhance.so -o libenhance.so CMakeFiles/enhance.dir/lib/enhance.cpp.o 
