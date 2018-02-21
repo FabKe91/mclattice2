@@ -1,5 +1,6 @@
 #include "system/mchost.h"
 #include "system/datafile.h"
+#include "system/omegaoptimizer.h"
 
 #include "../lib/enhance.hpp"
 #include <random>
@@ -12,18 +13,20 @@ int main(int argc, char **argv) {
     #endif
     
 
-    MCHost mchost;
 //     enhance::seed = std::random_device{}();
     enhance::seed = 123456789;
     enhance::rand_engine.seed(enhance::seed);
 
     
-//     mchost.setupRun("in.txt");
-//     mchost.run();
+    
+    MCHost mchost;
+    mchost.setup("in.txt");
+    mchost.run();
 
     
-    mchost.setupOptimization("in.txt");
-    mchost.optimizeOmega();
+//     OmegaOptimizer omegaoptimizer;
+//     omegaoptimizer.setupOptimization("in.txt");
+//     omegaoptimizer.optimizeOmega();
     
 
 

@@ -35,7 +35,7 @@ void Lipidsystem::setup()
         for(int j=0;j<height;j++)
         {   
             map[i][j]=i*height+j;
-            lipids.push_back(Lipid(i*height+j,0,0));
+            lipids.push_back(Lipid(i*height+j,0,70));
 //             lipids.push_back(Lipid(i*10+j,0,enhance::random_int(0,inputfile->types[0].maxOrder)));
         }
     }
@@ -64,15 +64,16 @@ int Lipidsystem::getMeanOrder()
 std::vector<int> Lipidsystem::getOrderDestr()
 {
     std::vector<int> destr((int)inputfile->paras["maxOrderIndex"]+1,0);
-    int count=0;
+//     int count=0;
     for(int i=0;i<width;i++)
     {
         for(int j=0;j<height;j++)
         {   
-            count++;
+//             count++;
             destr[lipids[map[i][j]].getOrderPara()]++;
         }
     }
+    return destr;
     
 }
 
@@ -127,25 +128,17 @@ void Lipidsystem::setPartner()
 {
     rdnPartnerNumber=enhance::random_int(0,3);
     
-    if (rdnPartnerNumber==0)
+    
+    switch (rdnPartnerNumber)
     {
-        lastSwappedPos[1][0]=(lastSwappedPos[0][0]+1)%width;
-        lastSwappedPos[1][1]=lastSwappedPos[0][0];
-    }    
-    else if (rdnPartnerNumber==1)
-    {
-        lastSwappedPos[1][0]=(lastSwappedPos[0][0]-1)%width;
-        lastSwappedPos[1][1]=lastSwappedPos[0][0];
-    }    
-    else if (rdnPartnerNumber==2)
-    {
-        lastSwappedPos[1][0]=lastSwappedPos[0][0];
-        lastSwappedPos[1][1]=(lastSwappedPos[0][0]+1)%width;
-    }
-    else
-    {
-        lastSwappedPos[1][0]=lastSwappedPos[0][0];
-        lastSwappedPos[1][1]=(lastSwappedPos[0][0]-1)%width;
+        case 0 :    lastSwappedPos[1][0]=(lastSwappedPos[0][0]+1)%width;
+                    lastSwappedPos[1][1]=lastSwappedPos[0][0];
+        case 1 :    lastSwappedPos[1][0]=(lastSwappedPos[0][0]-1)%width;
+                    lastSwappedPos[1][1]=lastSwappedPos[0][0];
+        case 2 :    lastSwappedPos[1][0]=lastSwappedPos[0][0];
+                    lastSwappedPos[1][1]=(lastSwappedPos[0][0]+1)%width;
+        case 3 :    lastSwappedPos[1][0]=lastSwappedPos[0][0];
+                    lastSwappedPos[1][1]=(lastSwappedPos[0][0]-1)%width;
     }
     
     lastSwappedIDs[1]=map[lastSwappedPos[1][0]][lastSwappedPos[1][1]];
@@ -182,45 +175,39 @@ double Lipidsystem::calcSwapEnthalpy()
     #define posY1 lastSwappedPos[1][1]
 
 
-    if (rdnPartnerNumber==0)
+    switch(rdnPartnerNumber)
     {
-        H+=calcPairEnthalpy(ID0,map[(posX0-1)%width][posY0]);
-        H+=calcPairEnthalpy(ID0,map[posX0][(posY0+1)%height]);
-        H+=calcPairEnthalpy(ID0,map[posX0][(posY0-1)%height]);
-        
-        H+=calcPairEnthalpy(ID1,map[(posX1+1)%width][posY1]);
-        H+=calcPairEnthalpy(ID1,map[posX1][(posY1+1)%height]);
-        H+=calcPairEnthalpy(ID1,map[posX1][(posY1-1)%height]);
-    }    
-    else if (rdnPartnerNumber==1)
-    {
-        H+=calcPairEnthalpy(ID0,map[(posX0+1)%width][posY0]);
-        H+=calcPairEnthalpy(ID0,map[posX0][(posY0+1)%height]);
-        H+=calcPairEnthalpy(ID0,map[posX0][(posY0-1)%height]);
-        
-        H+=calcPairEnthalpy(ID1,map[(posX1-1)%width][posY1]);
-        H+=calcPairEnthalpy(ID1,map[posX1][(posY1+1)%height]);
-        H+=calcPairEnthalpy(ID1,map[posX1][(posY1-1)%height]);
-    }    
-    else if (rdnPartnerNumber==2)
-    {
-        H+=calcPairEnthalpy(ID0,map[(posX0+1)%width][posY0]);
-        H+=calcPairEnthalpy(ID0,map[(posX0-1)%width][posY0]);
-        H+=calcPairEnthalpy(ID0,map[posX0][(posY0-1)%height]);
-        
-        H+=calcPairEnthalpy(ID1,map[(posX1+1)%width][posY1]);
-        H+=calcPairEnthalpy(ID1,map[(posX1-1)%width][posY1]);
-        H+=calcPairEnthalpy(ID1,map[posX1][(posY1+1)%height]);
-    }
-    else
-    {
-        H+=calcPairEnthalpy(ID0,map[(posX0+1)%width][posY0]);
-        H+=calcPairEnthalpy(ID0,map[(posX0-1)%width][posY0]);
-        H+=calcPairEnthalpy(ID0,map[posX0][(posY0+1)%height]);
-        
-        H+=calcPairEnthalpy(ID1,map[(posX1+1)%width][posY1]);
-        H+=calcPairEnthalpy(ID1,map[(posX1-1)%width][posY1]);
-        H+=calcPairEnthalpy(ID1,map[posX1][(posY1-1)%height]);
+        case 0: H+=calcPairEnthalpy(ID0,map[(posX0-1)%width][posY0]);
+                H+=calcPairEnthalpy(ID0,map[posX0][(posY0+1)%height]);
+                H+=calcPairEnthalpy(ID0,map[posX0][(posY0-1)%height]);
+                
+                H+=calcPairEnthalpy(ID1,map[(posX1+1)%width][posY1]);
+                H+=calcPairEnthalpy(ID1,map[posX1][(posY1+1)%height]);
+                H+=calcPairEnthalpy(ID1,map[posX1][(posY1-1)%height]);
+                
+        case 1: H+=calcPairEnthalpy(ID0,map[(posX0+1)%width][posY0]);
+                H+=calcPairEnthalpy(ID0,map[posX0][(posY0+1)%height]);
+                H+=calcPairEnthalpy(ID0,map[posX0][(posY0-1)%height]);
+                
+                H+=calcPairEnthalpy(ID1,map[(posX1-1)%width][posY1]);
+                H+=calcPairEnthalpy(ID1,map[posX1][(posY1+1)%height]);
+                H+=calcPairEnthalpy(ID1,map[posX1][(posY1-1)%height]);
+       
+        case 2: H+=calcPairEnthalpy(ID0,map[(posX0+1)%width][posY0]);
+                H+=calcPairEnthalpy(ID0,map[(posX0-1)%width][posY0]);
+                H+=calcPairEnthalpy(ID0,map[posX0][(posY0-1)%height]);
+                
+                H+=calcPairEnthalpy(ID1,map[(posX1+1)%width][posY1]);
+                H+=calcPairEnthalpy(ID1,map[(posX1-1)%width][posY1]);
+                H+=calcPairEnthalpy(ID1,map[posX1][(posY1+1)%height]);
+                
+        case 3: H+=calcPairEnthalpy(ID0,map[(posX0+1)%width][posY0]);
+                H+=calcPairEnthalpy(ID0,map[(posX0-1)%width][posY0]);
+                H+=calcPairEnthalpy(ID0,map[posX0][(posY0+1)%height]);
+                
+                H+=calcPairEnthalpy(ID1,map[(posX1+1)%width][posY1]);
+                H+=calcPairEnthalpy(ID1,map[(posX1-1)%width][posY1]);
+                H+=calcPairEnthalpy(ID1,map[posX1][(posY1-1)%height]);
     }
     #ifndef NDEBUG
     std::cout<<"H "<<H<<std::endl;
@@ -252,10 +239,11 @@ double Lipidsystem::calcHostFreeEnerg()
     #ifndef NDEBUG
     std::cout<<"H "<<G<<std::endl;
     std::cout<<"kB T S "<<-kBT*lipidproperties->entropyFunction[lipids[ID0].getType()][lipids[ID0].getOrderPara()]<<std::endl;
+    std::cout<<"self E "<<lipidproperties->selfEnergieFunction[lipids[ID0].getType()][lipids[ID0].getOrderPara()]<<std::endl;
     
     #endif
 
-    G-=kBT*lipidproperties->entropyFunction[lipids[ID0].getType()][lipids[ID0].getOrderPara()];
+    G+=lipidproperties->selfEnergieFunction[lipids[ID0].getType()][lipids[ID0].getOrderPara()]-kBT*lipidproperties->entropyFunction[lipids[ID0].getType()][lipids[ID0].getOrderPara()];
     
     
     return G;

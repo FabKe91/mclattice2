@@ -17,6 +17,7 @@ public:
     std::vector<TypeProperties> types; 
     std::vector<std::vector<double>> neighbourPara;
     std::vector<std::vector<double>> entropyPara;
+    std::vector<std::vector<double>> selfEnergiePara;
     std::vector<std::vector<std::vector<double>>> enthalpyPara;
     
     InputFile(std::string);

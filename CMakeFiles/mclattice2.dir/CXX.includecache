@@ -24,7 +24,7 @@ string
 sys/stat.h
 -
 
-/home/marlon/Documents/Uni/MasterCHemie/projektmodul/MCLattice2/lib/enhance.hpp
+/home/m/m_beck52/projects/MCLattice2/lib/enhance.hpp
 ostream
 -
 cstdint
@@ -42,25 +42,27 @@ string
 sys/stat.h
 -
 
-/home/marlon/Documents/Uni/MasterCHemie/projektmodul/MCLattice2/src/main.cpp
+/home/m/m_beck52/projects/MCLattice2/src/main.cpp
 system/mchost.h
-/home/marlon/Documents/Uni/MasterCHemie/projektmodul/MCLattice2/src/system/mchost.h
+/home/m/m_beck52/projects/MCLattice2/src/system/mchost.h
 system/datafile.h
-/home/marlon/Documents/Uni/MasterCHemie/projektmodul/MCLattice2/src/system/datafile.h
+/home/m/m_beck52/projects/MCLattice2/src/system/datafile.h
+system/omegaoptimizer.h
+/home/m/m_beck52/projects/MCLattice2/src/system/omegaoptimizer.h
 ../lib/enhance.hpp
-/home/marlon/Documents/Uni/MasterCHemie/projektmodul/MCLattice2/lib/enhance.hpp
+/home/m/m_beck52/projects/MCLattice2/lib/enhance.hpp
 random
 -
 iostream
 -
 
-/home/marlon/Documents/Uni/MasterCHemie/projektmodul/MCLattice2/src/system/datafile.cpp
+/home/m/m_beck52/projects/MCLattice2/src/system/datafile.cpp
 datafile.h
-/home/marlon/Documents/Uni/MasterCHemie/projektmodul/MCLattice2/src/system/datafile.h
+/home/m/m_beck52/projects/MCLattice2/src/system/datafile.h
 
-/home/marlon/Documents/Uni/MasterCHemie/projektmodul/MCLattice2/src/system/datafile.h
+/home/m/m_beck52/projects/MCLattice2/src/system/datafile.h
 H5Cpp.h
-/home/marlon/Documents/Uni/MasterCHemie/projektmodul/MCLattice2/src/system/H5Cpp.h
+/home/m/m_beck52/projects/MCLattice2/src/system/H5Cpp.h
 string
 -
 vector
@@ -70,7 +72,7 @@ iostream
 boost/multi_array.hpp
 -
 lipidsystem.h
-/home/marlon/Documents/Uni/MasterCHemie/projektmodul/MCLattice2/src/system/lipidsystem.h
+/home/m/m_beck52/projects/MCLattice2/src/system/lipidsystem.h
 iostream
 -
 functional
@@ -82,11 +84,11 @@ map
 stdio.h
 -
 
-/home/marlon/Documents/Uni/MasterCHemie/projektmodul/MCLattice2/src/system/inputfile.cpp
+/home/m/m_beck52/projects/MCLattice2/src/system/inputfile.cpp
 inputfile.h
-/home/marlon/Documents/Uni/MasterCHemie/projektmodul/MCLattice2/src/system/inputfile.h
+/home/m/m_beck52/projects/MCLattice2/src/system/inputfile.h
 
-/home/marlon/Documents/Uni/MasterCHemie/projektmodul/MCLattice2/src/system/inputfile.h
+/home/m/m_beck52/projects/MCLattice2/src/system/inputfile.h
 fstream
 -
 vector
@@ -98,41 +100,41 @@ iostream
 sstream
 -
 typeproperties.h
-/home/marlon/Documents/Uni/MasterCHemie/projektmodul/MCLattice2/src/system/typeproperties.h
+/home/m/m_beck52/projects/MCLattice2/src/system/typeproperties.h
 
-/home/marlon/Documents/Uni/MasterCHemie/projektmodul/MCLattice2/src/system/lipid.cpp
+/home/m/m_beck52/projects/MCLattice2/src/system/lipid.cpp
 lipid.h
-/home/marlon/Documents/Uni/MasterCHemie/projektmodul/MCLattice2/src/system/lipid.h
+/home/m/m_beck52/projects/MCLattice2/src/system/lipid.h
 
-/home/marlon/Documents/Uni/MasterCHemie/projektmodul/MCLattice2/src/system/lipid.h
+/home/m/m_beck52/projects/MCLattice2/src/system/lipid.h
 
-/home/marlon/Documents/Uni/MasterCHemie/projektmodul/MCLattice2/src/system/lipidproperties.cpp
+/home/m/m_beck52/projects/MCLattice2/src/system/lipidproperties.cpp
 lipidproperties.h
-/home/marlon/Documents/Uni/MasterCHemie/projektmodul/MCLattice2/src/system/lipidproperties.h
+/home/m/m_beck52/projects/MCLattice2/src/system/lipidproperties.h
 
-/home/marlon/Documents/Uni/MasterCHemie/projektmodul/MCLattice2/src/system/lipidproperties.h
+/home/m/m_beck52/projects/MCLattice2/src/system/lipidproperties.h
 vector
 -
 memory
 -
 inputfile.h
-/home/marlon/Documents/Uni/MasterCHemie/projektmodul/MCLattice2/src/system/inputfile.h
+/home/m/m_beck52/projects/MCLattice2/src/system/inputfile.h
 cmath
 -
 boost/multi_array.hpp
 -
 
-/home/marlon/Documents/Uni/MasterCHemie/projektmodul/MCLattice2/src/system/lipidsystem.cpp
+/home/m/m_beck52/projects/MCLattice2/src/system/lipidsystem.cpp
 lipidsystem.h
-/home/marlon/Documents/Uni/MasterCHemie/projektmodul/MCLattice2/src/system/lipidsystem.h
+/home/m/m_beck52/projects/MCLattice2/src/system/lipidsystem.h
 
-/home/marlon/Documents/Uni/MasterCHemie/projektmodul/MCLattice2/src/system/lipidsystem.h
+/home/m/m_beck52/projects/MCLattice2/src/system/lipidsystem.h
 lipid.h
-/home/marlon/Documents/Uni/MasterCHemie/projektmodul/MCLattice2/src/system/lipid.h
+/home/m/m_beck52/projects/MCLattice2/src/system/lipid.h
 vector
 -
 ../lib/enhance.hpp
-/home/marlon/Documents/Uni/MasterCHemie/projektmodul/MCLattice2/src/lib/enhance.hpp
+/home/m/m_beck52/projects/MCLattice2/src/lib/enhance.hpp
 iostream
 -
 fstream
@@ -142,19 +144,19 @@ map
 boost/multi_array.hpp
 -
 inputfile.h
-/home/marlon/Documents/Uni/MasterCHemie/projektmodul/MCLattice2/src/system/inputfile.h
+/home/m/m_beck52/projects/MCLattice2/src/system/inputfile.h
 lipidproperties.h
-/home/marlon/Documents/Uni/MasterCHemie/projektmodul/MCLattice2/src/system/lipidproperties.h
+/home/m/m_beck52/projects/MCLattice2/src/system/lipidproperties.h
 cmath
 -
 
-/home/marlon/Documents/Uni/MasterCHemie/projektmodul/MCLattice2/src/system/mchost.cpp
+/home/m/m_beck52/projects/MCLattice2/src/system/mchost.cpp
 mchost.h
-/home/marlon/Documents/Uni/MasterCHemie/projektmodul/MCLattice2/src/system/mchost.h
+/home/m/m_beck52/projects/MCLattice2/src/system/mchost.h
 
-/home/marlon/Documents/Uni/MasterCHemie/projektmodul/MCLattice2/src/system/mchost.h
+/home/m/m_beck52/projects/MCLattice2/src/system/mchost.h
 lipidsystem.h
-/home/marlon/Documents/Uni/MasterCHemie/projektmodul/MCLattice2/src/system/lipidsystem.h
+/home/m/m_beck52/projects/MCLattice2/src/system/lipidsystem.h
 iostream
 -
 map
@@ -162,19 +164,45 @@ map
 fstream
 -
 datafile.h
-/home/marlon/Documents/Uni/MasterCHemie/projektmodul/MCLattice2/src/system/datafile.h
+/home/m/m_beck52/projects/MCLattice2/src/system/datafile.h
 inputfile.h
-/home/marlon/Documents/Uni/MasterCHemie/projektmodul/MCLattice2/src/system/inputfile.h
+/home/m/m_beck52/projects/MCLattice2/src/system/inputfile.h
 chrono
 -
 ctime
 -
 
-/home/marlon/Documents/Uni/MasterCHemie/projektmodul/MCLattice2/src/system/typeproperties.cpp
-typeproperties.h
-/home/marlon/Documents/Uni/MasterCHemie/projektmodul/MCLattice2/src/system/typeproperties.h
+/home/m/m_beck52/projects/MCLattice2/src/system/omegaoptimizer.cpp
+omegaoptimizer.h
+/home/m/m_beck52/projects/MCLattice2/src/system/omegaoptimizer.h
 
-/home/marlon/Documents/Uni/MasterCHemie/projektmodul/MCLattice2/src/system/typeproperties.h
+/home/m/m_beck52/projects/MCLattice2/src/system/omegaoptimizer.h
+lipidsystem.h
+/home/m/m_beck52/projects/MCLattice2/src/system/lipidsystem.h
+iostream
+-
+map
+-
+fstream
+-
+datafile.h
+/home/m/m_beck52/projects/MCLattice2/src/system/datafile.h
+inputfile.h
+/home/m/m_beck52/projects/MCLattice2/src/system/inputfile.h
+chrono
+-
+ctime
+-
+iomanip
+-
+cmath
+-
+
+/home/m/m_beck52/projects/MCLattice2/src/system/typeproperties.cpp
+typeproperties.h
+/home/m/m_beck52/projects/MCLattice2/src/system/typeproperties.h
+
+/home/m/m_beck52/projects/MCLattice2/src/system/typeproperties.h
 iostream
 -
 

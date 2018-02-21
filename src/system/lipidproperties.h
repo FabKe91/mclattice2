@@ -14,14 +14,17 @@ public:
     void readParas(std::shared_ptr<InputFile>);
     double** neighbourFunction;
     double** entropyFunction;
+    double** selfEnergieFunction;
     double*** enthalpyFunction;
-    
-private:
-    std::shared_ptr<InputFile> inputfile;
     
     
     double polynom(std::vector<double>&, double);
     double sigmoid(std::vector<double>&, double);
+
+private:
+    std::shared_ptr<InputFile> inputfile;
+    
+    
 
 
 };

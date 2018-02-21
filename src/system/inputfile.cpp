@@ -2,6 +2,10 @@
 
 InputFile::InputFile(std::string filename)
 {
+    #ifndef NDEBUG
+    std::cout<<"InputFile::InputFile"<<std::endl;
+    #endif
+    
     std::ifstream infile(filename);
     std::string line;
     double val;  //buffer
@@ -47,6 +51,7 @@ InputFile::InputFile(std::string filename)
             std::vector<double> vec;
             neighbourPara.push_back(vec);
             entropyPara.push_back(vec);
+            selfEnergiePara.push_back(vec);
             nType++;
         }
         else if(name=="Neighbour")
@@ -64,6 +69,15 @@ InputFile::InputFile(std::string filename)
             while(iss>>val)
             {
             entropyPara[typeMap[name]].push_back(val);
+            }
+                
+        }
+        else if(name=="SelfEnergie")
+        {
+            iss>>name;
+            while(iss>>val)
+            {
+            selfEnergiePara[typeMap[name]].push_back(val);
             }
                 
         }
@@ -111,6 +125,7 @@ InputFile::InputFile(std::string filename)
     {
         if(neighbourPara[i].size()==0) throw std::invalid_argument( "missing neighbourPara" );        
         if(entropyPara[i].size()==0) std::cout<<"no entropy given, can't run jet"<<std::endl;
+        if(selfEnergiePara[i].size()==0) std::cout<<"no selfEnergie given, can't run jet"<<std::endl;
         for(int j=0;j<=i;j++)
         {
             if(enthalpyPara[i][j].size()==0) throw std::invalid_argument( "missing enthalpyPara" );

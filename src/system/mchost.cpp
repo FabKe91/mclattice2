@@ -1,8 +1,11 @@
 #include "mchost.h"
 
-void MCHost::setupRun(std::string filename)
+void MCHost::setup(std::string filename)
 {
-
+    #ifndef NDEBUG
+    std::cout<<"MCHost::setup"<<std::endl;
+    #endif
+    
     inputfile.reset(new InputFile(filename));
 
     
@@ -28,107 +31,14 @@ void MCHost::setupRun(std::string filename)
     imageRate=inputfile->paras["imageRate"];
 }
 
-void MCHost::setupOptimization(std::string filename)
-{
-
-    inputfile.reset(new InputFile(filename));
-
-    
-    lipidproperties.reset(new LipidProperties());
-    lipidproperties->readParas(inputfile);
-    
-
-    lipidsystem.readParas(inputfile,lipidproperties);
-    lipidsystem.setup();
-    
-    
-    T=inputfile->paras["T"];
-    kB=inputfile->paras["kB"];
-    steps=inputfile->paras["steps"];
-    kBT=kB*T;
-    imageRate=inputfile->paras["imageRate"];
-    
-   
-    
-
-}
-
-
-
-void MCHost::optimizeOmega()
-{
-
-    //initual guess
-    for(int i=0;i<=(int)inputfile->paras["maxOrderIndex"];i++) lipidproperties->entropyFunction[0][i]=1;
-    
-    lipidsystem.getOrderDestr();
-    
-    while(true)
-    {
-        runUntilEquilibrium();
-    }
-}
-
-void MCHost::runUntilEquilibrium()
-{
-    unsigned int t=0;
-    
-    
-    
-    int meanOrder=0; //for convergence check
-    int loopCounter=0;
-    
-    while(true)
-    {
-        for(unsigned int i=0;i<inputfile->paras["width"];i++)
-        for(unsigned int j=0;j<inputfile->paras["height"];j++)
-        {
-            t++;
-            lipidsystem.setHost(i,j);
-            double FreeEnergie1=0;
-            double FreeEnergie2=0;
-
-            FreeEnergie1=lipidsystem.calcHostFreeEnerg();
-            lipidsystem.fluctuate();
-            FreeEnergie2=lipidsystem.calcHostFreeEnerg();
-
-            if(!acceptance(FreeEnergie1,FreeEnergie2))
-            {
-                lipidsystem.fluctuateBack();
-                notAcceptedFlucs++;
-            }
-            else
-            {
-                lipidsystem.setPartner();
-                FreeEnergie1=lipidsystem.calcSwapEnthalpy();
-                lipidsystem.swap();
-                FreeEnergie2=lipidsystem.calcSwapEnthalpy();
-
-                if(!acceptance(FreeEnergie1,FreeEnergie2))
-                {
-                    lipidsystem.swap();
-                    notAcceptedSwaps++;
-                }
-            }
-        }
-        loopCounter++;
-        std::cout<<"mean order: "<<lipidsystem.getMeanOrder()<<std::endl;
-        if (loopCounter %100==0)
-        {
-            std::cout<<"t: "<<t<<" flucAccepRate: "<< (t-notAcceptedFlucs)/(double)t<<" swapAccepRate: "<< (t-notAcceptedFlucs-notAcceptedSwaps)/(double)(t-notAcceptedFlucs)<<std::endl;
-            std::cout<<"mean order:  last: "<<meanOrder<<" now: "<<lipidsystem.getMeanOrder()<<std::endl;
-            
-            if (std::abs(lipidsystem.getMeanOrder()-meanOrder)<=1) break;
-            
-            meanOrder=lipidsystem.getMeanOrder();
-
-        }
-    }
-}
 
 
 void MCHost::run()
 {
+    #ifndef NDEBUG
+    std::cout<<"MCHost::run"<<std::endl;
+    #endif
+    
     auto start = std::chrono::system_clock::now();
     unsigned int t=0;
     

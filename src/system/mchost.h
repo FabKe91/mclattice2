@@ -27,17 +27,13 @@ private:
     std::shared_ptr<LipidProperties> lipidproperties;
     std::unique_ptr<DataFile> datafile;
 
-
-    void updateOmega(std::vector<int>);
-    void runUntilEquilibrium();
-    std::vector<int> MDOrderDestr;
     
 public:
     void run();
     void optimizeOmega();
 
     void setupOptimization(std::string);
-    void setupRun(std::string);
+    void setup(std::string);
     
     bool acceptance(const double Enthalpy1, const double Enthalpy2);
 

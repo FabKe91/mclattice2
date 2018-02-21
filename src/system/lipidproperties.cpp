@@ -35,12 +35,14 @@ void LipidProperties::readParas(std::shared_ptr<InputFile> _inputfile)
     //array construction
     neighbourFunction= new double*[inputfile->nType];
     entropyFunction= new double*[inputfile->nType];
+    selfEnergieFunction= new double*[inputfile->nType];
     enthalpyFunction= new double**[inputfile->nType];
     
     for(int i=0;i<inputfile->nType;i++)
     {
         neighbourFunction[i]= new double[(int)inputfile->paras["maxOrderIndex"]+1];
         entropyFunction[i]= new double[(int)inputfile->paras["maxOrderIndex"]+1];
+        selfEnergieFunction[i]= new double[(int)inputfile->paras["maxOrderIndex"]+1];
         enthalpyFunction[i]= new double*[i+1];
         for(int j=0;j<=i;j++)
         {
@@ -60,6 +62,8 @@ void LipidProperties::readParas(std::shared_ptr<InputFile> _inputfile)
             
             neighbourFunction[i][k]=DavitNN(inputfile->paras["T"],order);
             entropyFunction[i][k]=polynom(inputfile->entropyPara[i],order);
+            selfEnergieFunction[i][k]=polynom(inputfile->selfEnergiePara[i],order);
+//             std::cout<<selfEnergieFunction[i][k]<<", ";
 
             
             for(int j=0;j<=i;j++)
