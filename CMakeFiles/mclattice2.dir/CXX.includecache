@@ -43,14 +43,16 @@ sys/stat.h
 -
 
 /home/m/m_beck52/projects/MCLattice2/src/main.cpp
+../lib/enhance.hpp
+/home/m/m_beck52/projects/MCLattice2/lib/enhance.hpp
 system/mchost.h
 /home/m/m_beck52/projects/MCLattice2/src/system/mchost.h
 system/datafile.h
 /home/m/m_beck52/projects/MCLattice2/src/system/datafile.h
 system/omegaoptimizer.h
 /home/m/m_beck52/projects/MCLattice2/src/system/omegaoptimizer.h
-../lib/enhance.hpp
-/home/m/m_beck52/projects/MCLattice2/lib/enhance.hpp
+system/inputfile.h
+/home/m/m_beck52/projects/MCLattice2/src/system/inputfile.h
 random
 -
 iostream
@@ -69,6 +71,8 @@ vector
 -
 iostream
 -
+inputfile.h
+/home/m/m_beck52/projects/MCLattice2/src/system/inputfile.h
 boost/multi_array.hpp
 -
 lipidsystem.h
@@ -123,6 +127,10 @@ cmath
 -
 boost/multi_array.hpp
 -
+../lib/enhance.hpp
+/home/m/m_beck52/projects/MCLattice2/src/lib/enhance.hpp
+inputfile.h
+/home/m/m_beck52/projects/MCLattice2/src/system/inputfile.h
 
 /home/m/m_beck52/projects/MCLattice2/src/system/lipidsystem.cpp
 lipidsystem.h

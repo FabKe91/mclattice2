@@ -16,11 +16,11 @@ DataFile::DataFile(Lipidsystem& lipidsystem,std::vector<std::string>& _outs)
     getterMap["orderPara"]=std::bind(&Lipidsystem::getOrderParas,&lipidsystem);
     getterMap["Type"]=std::bind(&Lipidsystem::getTypes,&lipidsystem);
 
-    
+    InputFile inputfile;
     outs=_outs;
-    NX=lipidsystem.getWidth();
-    NY=lipidsystem.getHeight();
-    maxBufferSize=1024*1024*lipidsystem.inputfile->paras["maxBufferSize"];
+    NX=inputfile.paras.at("width");
+    NY=InputFile::paras.at("height");
+    maxBufferSize=1024*1024*InputFile::paras.at("maxBufferSize");
 
 }
 
@@ -46,6 +46,8 @@ void DataFile::createFile()
     {
         createDataset(o,file);
     }
+    
+    for (auto const& mapitem: InputFile::paras) std::cout<< mapitem.first<<std::endl;
     
 
 }
@@ -79,15 +81,17 @@ void DataFile::createAttribute(std::string attrName, double val, H5File& file)
     
 }
 
-void DataFile::writeStep(Lipidsystem& lipidsystem)
+void DataFile::writeStep()
 {
-//     std::cout<<"DataFile::writeStep"<<std::endl;
+    #ifndef NDEBUG
+    std::cout<<"DataFile::writeStep"<<std::endl;
+    #endif
 
     bufferLen++;
     for(int i=0; i<outs.size();i++)
     {
         buffer[i].resize(boost::extents[bufferLen][NX][NY]);
-        buffer[i][bufferLen-1]=getterMap[outs[i]]();
+        buffer[i][bufferLen-1]=getterMap.at(outs[i])();
 
     }
     bufferSize+=NX*NY*sizeof(int)*outs.size();

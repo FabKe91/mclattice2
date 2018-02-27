@@ -1,44 +1,58 @@
 #include "omegaoptimizer.h"
 
-void OmegaOptimizer::setupOptimization(std::string filename)
+void OmegaOptimizer::setupOptimization()
 {
 
-    inputfile.reset(new InputFile(filename));
 
     
     lipidproperties.reset(new LipidProperties());
-    lipidproperties->readParas(inputfile);
+    lipidproperties->readParas();
     
 
-    lipidsystem.readParas(inputfile,lipidproperties);
+    lipidsystem.readParas(lipidproperties);
     lipidsystem.setup();
     
     
-    T=inputfile->paras["T"];
-    kB=inputfile->paras["kB"];
-    steps=inputfile->paras["steps"];
+    T=InputFile::paras.at("T");
+    kB=InputFile::paras.at("kB");
+    steps=InputFile::paras.at("steps");
     kBT=kB*T;
-    imageRate=inputfile->paras["imageRate"];
+    imageRate=InputFile::paras.at("imageRate");
     
     
-    std::vector<double> coeff={-0.9767356, 8.69286553, -12.7808724, 12.12000201, -21.41776641, 7.14478559};
-    for(double order=inputfile->paras["minOrder"];order<inputfile->paras["maxOrder"]+inputfile->paras["DeltaOrder"];order+=inputfile->paras["DeltaOrder"])
+    
+    //change T
+//     InputFile::paras["T"]=330;
+//     InputFile::paras["kBT"]=InputFile::paras.at("T")*InputFile::paras.at("kB");
+//     lipidproperties->updateKBT();
+    
+    //setting up the md destr
+    std::vector<double> coeff={-0.14122, 7.51277, -9.36903, -4.43679, -97.86418, 192.92704, 19.37517, -168.20577};
+    
+    for(double order=InputFile::paras.at("minOrder");order<InputFile::paras.at("maxOrder")+InputFile::paras.at("DeltaOrder");order+=InputFile::paras.at("DeltaOrder"))
     {
-        MDOrderDestr.push_back(std::exp(lipidproperties->polynom(coeff,order)));
-//         std::cout<<std::exp(lipidproperties->polynom(coeff,order))<<std::endl;
-        
+        MDOrderDestr.push_back(std::exp(enhance::polynom(coeff,order)));       
     }
+    
+    //normalization
+    double normSum=0;
+    for(auto& Porder: MDOrderDestr)   normSum+=Porder;
+    normSum*=InputFile::paras.at("DeltaOrder");
+    for(auto& Porder: MDOrderDestr)   Porder/=normSum;
+   
 }
 
 
 
 void OmegaOptimizer::optimizeOmega()
 {
-    int type=0;
+    int type=1;
 
 //     initual guess
-    for(int i=0;i<=(int)inputfile->paras["maxOrderIndex"];i++)
-        lipidproperties->entropyFunction[0][i]=std::log(MDOrderDestr[i])+(lipidproperties->enthalpyFunction[type][type][i]*lipidproperties->neighbourFunction[type][i]/2+lipidproperties->selfEnergieFunction[type][i])/kBT;
+//     for(int i=0;i<=(int)InputFile::paras["maxOrderIndex"];i++)
+//         lipidproperties->entropyFunction[type][i]=std::log(MDOrderDestr[i])+(lipidproperties->enthalpyFunction[type][type][i]*lipidproperties->neighbourFunction[type][i]/2+lipidproperties->selfEnergieFunction[type][i])/kBT;
+//     
+    //create files for output and close again, not holding files open, to analyse live
     std::ofstream OmegaOut;
     OmegaOut.open("OptimzeOut.txt", std::ios_base::out);
     std::ofstream DestrOut;
@@ -47,12 +61,12 @@ void OmegaOptimizer::optimizeOmega()
     DestrOut.close();
     
     int run=0;
-    double DeltaEnthr=0;
-    double max_alpha=0.2;
+    double DeltaEnthr=0; 
+    double max_alpha=0.2; 
     double alpha=max_alpha;
-    int orderCalcRuns=100;
+    int orderCalcRuns=1000;  //number of runs to calc OrderDestr, getting increase 
     double lastMDDiff=INFINITY;
-    double alphaFaktor=1;
+    double alphaFaktor=1; //faktor to decrease alpha 
     while(true)
     {
         runUntilEquilibrium();
@@ -62,27 +76,30 @@ void OmegaOptimizer::optimizeOmega()
         OmegaOut.open("OptimzeOut.txt", std::ios_base::app);
         DestrOut.open("DestrOut.txt", std::ios_base::app);
 
-        for(int i=0;i<=(int)inputfile->paras["maxOrderIndex"];i++) 
+        for(int i=0;i<=(int)InputFile::paras.at("maxOrderIndex");i++) 
         {
-            OmegaOut<<lipidproperties->entropyFunction[type][i]<<" ";
+            OmegaOut<<lipidproperties->entropyFunction[type][i]<<" "; 
             DestrOut<<currentOrderDestr[i]<<" ";
-            MDDiff+=(MDOrderDestr[i]-currentOrderDestr[i])*(MDOrderDestr[i]-currentOrderDestr[i]);
+            
+            MDDiff+=(MDOrderDestr[i]-currentOrderDestr[i])*(MDOrderDestr[i]-currentOrderDestr[i]); //diff to md squared
 
-            if (currentOrderDestr[i]!=0)
+            if (currentOrderDestr[i]!=0) // if ==0 zero division
             { 
                 DeltaEnthr=alpha*std::log(MDOrderDestr[i]/currentOrderDestr[i]);
                 StepDiff+=DeltaEnthr*DeltaEnthr;
                 lipidproperties->entropyFunction[type][i]+=DeltaEnthr;
             }
         }
-        for(int i=1;i<=(int)inputfile->paras["maxOrderIndex"];i++) 
+        
+        //following 2 loops only because zero division error from above, making entropyFunction constant in that case
+        for(int i=1;i<=(int)InputFile::paras.at("maxOrderIndex");i++) 
         {
             if (currentOrderDestr[i]==0)
             { 
                 lipidproperties->entropyFunction[type][i]= lipidproperties->entropyFunction[type][i-1];                           
             }  
         }
-        for(int i=(int)inputfile->paras["maxOrderIndex"]-1;i>=0;i--) 
+        for(int i=(int)InputFile::paras.at("maxOrderIndex")-1;i>=0;i--) 
         {
             if (currentOrderDestr[i]==0)
             { 
@@ -95,7 +112,7 @@ void OmegaOptimizer::optimizeOmega()
         OmegaOut.close();
         DestrOut.close();
 
-        if (MDDiff>lastMDDiff)
+        if (MDDiff>lastMDDiff) 
         {
             orderCalcRuns*=2;
             alphaFaktor/=2;
@@ -131,7 +148,7 @@ void OmegaOptimizer::runUntilEquilibrium()
             
             if (std::abs(lipidsystem.getMeanOrder()-meanOrder)<=1)//check convergence
             {
-                std::cout<<"convergence!"<<std::endl;
+                std::cout<<"Equilibrium!"<<std::endl;
                 break;
             }
             meanOrder=lipidsystem.getMeanOrder();
@@ -142,25 +159,25 @@ void OmegaOptimizer::runUntilEquilibrium()
 
 void OmegaOptimizer::calcCurrentOrderDestr(int orderCalcRuns)//doing orderCalcRuns more loops to calc order destr
 {
-    currentOrderDestr=std::vector<double>(inputfile->paras["maxOrderIndex"]+1);//resetting and setting to first step
+    currentOrderDestr=std::vector<double>(InputFile::paras.at("maxOrderIndex")+1);//resetting and setting to first step
     std::vector<int> thisLoopOrderDestr;
     
     for(int t=0;t<orderCalcRuns;t++) 
     {
         doSystemloop();
         thisLoopOrderDestr=lipidsystem.getOrderDestr();
-        for(int i=0;i<=(int)inputfile->paras["maxOrderIndex"];i++)  currentOrderDestr[i]+=thisLoopOrderDestr[i];
+        for(int i=0;i<=(int)InputFile::paras.at("maxOrderIndex");i++)  currentOrderDestr[i]+=thisLoopOrderDestr[i];
     }
-    for(int i=0;i<=(int)inputfile->paras["maxOrderIndex"];i++)    //normalization
+    for(int i=0;i<=(int)InputFile::paras.at("maxOrderIndex");i++)    //normalization
     {
-        currentOrderDestr[i]/=inputfile->paras["DeltaOrder"]*inputfile->paras["width"]*inputfile->paras["height"]*orderCalcRuns;       
+        currentOrderDestr[i]/=InputFile::paras.at("DeltaOrder")*InputFile::paras.at("width")*InputFile::paras.at("height")*orderCalcRuns;       
     }
 }
 
 void OmegaOptimizer::doSystemloop() //loop one time over all lipids
 {
-    for(unsigned int i=0;i<inputfile->paras["width"];i++)
-    for(unsigned int j=0;j<inputfile->paras["height"];j++)
+    for(unsigned int i=0;i<InputFile::paras.at("width");i++)
+    for(unsigned int j=0;j<InputFile::paras.at("height");j++)
     {
         lipidsystem.setHost(i,j);
         double FreeEnergie1=0;
@@ -213,11 +230,11 @@ bool OmegaOptimizer::acceptance(const double FreeEnergie1, const double FreeEner
 //         A[k] = new double[d+2];
 //         for (i = 0; i < d+2; i++) {
 //             A[k][i] = 0.0;}}
-//     n=(int)inputfile->paras["maxOrderIndex"]+1;
+//     n=(int)InputFile::paras["maxOrderIndex"]+1;
 //     double * x = new double[n]; 
 //     double * y = new double[n];
 //     for (i = 0; i < n; i++)
-//         x[i]=inputfile->paras["minOrder"]+inputfile->paras["DeltaOrder"]*i;
+//         x[i]=InputFile::paras["minOrder"]+InputFile::paras["DeltaOrder"]*i;
 //     for (i = 0; i < n; i++)
 //         y[i]=logWithZero(currentOrderDestr[i]);
 //     for(k = 0; k < d+1; k++){
@@ -240,7 +257,7 @@ bool OmegaOptimizer::acceptance(const double FreeEnergie1, const double FreeEner
 //                 
 //     fittetCurrentOrderDestr=std::vector<double>(0);
 //     
-//     for(double order=inputfile->paras["minOrder"];order<inputfile->paras["maxOrder"]+inputfile->paras["DeltaOrder"];order+=inputfile->paras["DeltaOrder"])
+//     for(double order=InputFile::paras["minOrder"];order<InputFile::paras["maxOrder"]+InputFile::paras["DeltaOrder"];order+=InputFile::paras["DeltaOrder"])
 //     {
 //         double currentOrder=0;
 //         double orderPotenz=1;

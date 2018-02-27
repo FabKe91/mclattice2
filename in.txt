@@ -1,31 +1,36 @@
 #erst muessen alle type definitionen kommen, dann die parameter
 
 
-maxBufferSize 10 #bufferSize in MegaByte
-steps 100000000
-imageRate 100000
-T 330 
+maxBufferSize 1 #bufferSize in MegaByte
+steps 10000000
+imageRate 10
+T 300 
 height 100
-width 100 
-scalefaktor 100
+width 100
 DeltaOrder 0.01
 outs Type orderPara
 kB 0.00831448664
+defaultOrderPara 0.3 #achtung, speicherfehler falls < als minOrder eines types
+
+
 
 #absolute Grenzen, in type noch einmal spezifisch
 minOrder -0.5 
 maxOrder 1
 
-#typeigenschaften sind reihenfolgeabhaegig
-Type DPPC minOrder -0.3 maxOrder 1 maxFluc 0.1
-Type DUPC minOrder -0.3 maxOrder 0.8 maxFluc 0.2
+
+
+#summe der Type-konz muss 1 sein (anmerkung 1)
+Type DPPC minOrder -0.3 maxOrder 1 maxFluc 0.2 konz 0.5 
+Type DUPC minOrder -0.3 maxOrder 0.8 maxFluc 0.2 konz 0.5 
 
 
 Neighbour DPPC 0.8232250 22.9490451 0.6721695 3.9592607
 Neighbour DUPC 3.52807504 0.12268938 -0.09141714
 
 SelfEnergie DPPC -1.200 10.013 -8.320 -39.644 -115.281 238.514 -114.475
-SelfEnergie DUPC
+SelfEnergie DUPC -263.2579 -4.8473 -11.4106 -3.7343
+
 
 Enthalpy DPPC DPPC -66.19186323 14.29638183 -17.16964377 12.54721918 -115.64125821 84.15934512
 Enthalpy DUPC DUPC -68.88339245 24.25141919 -46.42709761 -15.85024474 
@@ -33,5 +38,14 @@ Enthalpy DUPC DPPC -66.87543292 13.17094511 -27.96769910 21.08631552 -33.1214497
 
 Entropy DPPC -2.12701447345 14.9598216673 -21.8464217524 14.8851676498 -136.96326757 -304.75283872 2231.37978825 -2227.63059586 -8592.79505168 28360.0173335 -36804.368098 24603.1003394 -8194.25336637 1033.61493897
 
-Entropy DUPC -5.46658622e+00 1.99061867e+01 -4.30374485e+01 -9.18483632e+00 2.27644255e+02 1.46514419e+03 3.65915538e+03 -4.36658579e+04 5.23651588e+04 3.36517731e+05 -1.06053310e+06 2.00078776e+05 3.71699345e+06 -7.06067922e+06 5.43598703e+06 -1.58580245e+06
+
+Entropy DUPC -0.955665546838 10.0323231813 -21.2405930454 -44.2559623754 98.9389659535 332.879921649 -3236.17764732 3872.80021296 19751.8473692 -51796.85083 -7769.28585745 152838.020307 -182579.116828 68925.0490845 #330K 
+
+
+
+
+
+########### anmerkungen ##############
+#1 die letzte angegebene konz wird nicht wirklich berücksichtigt, sondern fuellt immmer zur 1 auf. wenn die summe der konz > 1 ist, wird letze konz negativ => undefiniertes verhalten
+
 

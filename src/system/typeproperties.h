@@ -3,13 +3,10 @@
 #include <iostream>
 
 class TypeProperties
-{
-    std::string typeName;
-    double DeltaOrder=0;
-    
-    
+{  
     public:
         TypeProperties(std::string,int,int,int);
+        std::string typeName;
         int maxOrder=0;
         int minOrder=0;
         int maxFluc;

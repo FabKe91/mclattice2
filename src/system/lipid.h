@@ -6,14 +6,21 @@ class Lipid
 {
 
 private:
-    int  ID {0};
-    int   type {0};
-    int   orderPara {0};
+    int ID;
+    int type;
+    int orderPara;
+
 
 public:
-    Lipid(int,int,int);
+    Lipid(int,int,int,int,int);
+    
+    int posX;
+    int posY;
 
-
+//     int getX() const { return posX; }
+//     int getY() const { return posY; }
+//     void setX(int X) { posX=X; }
+//     void setY(int Y) { posY=Y; }
     int  getID()   const { return ID; }
     int  getType() const { return type; }
     int  getOrderPara() const { return orderPara; }

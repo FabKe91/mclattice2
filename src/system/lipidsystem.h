@@ -11,12 +11,12 @@
 #include "lipidproperties.h"
 #include <cmath>
 
-
+ 
 class Lipidsystem
 {
 public:
     Lipidsystem();
-    void readParas(std::shared_ptr<InputFile>,std::shared_ptr<LipidProperties>);
+    void readParas(std::shared_ptr<LipidProperties>);
     void setup();
    
     
@@ -35,12 +35,11 @@ public:
     void findPair();
     void swap();
     
-    void setHost(int, int);
+    void setHost(int x, int y);
+    void setHost(int ID);
     void setRNDHost();
     void setPartner();
-
-
-    
+   
     
     
     void fluctuate();
@@ -51,17 +50,16 @@ private:
     std::shared_ptr<LipidProperties> lipidproperties;
     unsigned int height;
     unsigned int width;
-    double kBT;
     int lastSwappedIDs[2]={0,0};
-
-    unsigned int** lastSwappedPos;
 
     int oldOrder=0;
     std::vector<Lipid> lipids {};
     
 
-    unsigned int** map;
+    int** map;
     int rdnPartnerNumber=0;
+    
+    void printMap();//only for debugging
 
     
     double calcPairEnthalpy(unsigned int ID1,unsigned int ID2);

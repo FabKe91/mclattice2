@@ -20,6 +20,9 @@ namespace enhance
     int    random_int(int, int);
 
     float fastExp(float x);
+    double sigmoid(std::vector<double>& coeff, double x);
+    double polynom(std::vector<double>& coeff, double x);
+
     
 
 }

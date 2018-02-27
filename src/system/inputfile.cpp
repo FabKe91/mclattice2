@@ -1,6 +1,19 @@
 #include "inputfile.h"
 
-InputFile::InputFile(std::string filename)
+int InputFile::nType; //counting types 
+std::map<std::string,double> InputFile::paras; //general parameter map
+std::map<std::string,int> InputFile::typeMap; //mapping typenames to typeIDs
+std::vector<std::string> InputFile::outs; //strings to print (see datafile)
+std::vector<TypeProperties> InputFile::types;
+std::vector<double> InputFile::concentrations;
+    
+std::vector<std::vector<double>> InputFile::neighbourPara;
+std::vector<std::vector<double>> InputFile::entropyPara;
+std::vector<std::vector<double>> InputFile::selfEnergiePara;
+std::vector<std::vector<std::vector<double>>> InputFile::enthalpyPara;
+
+
+void InputFile::loadFile(std::string filename)
 {
     #ifndef NDEBUG
     std::cout<<"InputFile::InputFile"<<std::endl;
@@ -8,16 +21,12 @@ InputFile::InputFile(std::string filename)
     
     std::ifstream infile(filename);
     std::string line;
-    double val;  //buffer
-    std::string name;
-    std::string name2;
-    double DeltaOrder;
+    double val;  //buffer for values
+    std::string name; //buffer for strings
     bool firstCall =true; //see name=="Enthalpy"
 
     while (std::getline(infile, line))
     {   
-        
-        
         //erase comments
         auto pos=line.find("#");
         if (pos==0 or line.size()==0) continue;
@@ -28,25 +37,24 @@ InputFile::InputFile(std::string filename)
         }
 //         std::cout<<line<<std::endl;
 
+
         std::istringstream iss(line);
         if(!(iss>>name)) throw std::invalid_argument( "cant read line: "+line );
-        if(name=="outs")
-        {
-            while(iss>>name)
-            {
-                outs.push_back(name);
-            }
-        }
+        if(name=="outs")    while(iss>>name)    outs.push_back(name);
         else if(name=="Type") //type definition 
         {
+            if (!firstCall) throw std::invalid_argument( "type def must be bevor Enthalpy "+line );
             std::string typeName;
-            double maxOrder;
-            double minOrder;
-            double maxFluc;
-
-            iss>>typeName>>name>>minOrder>>name>>maxOrder>>name>>maxFluc; //discarding parameter names, only order relevant
-            types.push_back(TypeProperties(typeName,(maxOrder-paras["minOrder"])/paras["DeltaOrder"],(minOrder-paras["minOrder"])/paras["DeltaOrder"],maxFluc/paras["DeltaOrder"]));
+            iss>>typeName;
             typeMap[typeName]=nType;
+            std::map<std::string,double> typeParas;
+
+            while(iss>>name>>val)   typeParas[name]=val;
+            
+            types.push_back(TypeProperties(typeName,(typeParas.at("maxOrder")-paras.at("minOrder"))/paras.at("DeltaOrder"),(typeParas.at("minOrder")-paras.at("minOrder"))/paras.at("DeltaOrder"),typeParas.at("maxFluc")/paras.at("DeltaOrder")));
+            
+            concentrations.push_back(typeParas.at("konz"));
+            
             
             std::vector<double> vec;
             neighbourPara.push_back(vec);
@@ -59,7 +67,7 @@ InputFile::InputFile(std::string filename)
             iss>>name;
             while(iss>>val)
             {
-            neighbourPara[typeMap[name]].push_back(val);
+            neighbourPara[typeMap.at(name)].push_back(val);
             }
                 
         }        
@@ -68,7 +76,7 @@ InputFile::InputFile(std::string filename)
             iss>>name;
             while(iss>>val)
             {
-            entropyPara[typeMap[name]].push_back(val);
+            entropyPara[typeMap.at(name)].push_back(val);
             }
                 
         }
@@ -77,7 +85,7 @@ InputFile::InputFile(std::string filename)
             iss>>name;
             while(iss>>val)
             {
-            selfEnergiePara[typeMap[name]].push_back(val);
+            selfEnergiePara[typeMap.at(name)].push_back(val);
             }
                 
         }
@@ -94,17 +102,18 @@ InputFile::InputFile(std::string filename)
                 }
                 firstCall=false;
             }
+            std::string name2;
             iss>>name>>name2;
             while(iss>>val)
             {
-                if (typeMap[name]>=typeMap[name2])
+                if (typeMap.at(name)>=typeMap.at(name2))
                 {
-                    enthalpyPara[typeMap[name]][typeMap[name2]].push_back(val);
+                    enthalpyPara[typeMap.at(name)][typeMap.at(name2)].push_back(val);
 
                 }                
                 else
                 {
-                    enthalpyPara[typeMap[name2]][typeMap[name]].push_back(val);
+                    enthalpyPara[typeMap.at(name2)][typeMap.at(name)].push_back(val);
                 }
             }
         }
@@ -118,19 +127,23 @@ InputFile::InputFile(std::string filename)
     
     
     paras["maxOrderIndex"]=(int)((paras["maxOrder"]-paras["minOrder"])/paras["DeltaOrder"]); //set max Order [-0.5,1]->[0,150]
+    paras["kBT"]=paras.at("kB")*paras.at("T");
     
 
     //check for parameters
     for(int i=0;i<nType;i++)
     {
-        if(neighbourPara[i].size()==0) throw std::invalid_argument( "missing neighbourPara" );        
-        if(entropyPara[i].size()==0) std::cout<<"no entropy given, can't run jet"<<std::endl;
-        if(selfEnergiePara[i].size()==0) std::cout<<"no selfEnergie given, can't run jet"<<std::endl;
+//         if(neighbourPara[i].size()==0) throw std::invalid_argument( "missing neighbourPara" );        
+        if(entropyPara[i].size()==0) throw std::invalid_argument( "no entropy given, can't run jet" );
+        if(selfEnergiePara[i].size()==0) throw std::invalid_argument("no selfEnergie given, can't run jet");
         for(int j=0;j<=i;j++)
         {
             if(enthalpyPara[i][j].size()==0) throw std::invalid_argument( "missing enthalpyPara" );
         }
         
     }
+    #ifndef NDEBUG
+    std::cout<<"InputFile::InputFile   finished reading"<<std::endl;
+    #endif
     
 }

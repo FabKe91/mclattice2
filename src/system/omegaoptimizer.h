@@ -25,9 +25,7 @@ private:
 
 
 
-    std::shared_ptr<InputFile> inputfile;
     std::shared_ptr<LipidProperties> lipidproperties;
-    std::unique_ptr<DataFile> datafile;
 
 
     void updateOmega(std::vector<int>);
@@ -42,8 +40,7 @@ public:
     void run();
     void optimizeOmega();
 
-    void setupOptimization(std::string);
-    void setupRun(std::string);
+    void setupOptimization();
     
     bool acceptance(const double Enthalpy1, const double Enthalpy2);
 

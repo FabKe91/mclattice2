@@ -5,6 +5,7 @@
 #include <vector>
 
 #include <iostream>
+#include "inputfile.h"
 #include <boost/multi_array.hpp>
 #include "lipidsystem.h"
 #include <iostream>
@@ -48,7 +49,7 @@ public:
     ~DataFile();
     DataFile(Lipidsystem&,std::vector<std::string>&);
     void createFile();
-    void writeStep(Lipidsystem&);
+    void writeStep();
 
 private:
     template<typename INTorFloat>

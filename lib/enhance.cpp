@@ -37,4 +37,22 @@ namespace enhance
         x *= x; x *= x; x *= x; x *= x;
         return x;        
     }
+
+    double polynom(std::vector<double>& coeff, double x)
+    {
+        double y=0;
+        for(int n=0; n<coeff.size();n++)
+        {
+            y+=std::pow(x,n)*coeff[n];
+        }
+        return y;
+    }
+
+    double sigmoid(std::vector<double>& coeff, double x)
+    {
+        if(coeff.size()!=4) throw std::invalid_argument("need 4 parameters for sigmoid");
+        return coeff[0]  / (1 + std::exp(-coeff[1]  * (x - coeff[2] ))) + coeff[3];  
+    }
+    
+    
 }

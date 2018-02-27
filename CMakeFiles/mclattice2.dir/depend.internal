@@ -29,6 +29,7 @@ CMakeFiles/mclattice2.dir/src/system/lipid.cpp.o
  /home/m/m_beck52/projects/MCLattice2/src/system/lipid.cpp
  /home/m/m_beck52/projects/MCLattice2/src/system/lipid.h
 CMakeFiles/mclattice2.dir/src/system/lipidproperties.cpp.o
+ ./lib/enhance.hpp
  /home/m/m_beck52/projects/MCLattice2/src/system/inputfile.h
  /home/m/m_beck52/projects/MCLattice2/src/system/lipidproperties.cpp
  /home/m/m_beck52/projects/MCLattice2/src/system/lipidproperties.h

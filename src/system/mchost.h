@@ -13,9 +13,6 @@ class MCHost
 {
 private:
     Lipidsystem lipidsystem;
-    double T=1;
-    double kB=1;
-    double kBT=1;
     int steps=0;
     int imageRate;
     int notAcceptedSwaps=0;
@@ -23,17 +20,19 @@ private:
 
 
 
-    std::shared_ptr<InputFile> inputfile;
     std::shared_ptr<LipidProperties> lipidproperties;
     std::unique_ptr<DataFile> datafile;
+    
+    void doSystemloop();
 
     
 public:
     void run();
     void optimizeOmega();
+    
 
     void setupOptimization(std::string);
-    void setup(std::string);
+    void setup();
     
     bool acceptance(const double Enthalpy1, const double Enthalpy2);
 

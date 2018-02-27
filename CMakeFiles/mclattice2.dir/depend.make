@@ -28,6 +28,7 @@ CMakeFiles/mclattice2.dir/src/system/inputfile.cpp.o: src/system/typeproperties.
 CMakeFiles/mclattice2.dir/src/system/lipid.cpp.o: src/system/lipid.cpp
 CMakeFiles/mclattice2.dir/src/system/lipid.cpp.o: src/system/lipid.h
 
+CMakeFiles/mclattice2.dir/src/system/lipidproperties.cpp.o: ./lib/enhance.hpp
 CMakeFiles/mclattice2.dir/src/system/lipidproperties.cpp.o: src/system/inputfile.h
 CMakeFiles/mclattice2.dir/src/system/lipidproperties.cpp.o: src/system/lipidproperties.cpp
 CMakeFiles/mclattice2.dir/src/system/lipidproperties.cpp.o: src/system/lipidproperties.h
