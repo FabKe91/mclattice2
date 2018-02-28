@@ -1,21 +1,23 @@
 #include "mchost.h"
 
-void MCHost::setup()
+void MCHost::setup(std::string inputFileName)
 {
     #ifndef NDEBUG
     std::cout<<"MCHost::setup"<<std::endl;
     #endif
     
     
+    inputfile.reset(new InputFile(inputFileName));  
+    
     lipidproperties.reset(new LipidProperties());
-    lipidproperties->readParas();
+    lipidproperties->readParas(inputfile);
     
 
-    lipidsystem.readParas(lipidproperties);
+    lipidsystem.readParas(lipidproperties,inputfile);
     lipidsystem.setup();
     
     
-    datafile.reset(new DataFile(lipidsystem,InputFile::outs));
+    datafile.reset(new DataFile(lipidsystem,inputfile));
     datafile->createFile();   
     
 
@@ -23,8 +25,8 @@ void MCHost::setup()
 
 
 
-    steps=InputFile::paras.at("steps");
-    imageRate=InputFile::paras.at("imageRate");
+    steps=inputfile->paras.at("steps");
+    imageRate=inputfile->paras.at("imageRate");
 }
 
 
@@ -44,13 +46,13 @@ void MCHost::run()
     for(int loopCounter=0;loopCounter<=steps;loopCounter++)
     {   
         doSystemloop();
-        t+=InputFile::paras.at("width")*InputFile::paras.at("height");
+        t+=inputfile->paras.at("width")*inputfile->paras.at("height");
         
 /*        if(loopCounter==1000)
         {
             std::cout<<"update T!"<<std::endl;
-            InputFile::paras["T"]=320;
-            InputFile::paras["kBT"]=InputFile::paras.at("T")*InputFile::paras.at("kB");
+            inputfile->paras["T"]=320;
+            inputfile->paras["kBT"]=inputfile->paras.at("T")*inputfile->paras.at("kB");
             lipidproperties->updateKBT();
         } */       
         
@@ -69,7 +71,7 @@ void MCHost::run()
 
 void MCHost::doSystemloop() //loop one time over all lipids
 {
-    for(unsigned int id=0;id<10000;id++)
+    for(unsigned int id=0;id<inputfile->width*inputfile->height;id++)
     {
         lipidsystem.setHost(id);
         double FreeEnergie1=0;
@@ -106,9 +108,9 @@ void MCHost::doSystemloop() //loop one time over all lipids
 bool MCHost::acceptance(const double FreeEnergie1, const double FreeEnergie2)
 {
     #ifndef NDEBUG
-    std::cout<<"MCHost::acceptance:   DeltaG: "<<(FreeEnergie2-FreeEnergie1)<<" DeltaG/kbT: " <<(FreeEnergie2-FreeEnergie1)/InputFile::paras.at("kBT")<<std::endl;
+    std::cout<<"MCHost::acceptance:   DeltaG: "<<(FreeEnergie2-FreeEnergie1)<<" DeltaG/kbT: " <<(FreeEnergie2-FreeEnergie1)/inputfile->kBT<<std::endl;
     #endif
 
-    return enhance::random_double(0.0, 1.0) < enhance::fastExp((FreeEnergie1-FreeEnergie2)/InputFile::paras.at("kBT")) ? true : false;
+    return enhance::random_double(0.0, 1.0) < enhance::fastExp((FreeEnergie1-FreeEnergie2)/inputfile->kBT) ? true : false;
     
 }

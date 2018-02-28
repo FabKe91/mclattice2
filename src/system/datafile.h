@@ -40,6 +40,7 @@ private:
     hsize_t      maxdimsf[3] = {H5S_UNLIMITED, H5S_UNLIMITED,H5S_UNLIMITED};
 
     DataSpace spaceDummy;
+    std::shared_ptr<InputFile> inputfile;
 
     
 public:
@@ -47,7 +48,7 @@ public:
 
 //     DataFile();
     ~DataFile();
-    DataFile(Lipidsystem&,std::vector<std::string>&);
+    DataFile(Lipidsystem&,std::shared_ptr<InputFile>);
     void createFile();
     void writeStep();
 

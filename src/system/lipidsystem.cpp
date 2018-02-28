@@ -14,11 +14,12 @@ Lipidsystem::Lipidsystem()
 
 }
 
-void Lipidsystem::readParas( std::shared_ptr<LipidProperties> _lipidproperties)
+void Lipidsystem::readParas( std::shared_ptr<LipidProperties> _lipidproperties,std::shared_ptr<InputFile> _inputfile)
 {
     lipidproperties=_lipidproperties;
-    height=InputFile::paras.at("height");
-    width=InputFile::paras.at("width");
+    inputfile=_inputfile;
+    height=inputfile->height;
+    width=inputfile->width;
 }
 
 
@@ -30,16 +31,16 @@ void Lipidsystem::setup()
     
     
   
-    int defaultOrderIndex=(InputFile::paras.at("defaultOrderPara")-InputFile::paras.at("minOrder"))/InputFile::paras.at("DeltaOrder");
+    int defaultOrderIndex=(inputfile->paras.at("defaultOrderPara")-inputfile->paras.at("minOrder"))/inputfile->paras.at("DeltaOrder");
     
     //set up concentrations
     int N=width*height;
     std::vector<int> concLeft{};
     int NLeft =N;
-    for(int i=0;i<InputFile::nType-1;i++)
+    for(int i=0;i<inputfile->nType-1;i++)
     {
-        concLeft.push_back((int) (InputFile::concentrations[i]*N));
-        NLeft-=(int) (InputFile::concentrations[i]*N);
+        concLeft.push_back((int) (inputfile->concentrations[i]*N));
+        NLeft-=(int) (inputfile->concentrations[i]*N);
 
     }
     concLeft.push_back(NLeft);
@@ -61,7 +62,7 @@ void Lipidsystem::setup()
             map[i][j]=i*height+j;
             int rndNumber=enhance::random_int(0,N-i*height-j-1);
             int sum=0;
-            for(int k=0;k<InputFile::nType;k++)
+            for(int k=0;k<inputfile->nType;k++)
             {
                 sum+=concLeft[k];
                 if(rndNumber<sum)
@@ -98,7 +99,7 @@ int Lipidsystem::getMeanOrder()
 
 std::vector<int> Lipidsystem::getOrderDestr()
 {
-    std::vector<int> destr((int)InputFile::paras.at("maxOrderIndex")+1,0);
+    std::vector<int> destr((int)inputfile->paras.at("maxOrderIndex")+1,0);
     for(int i=0;i<width;i++)
     for(int j=0;j<height;j++)
         destr[lipids[map[i][j]].getOrderPara()]++;
@@ -277,12 +278,12 @@ double Lipidsystem::calcHostFreeEnerg()
    
     #ifndef NDEBUG
     std::cout<<"H "<<G<<std::endl;
-    std::cout<<"kB T S "<<-InputFile::paras.at("kBT")*lipidproperties->entropyFunction[lipids[ID0].getType()][lipids[ID0].getOrderPara()]<<std::endl;
+    std::cout<<"kB T S "<<-inputfile->kBT*lipidproperties->entropyFunction[lipids[ID0].getType()][lipids[ID0].getOrderPara()]<<std::endl;
     std::cout<<"self E "<<lipidproperties->selfEnergieFunction[lipids[ID0].getType()][lipids[ID0].getOrderPara()]<<std::endl;
     
     #endif
 
-    G+=lipidproperties->selfEnergieFunction[lipids[ID0].getType()][lipids[ID0].getOrderPara()]-InputFile::paras.at("kBT")*lipidproperties->entropyFunction[lipids[ID0].getType()][lipids[ID0].getOrderPara()];
+    G+=lipidproperties->selfEnergieFunction[lipids[ID0].getType()][lipids[ID0].getOrderPara()]-inputfile->kBT*lipidproperties->entropyFunction[lipids[ID0].getType()][lipids[ID0].getOrderPara()];
     
     
     return G;
@@ -318,9 +319,9 @@ void Lipidsystem::fluctuate()
     #endif
 
     oldOrder=lipids[ID0].getOrderPara();
-    int maxOrder=InputFile::types[lipids[ID0].getType()].maxOrder;
-    int minOrder=InputFile::types[lipids[ID0].getType()].minOrder;
-    int maxFluc=InputFile::types[lipids[ID0].getType()].maxFluc;
+    int maxOrder=inputfile->types[lipids[ID0].getType()].maxOrder;
+    int minOrder=inputfile->types[lipids[ID0].getType()].minOrder;
+    int maxFluc=inputfile->types[lipids[ID0].getType()].maxFluc;
     
     lipids[ID0].setOrderPara(enhance::random_int((oldOrder-maxFluc+minOrder+std::abs(oldOrder-maxFluc-minOrder))/2,(oldOrder+maxFluc+maxOrder-std::abs(oldOrder+maxFluc-maxOrder))/2));
     

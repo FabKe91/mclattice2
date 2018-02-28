@@ -1,19 +1,6 @@
 #include "inputfile.h"
 
-int InputFile::nType; //counting types 
-std::map<std::string,double> InputFile::paras; //general parameter map
-std::map<std::string,int> InputFile::typeMap; //mapping typenames to typeIDs
-std::vector<std::string> InputFile::outs; //strings to print (see datafile)
-std::vector<TypeProperties> InputFile::types;
-std::vector<double> InputFile::concentrations;
-    
-std::vector<std::vector<double>> InputFile::neighbourPara;
-std::vector<std::vector<double>> InputFile::entropyPara;
-std::vector<std::vector<double>> InputFile::selfEnergiePara;
-std::vector<std::vector<std::vector<double>>> InputFile::enthalpyPara;
-
-
-void InputFile::loadFile(std::string filename)
+InputFile::InputFile(std::string filename)
 {
     #ifndef NDEBUG
     std::cout<<"InputFile::InputFile"<<std::endl;
@@ -127,7 +114,16 @@ void InputFile::loadFile(std::string filename)
     
     
     paras["maxOrderIndex"]=(int)((paras["maxOrder"]-paras["minOrder"])/paras["DeltaOrder"]); //set max Order [-0.5,1]->[0,150]
-    paras["kBT"]=paras.at("kB")*paras.at("T");
+    
+    T=paras.at("T");
+    kBT=paras.at("kB")*T;
+    width=paras.at("width");
+    height=paras.at("height");
+    
+    
+    
+    
+    
     
 
     //check for parameters

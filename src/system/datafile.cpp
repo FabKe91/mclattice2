@@ -11,17 +11,18 @@ DataFile::~DataFile()
 }
 
 
-DataFile::DataFile(Lipidsystem& lipidsystem,std::vector<std::string>& _outs)
+DataFile::DataFile(Lipidsystem& lipidsystem,std::shared_ptr<InputFile> _inputfile)
 {
+    inputfile=_inputfile;
+    
     getterMap["orderPara"]=std::bind(&Lipidsystem::getOrderParas,&lipidsystem);
     getterMap["Type"]=std::bind(&Lipidsystem::getTypes,&lipidsystem);
     getterMap["IDs"]=std::bind(&Lipidsystem::getIDs,&lipidsystem);
 
-    InputFile inputfile;
-    outs=_outs;
-    NX=inputfile.paras.at("width");
-    NY=InputFile::paras.at("height");
-    maxBufferSize=1024*1024*InputFile::paras.at("maxBufferSize");
+
+    NX=inputfile->width;
+    NY=inputfile->height;
+    maxBufferSize=1024*1024*inputfile->paras.at("maxBufferSize");
 
 }
 
@@ -43,12 +44,12 @@ void DataFile::createFile()
     chunk_dims[2] = NY;
 
 
-    for(auto& o: outs)
+    for(auto& o: inputfile->outs)
     {
         createDataset(o,file);
     }
     
-    for (auto const& mapitem: InputFile::paras) std::cout<< mapitem.first<<std::endl;
+    for (auto const& mapitem: inputfile->paras) std::cout<< mapitem.first<<std::endl;
     
 
 }
@@ -89,13 +90,13 @@ void DataFile::writeStep()
     #endif
 
     bufferLen++;
-    for(int i=0; i<outs.size();i++)
+    for(int i=0; i<inputfile->outs.size();i++)
     {
         buffer[i].resize(boost::extents[bufferLen][NX][NY]);
-        buffer[i][bufferLen-1]=getterMap.at(outs[i])();
+        buffer[i][bufferLen-1]=getterMap.at(inputfile->outs[i])();
 
     }
-    bufferSize+=NX*NY*sizeof(int)*outs.size();
+    bufferSize+=NX*NY*sizeof(int)*inputfile->outs.size();
     if(bufferSize>=maxBufferSize) flush();
 
 }
@@ -112,9 +113,9 @@ void DataFile::flush()
     
     spaceDummy=DataSpace( 3, dimsf); 
 
-    for(int i=0; i<outs.size();i++)
+    for(int i=0; i<inputfile->outs.size();i++)
     {
-        extendDataset(outs[i],buffer[i],file);
+        extendDataset(inputfile->outs[i],buffer[i],file);
         buffer[i].resize(boost::extents[0][NX][NY]);
     }
     

@@ -16,7 +16,7 @@ class Lipidsystem
 {
 public:
     Lipidsystem();
-    void readParas(std::shared_ptr<LipidProperties>);
+    void readParas(std::shared_ptr<LipidProperties>,std::shared_ptr<InputFile>);
     void setup();
    
     
@@ -46,9 +46,10 @@ public:
     void fluctuate();
     void fluctuateBack();
     
-    std::shared_ptr<InputFile> inputfile;
 private:
     std::shared_ptr<LipidProperties> lipidproperties;
+    std::shared_ptr<InputFile> inputfile;
+
     unsigned int height;
     unsigned int width;
     int lastSwappedIDs[2]={0,0};
@@ -63,7 +64,7 @@ private:
     void printMap();//only for debugging
 
     
-    double calcPairEnthalpy(unsigned int ID1,unsigned int ID2);
+    inline double calcPairEnthalpy(unsigned int ID1,unsigned int ID2);
 
 
 };

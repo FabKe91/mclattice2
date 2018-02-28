@@ -15,7 +15,7 @@ class LipidProperties
 {
 public:
     LipidProperties();
-    void readParas();
+    void readParas(std::shared_ptr<InputFile>);
     double** neighbourFunction;
     double** entropyFunction;
     double** selfEnergieFunction;
@@ -28,6 +28,8 @@ public:
     double sigmoid(std::vector<double>&, double);
 
 private:
+    std::shared_ptr<InputFile> inputfile;
+
     
     
 
