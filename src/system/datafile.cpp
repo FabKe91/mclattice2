@@ -15,6 +15,7 @@ DataFile::DataFile(Lipidsystem& lipidsystem,std::vector<std::string>& _outs)
 {
     getterMap["orderPara"]=std::bind(&Lipidsystem::getOrderParas,&lipidsystem);
     getterMap["Type"]=std::bind(&Lipidsystem::getTypes,&lipidsystem);
+    getterMap["IDs"]=std::bind(&Lipidsystem::getIDs,&lipidsystem);
 
     InputFile inputfile;
     outs=_outs;

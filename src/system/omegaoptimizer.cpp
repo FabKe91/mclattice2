@@ -27,7 +27,7 @@ void OmegaOptimizer::setupOptimization()
 //     lipidproperties->updateKBT();
     
     //setting up the md destr
-    std::vector<double> coeff={-0.14122, 7.51277, -9.36903, -4.43679, -97.86418, 192.92704, 19.37517, -168.20577};
+    std::vector<double> coeff={-0.9767356, 8.69286553, -12.7808724, 12.12000201, -21.41776641, 7.14478559};
     
     for(double order=InputFile::paras.at("minOrder");order<InputFile::paras.at("maxOrder")+InputFile::paras.at("DeltaOrder");order+=InputFile::paras.at("DeltaOrder"))
     {
@@ -46,7 +46,7 @@ void OmegaOptimizer::setupOptimization()
 
 void OmegaOptimizer::optimizeOmega()
 {
-    int type=1;
+    int type=0;
 
 //     initual guess
 //     for(int i=0;i<=(int)InputFile::paras["maxOrderIndex"];i++)
@@ -176,10 +176,9 @@ void OmegaOptimizer::calcCurrentOrderDestr(int orderCalcRuns)//doing orderCalcRu
 
 void OmegaOptimizer::doSystemloop() //loop one time over all lipids
 {
-    for(unsigned int i=0;i<InputFile::paras.at("width");i++)
-    for(unsigned int j=0;j<InputFile::paras.at("height");j++)
+    for(unsigned int id=0;id<InputFile::paras.at("width")*InputFile::paras.at("height");id++)
     {
-        lipidsystem.setHost(i,j);
+        lipidsystem.setHost(id);
         double FreeEnergie1=0;
         double FreeEnergie2=0;
 
@@ -190,18 +189,20 @@ void OmegaOptimizer::doSystemloop() //loop one time over all lipids
         if(!acceptance(FreeEnergie1,FreeEnergie2))
         {
             lipidsystem.fluctuateBack();
-        }
-        else
-        {
-            lipidsystem.setPartner();
-            FreeEnergie1=lipidsystem.calcSwapEnthalpy();
-            lipidsystem.swap();
-            FreeEnergie2=lipidsystem.calcSwapEnthalpy();
+            notAcceptedFlucs++;
 
-            if(!acceptance(FreeEnergie1,FreeEnergie2))
-            {
-                lipidsystem.swap();
-            }
+        }
+
+        lipidsystem.setPartner();
+        FreeEnergie1=lipidsystem.calcSwapEnthalpy();
+        lipidsystem.swap();
+        FreeEnergie2=lipidsystem.calcSwapEnthalpy();
+
+        if(!acceptance(FreeEnergie1,FreeEnergie2))
+        {
+            lipidsystem.swap();
+            notAcceptedSwaps++;
+
         }
     }
 }

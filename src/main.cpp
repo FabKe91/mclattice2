@@ -15,7 +15,7 @@ int main(int argc, char **argv) {
     
 
     enhance::seed = std::random_device{}();
-//     enhance::seed = 123456789;
+//     enhance::seed = 123456749;
     enhance::rand_engine.seed(enhance::seed);
 
     InputFile::loadFile("in.txt");
@@ -25,11 +25,10 @@ int main(int argc, char **argv) {
     mchost.setup();
     mchost.run();
 
-    
 //     OmegaOptimizer omegaoptimizer;
 //     omegaoptimizer.setupOptimization();
 //     omegaoptimizer.optimizeOmega();
-//     
+    
 
 
     

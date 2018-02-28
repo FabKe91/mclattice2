@@ -25,6 +25,7 @@ public:
     int  getType() const { return type; }
     int  getOrderPara() const { return orderPara; }
     void  setOrderPara(int newOrder) { orderPara=newOrder; }
+    void  setID(int newID) { ID=newID; }
 
 
 };

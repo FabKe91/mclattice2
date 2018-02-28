@@ -45,6 +45,13 @@ void Lipidsystem::setup()
     concLeft.push_back(NLeft);
     
 
+    
+    //make rnd IDs
+    std::vector<int> IDs;
+    for(int i=0;i<width*height;i++) IDs.push_back(i);
+    std::shuffle(IDs.begin(), IDs.end(), enhance::rand_engine);
+    
+    
     map =new  int*[width];
     for(int i=0;i<width;i++)
     {
@@ -59,7 +66,7 @@ void Lipidsystem::setup()
                 sum+=concLeft[k];
                 if(rndNumber<sum)
                 {
-                    lipids.push_back(Lipid(i*height+j,k,defaultOrderIndex,i,j));
+                    lipids.push_back(Lipid(IDs[i*height+j],k,defaultOrderIndex,i,j));
                     concLeft[k]--;
                     break;
 
@@ -122,6 +129,17 @@ const boost::multi_array<int,2> Lipidsystem::getTypes()
     return data;
 }
 
+const boost::multi_array<int,2> Lipidsystem::getIDs()
+{
+//     std::cout<<"getTypes"<<width<<height<<std::endl;
+
+    boost::multi_array<int,2> data(boost::extents[width][height]);
+    for(int i=0;i<width;i++)
+    for(int j=0;j<height;j++)  
+        data[i][j] = lipids[map[i][j]].getID();
+    return data;
+}
+
 
 
 void Lipidsystem::setHost(int x, int y)
@@ -159,14 +177,12 @@ void Lipidsystem::setPartner()
     {
         case 0 :    ID1=map[(posX0+1)%width][posY0];
                     break;
-        case 1 :    ID1=map[(posX0-1)%width][posY0];
+        case 1 :    ID1=map[(posX0-1+width)%width][posY0];
                     break;
-        case 2 :    ID1=map[posX0][(posY0+1)%width];
+        case 2 :    ID1=map[posX0][(posY0+1)%height];
                     break;
-        case 3 :    ID1=map[posX0][(posY0-1)%width];
+        case 3 :    ID1=map[posX0][(posY0-1+height)%height];
     }
-    
-    ID1=map[posX1][posY1];   
 }
 
 void Lipidsystem::swap()
@@ -201,27 +217,27 @@ double Lipidsystem::calcSwapEnthalpy()
 
     switch(rdnPartnerNumber)
     {
-        case 0: H+=calcPairEnthalpy(ID0,map[(posX0-1)%width][posY0]);
+        case 0: H+=calcPairEnthalpy(ID0,map[(posX0-1+width)%width][posY0]);
                 H+=calcPairEnthalpy(ID0,map[posX0][(posY0+1)%height]);
-                H+=calcPairEnthalpy(ID0,map[posX0][(posY0-1)%height]);
+                H+=calcPairEnthalpy(ID0,map[posX0][(posY0-1+height)%height]);
                 
                 H+=calcPairEnthalpy(ID1,map[(posX1+1)%width][posY1]);
                 H+=calcPairEnthalpy(ID1,map[posX1][(posY1+1)%height]);
-                H+=calcPairEnthalpy(ID1,map[posX1][(posY1-1)%height]);
+                H+=calcPairEnthalpy(ID1,map[posX1][(posY1-1+height)%height]);
                 break;
                 
         case 1: H+=calcPairEnthalpy(ID0,map[(posX0+1)%width][posY0]);
                 H+=calcPairEnthalpy(ID0,map[posX0][(posY0+1)%height]);
-                H+=calcPairEnthalpy(ID0,map[posX0][(posY0-1)%height]);
+                H+=calcPairEnthalpy(ID0,map[posX0][(posY0-1+height)%height]);
                 
-                H+=calcPairEnthalpy(ID1,map[(posX1-1)%width][posY1]);
+                H+=calcPairEnthalpy(ID1,map[(posX1-1+width)%width][posY1]);
                 H+=calcPairEnthalpy(ID1,map[posX1][(posY1+1)%height]);
-                H+=calcPairEnthalpy(ID1,map[posX1][(posY1-1)%height]);
+                H+=calcPairEnthalpy(ID1,map[posX1][(posY1-1+height)%height]);
                 break;
        
         case 2: H+=calcPairEnthalpy(ID0,map[(posX0+1)%width][posY0]);
-                H+=calcPairEnthalpy(ID0,map[(posX0-1)%width][posY0]);
-                H+=calcPairEnthalpy(ID0,map[posX0][(posY0-1)%height]);
+                H+=calcPairEnthalpy(ID0,map[(posX0-1+width)%width][posY0]);
+                H+=calcPairEnthalpy(ID0,map[posX0][(posY0-1+height)%height]);
                 
                 H+=calcPairEnthalpy(ID1,map[(posX1+1)%width][posY1]);
                 H+=calcPairEnthalpy(ID1,map[(posX1-1)%width][posY1]);
@@ -229,12 +245,12 @@ double Lipidsystem::calcSwapEnthalpy()
                 break;
                 
         case 3: H+=calcPairEnthalpy(ID0,map[(posX0+1)%width][posY0]);
-                H+=calcPairEnthalpy(ID0,map[(posX0-1)%width][posY0]);
+                H+=calcPairEnthalpy(ID0,map[(posX0-1+width)%width][posY0]);
                 H+=calcPairEnthalpy(ID0,map[posX0][(posY0+1)%height]);
                 
                 H+=calcPairEnthalpy(ID1,map[(posX1+1)%width][posY1]);
-                H+=calcPairEnthalpy(ID1,map[(posX1-1)%width][posY1]);
-                H+=calcPairEnthalpy(ID1,map[posX1][(posY1-1)%height]);
+                H+=calcPairEnthalpy(ID1,map[(posX1-1+width)%width][posY1]);
+                H+=calcPairEnthalpy(ID1,map[posX1][(posY1-1+height)%height]);
     }
     #ifndef NDEBUG
     std::cout<<"H "<<H<<std::endl;
@@ -253,10 +269,10 @@ double Lipidsystem::calcHostFreeEnerg()
     
     double G=0;
 
-    G+=calcPairEnthalpy(ID0,map[(posX0-1)%width][posY0]);
+    G+=calcPairEnthalpy(ID0,map[(posX0-1+width)%width][posY0]);
     G+=calcPairEnthalpy(ID0,map[(posX0+1)%width][posY0]);
-    G+=calcPairEnthalpy(ID0,map[posX0][(posY0-1)%height]);
-    G+=calcPairEnthalpy(ID0,map[posX0][(posY0-1)%height]);
+    G+=calcPairEnthalpy(ID0,map[posX0][(posY0+1)%height]);
+    G+=calcPairEnthalpy(ID0,map[posX0][(posY0-1+height)%height]);
 
    
     #ifndef NDEBUG

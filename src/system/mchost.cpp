@@ -37,14 +37,12 @@ void MCHost::run()
     
     auto start = std::chrono::system_clock::now();
     unsigned int t=0;
-//     int loopCounter=0;
-
-
-    //     while(t<=steps)
-
+    
+    
+    
+    datafile->writeStep();
     for(int loopCounter=0;loopCounter<=steps;loopCounter++)
     {   
-//         loopCounter++;
         doSystemloop();
         t+=InputFile::paras.at("width")*InputFile::paras.at("height");
         
@@ -71,10 +69,9 @@ void MCHost::run()
 
 void MCHost::doSystemloop() //loop one time over all lipids
 {
-    for(unsigned int i=0;i<InputFile::paras.at("width");i++)
-    for(unsigned int j=0;j<InputFile::paras.at("height");j++)
+    for(unsigned int id=0;id<10000;id++)
     {
-        lipidsystem.setHost(i,j);
+        lipidsystem.setHost(id);
         double FreeEnergie1=0;
         double FreeEnergie2=0;
 
