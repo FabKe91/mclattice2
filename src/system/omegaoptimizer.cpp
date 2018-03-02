@@ -1,6 +1,6 @@
 #include "omegaoptimizer.h"
 
-void OmegaOptimizer::setupOptimization(std::string inputFileName)
+void OmegaOptimizer::setupOptimization(std::string inputFileName,std::string typeName)
 {
     #ifndef NDEBUG
     std::cout<<"OmegaOptimizer::setupOptimization"<<std::endl;
@@ -12,22 +12,28 @@ void OmegaOptimizer::setupOptimization(std::string inputFileName)
     lipidproperties.reset(new LipidProperties());
     lipidproperties->readParas(inputfile);
     
+    type=inputfile->typeMap[typeName]; //get type number from typeName
+    for (auto& conc: inputfile->concentrations) conc=0;    //setting all conc to 0
+    inputfile->concentrations[type]=1;     //setting conc of type to 1
+
+
+    
 
     lipidsystem.readParas(lipidproperties,inputfile);
     lipidsystem.setup();
     
     
     
+    for(int i=0;i<inputfile->width*inputfile->height;i++) IDs.push_back(i); //setup IDs to get rndOrder in each doSystemloop
     
     
-    //change T
-//     inputfile->paras["T"]=330;
-//     inputfile->paras["kBT"]=inputfile->paras.at("T")*inputfile->paras.at("kB");
-//     lipidproperties->updateKBT();
-    
+
     //setting up the md destr
-    std::vector<double> coeff={-0.9767356, 8.69286553, -12.7808724, 12.12000201, -21.41776641, 7.14478559};
-    
+    std::vector<double> coeff;
+    if (typeName=="DPPC")   coeff=std::vector<double>({-0.9767356, 8.69286553, -12.7808724, 12.12000201, -21.41776641, 7.14478559});
+    else if (typeName=="DUPC") coeff=std::vector<double>({-0.14122, 7.51277, -9.36903, -4.43679, -97.86418, 192.92704, 19.37517, -168.20577});
+    else throw std::invalid_argument( "no MD destr found for type: "+typeName);
+        
     for(double order=inputfile->paras.at("minOrder");order<inputfile->paras.at("maxOrder")+inputfile->paras.at("DeltaOrder");order+=inputfile->paras.at("DeltaOrder"))
     {
         MDOrderDestr.push_back(std::exp(enhance::polynom(coeff,order)));       
@@ -45,13 +51,12 @@ void OmegaOptimizer::setupOptimization(std::string inputFileName)
 
 void OmegaOptimizer::optimizeOmega()
 {
-    int type=0;
 
 //     initual guess
-//     for(int i=0;i<=(int)inputfile->paras["maxOrderIndex"];i++)
-//         lipidproperties->entropyFunction[type][i]=std::log(MDOrderDestr[i])+(lipidproperties->enthalpyFunction[type][type][i]*lipidproperties->neighbourFunction[type][i]/2+lipidproperties->selfEnergieFunction[type][i])/kBT;
-//     
-    //create files for output and close again, not holding files open, to analyse live
+    for(int i=0;i<=(int)inputfile->paras["maxOrderIndex"];i++)
+        lipidproperties->entropyFunction[type][i]=std::log(MDOrderDestr[i])+(lipidproperties->enthalpyFunction[type][type][i]*lipidproperties->neighbourFunction[type][i]/2+lipidproperties->selfEnergieFunction[type][i])/inputfile->kBT;
+    
+    //create files for output
     std::ofstream OmegaOut;
     OmegaOut.open("OptimzeOut.txt", std::ios_base::out);
     std::ofstream DestrOut;
@@ -63,25 +68,27 @@ void OmegaOptimizer::optimizeOmega()
     double DeltaEnthr=0; 
     double max_alpha=0.2; 
     double alpha=max_alpha;
-    int orderCalcRuns=1000;  //number of runs to calc OrderDestr, getting increase 
+    int orderCalcRuns=1000;  //number of runs to calc OrderDestr
     double lastMDDiff=INFINITY;
     double alphaFaktor=1; //faktor to decrease alpha 
     while(true)
     {
         runUntilEquilibrium();
         calcCurrentOrderDestr(orderCalcRuns);
-        double StepDiff=0; //change per step
+        double StepDiff=0; //diff to last step
         double MDDiff=0; // diff to MD
         OmegaOut.open("OptimzeOut.txt", std::ios_base::app);
         DestrOut.open("DestrOut.txt", std::ios_base::app);
 
         for(int i=0;i<=(int)inputfile->paras.at("maxOrderIndex");i++) 
         {
+            //write to file
             OmegaOut<<lipidproperties->entropyFunction[type][i]<<" "; 
             DestrOut<<currentOrderDestr[i]<<" ";
             
             MDDiff+=(MDOrderDestr[i]-currentOrderDestr[i])*(MDOrderDestr[i]-currentOrderDestr[i]); //diff to md squared
 
+            //update omega
             if (currentOrderDestr[i]!=0) // if ==0 zero division
             { 
                 DeltaEnthr=alpha*std::log(MDOrderDestr[i]/currentOrderDestr[i]);
@@ -129,9 +136,6 @@ void OmegaOptimizer::optimizeOmega()
 
 void OmegaOptimizer::runUntilEquilibrium()
 { 
-    
-    
-    
     int meanOrder=0; //for convergence check
     int loopCounter=0;
     
@@ -139,8 +143,6 @@ void OmegaOptimizer::runUntilEquilibrium()
     {
         doSystemloop();
         loopCounter++;
-//         std::cout<<"mean order: "<<lipidsystem.getMeanOrder()<<std::endl;
-//         if (loopCounter %50==0)std::cout<<lipidsystem.getMeanOrder()<<std::endl;
         if (loopCounter %100==0)
         {
             std::cout<<"loops: "<<loopCounter<<" mean order:  last: "<<meanOrder<<" now: "<<lipidsystem.getMeanOrder()<<std::endl;
@@ -175,9 +177,10 @@ void OmegaOptimizer::calcCurrentOrderDestr(int orderCalcRuns)//doing orderCalcRu
 
 void OmegaOptimizer::doSystemloop() //loop one time over all lipids
 {
-    for(unsigned int id=0;id<inputfile->paras.at("width")*inputfile->paras.at("height");id++)
+    std::shuffle(IDs.begin(), IDs.end(), enhance::rand_engine); //get new rnd id order
+    for(int &ID: IDs)
     {
-        lipidsystem.setHost(id);
+        lipidsystem.setHost(ID);
         double FreeEnergie1=0;
         double FreeEnergie2=0;
 
@@ -211,68 +214,10 @@ void OmegaOptimizer::doSystemloop() //loop one time over all lipids
 bool OmegaOptimizer::acceptance(const double FreeEnergie1, const double FreeEnergie2)
 {
     #ifndef NDEBUG
-    std::cout<<"OmegaOptimizer::acceptance:   DeltaG: "<<(FreeEnergie2-FreeEnergie1)<<" DeltaG/kbT: " <<(FreeEnergie2-FreeEnergie1)/inputfile->paras.at("kBT")<<std::endl;
+    std::cout<<"OmegaOptimizer::acceptance:   DeltaG: "<<(FreeEnergie2-FreeEnergie1)<<" DeltaG/kbT: " <<(FreeEnergie2-FreeEnergie1)/inputfile->kBT<<std::endl;
     #endif
 
-    return enhance::random_double(0.0, 1.0) < enhance::fastExp((FreeEnergie1-FreeEnergie2)/kBT) ? true : false;
+    return enhance::random_double(0.0, 1.0) < enhance::fastExp((FreeEnergie1-FreeEnergie2)/inputfile->kBT);
     
 }
-
-
-
-// void OmegaOptimizer::fitOrderDestr() //copy pasta from https://stackoverflow.com/questions/45734608/least-squares-polynomial-fitting-works-only-with-even-number-of-coordinates
-// {
-// using namespace std;
-//     int d, i, j, k, n;
-//     d=6; //degree
-//     double **A = new double *[d+1];
-//     for (k = 0; k < d+1; k++) {
-//         A[k] = new double[d+2];
-//         for (i = 0; i < d+2; i++) {
-//             A[k][i] = 0.0;}}
-//     n=(int)inputfile->paras["maxOrderIndex"]+1;
-//     double * x = new double[n]; 
-//     double * y = new double[n];
-//     for (i = 0; i < n; i++)
-//         x[i]=inputfile->paras["minOrder"]+inputfile->paras["DeltaOrder"]*i;
-//     for (i = 0; i < n; i++)
-//         y[i]=logWithZero(currentOrderDestr[i]);
-//     for(k = 0; k < d+1; k++){
-//         for (i = 0; i < n; i++) {
-//             for (j = 0; j < d+1; j++) {
-//                 A[k][j] += pow(x[i], j + k);}
-//             A[k][d+1] += y[i]*pow(x[i], k);}}
-//     for(k = 0; k < d+1; k++){       // invert matrix
-//         double q = A[k][k];         //   divide A[k][] by A[k][k]
-//                                     //   if q == 0, would need to swap rows                                 
-//         for(i = 0; i < d+2; i++){
-//             A[k][i] /= q;}
-//         for(j = 0; j < d+1; j++){   //   zero out column A[][k]
-//             if(j == k)
-//                 continue;
-//             double m = A[j][k];         
-//             for(i = 0; i < d+2; i++){
-//                 A[j][i] -= m*A[k][i];}}}
-// 
-//                 
-//     fittetCurrentOrderDestr=std::vector<double>(0);
-//     
-//     for(double order=inputfile->paras["minOrder"];order<inputfile->paras["maxOrder"]+inputfile->paras["DeltaOrder"];order+=inputfile->paras["DeltaOrder"])
-//     {
-//         double currentOrder=0;
-//         double orderPotenz=1;
-//         for(k = 0; k <= d; k++)
-//         {
-//             currentOrder+=orderPotenz*A[k][d+1];
-//             orderPotenz*=order;
-//         }
-//         fittetCurrentOrderDestr.push_back(std::exp(currentOrder));
-//     }
-//     
-//     for (k = 0; k < d+1; k++)
-//         delete[] A[k];
-//     delete[]A;
-//     delete[]y;
-//     delete[]x;
-// }
 

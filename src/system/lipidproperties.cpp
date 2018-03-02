@@ -23,11 +23,11 @@ double NN_DPPC(double temp, double order)
 
 
 
-
 double NN_DUPC(double temp, double order)
 {
    return 4.5943514+0.0370882*order-0.0037423*temp;
 }
+
 
 void LipidProperties::readParas(std::shared_ptr<InputFile> _inputfile)
 {
@@ -67,14 +67,13 @@ void LipidProperties::readParas(std::shared_ptr<InputFile> _inputfile)
         {   
             if (inputfile->types[i].typeName=="DPPC")   neighbourFunction[i][k]=NN_DPPC(inputfile->paras.at("T"),order);
             else if (inputfile->types[i].typeName=="DUPC")   neighbourFunction[i][k]=NN_DUPC(inputfile->paras.at("T"),order);
-            else throw std::invalid_argument("no NN funktion found");
+            else throw std::invalid_argument("no NN funktion found for type: "+inputfile->types[i].typeName);
             
             
 //             if (inputfile->types[i].typeName=="DPPC") neighbourFunction[i][k]=enhance::sigmoid(inputfile->neighbourPara[i],order);
 //             else if (inputfile->types[i].typeName=="DUPC") neighbourFunction[i][k]=enhance::polynom(inputfile->neighbourPara[i],order);
             entropyFunction[i][k]=enhance::polynom(inputfile->entropyPara[i],order);
             selfEnergieFunction[i][k]=enhance::polynom(inputfile->selfEnergiePara[i],order);
-//             std::cout<<selfEnergieFunction[i][k]<<", ";
 
             
             for(int j=0;j<=i;j++)
@@ -89,7 +88,7 @@ void LipidProperties::readParas(std::shared_ptr<InputFile> _inputfile)
 
 
 
-void LipidProperties::updateKBT()
+void LipidProperties::updateKBT() //not used currently
 {
     for(int i=0;i<inputfile->nType;i++)
     {
@@ -98,7 +97,7 @@ void LipidProperties::updateKBT()
         {   
             if (inputfile->types[i].typeName=="DPPC")   neighbourFunction[i][k]=NN_DPPC(inputfile->paras.at("T"),order);
             else if (inputfile->types[i].typeName=="DUPC")   neighbourFunction[i][k]=NN_DUPC(inputfile->paras.at("T"),order);
-            else throw std::invalid_argument("no NN funktion found");
+            else throw std::invalid_argument("no NN funktion found for type: "+inputfile->types[i].typeName);
             k++;
         }
     }

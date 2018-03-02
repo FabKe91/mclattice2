@@ -15,13 +15,13 @@ class OmegaOptimizer
 {
 private:
     Lipidsystem lipidsystem;
-    double T=1;
-    double kB=1;
-    double kBT=1;
     int steps=0;
     int imageRate;
     int notAcceptedSwaps=0;
     int notAcceptedFlucs=0;
+    std::vector<int> IDs;
+    int type;
+
 
 
 
@@ -41,7 +41,7 @@ public:
     void run();
     void optimizeOmega();
 
-    void setupOptimization(std::string);
+    void setupOptimization(std::string,std::string);
     
     bool acceptance(const double Enthalpy1, const double Enthalpy2);
 

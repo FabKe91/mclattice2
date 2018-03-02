@@ -12,7 +12,7 @@ class InputFile
 public:
     double T, kBT;
     int width,height;
-    int nType; //counting types 
+    int nType=0; //counting types 
     std::map<std::string,double> paras; //general parameter map
     std::map<std::string,int> typeMap; //mapping typenames to typeIDs
     std::vector<std::string> outs; //strings to print (see datafile)

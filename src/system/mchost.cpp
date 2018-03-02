@@ -7,13 +7,13 @@ void MCHost::setup(std::string inputFileName)
     #endif
     
     
-    inputfile.reset(new InputFile(inputFileName));  
+    inputfile.reset(new InputFile(inputFileName));  //all input parameters are stored in the shared pointer "inputfile". all classes get the pointer 
     
-    lipidproperties.reset(new LipidProperties());
+    lipidproperties.reset(new LipidProperties()); //the fit functions are stored in lipidproperties
     lipidproperties->readParas(inputfile);
     
 
-    lipidsystem.readParas(lipidproperties,inputfile);
+    lipidsystem.readParas(lipidproperties,inputfile); 
     lipidsystem.setup();
     
     
@@ -24,7 +24,8 @@ void MCHost::setup(std::string inputFileName)
     
 
 
-
+    for(int i=0;i<inputfile->width*inputfile->height;i++) IDs.push_back(i);
+    
     steps=inputfile->paras.at("steps");
     imageRate=inputfile->paras.at("imageRate");
 }
@@ -37,13 +38,14 @@ void MCHost::run()
     std::cout<<"MCHost::run"<<std::endl;
     #endif
     
-    auto start = std::chrono::system_clock::now();
-    unsigned int t=0;
+    auto startTime = std::chrono::system_clock::now();
+    auto lastTime = std::chrono::system_clock::now();
+    long long t=0;
     
     
     
     datafile->writeStep();
-    for(int loopCounter=0;loopCounter<=steps;loopCounter++)
+    for(int loopCounter=1;loopCounter<=steps;loopCounter++)
     {   
         doSystemloop();
         t+=inputfile->paras.at("width")*inputfile->paras.at("height");
@@ -61,9 +63,15 @@ void MCHost::run()
             datafile->writeStep();
             std::cout<<"loop: "<<loopCounter<<" flucAccepRate: "<< (t-notAcceptedFlucs)/(double)t<<" swapAccepRate: "<< (t-notAcceptedFlucs-notAcceptedSwaps)/(double)(t-notAcceptedFlucs)<<std::endl;
             
-            std::chrono::duration<double> elapsed_seconds=std::chrono::system_clock::now()-start;
+            auto currTime = std::chrono::system_clock::now();
+            std::chrono::duration<double> elapsed_seconds_start=currTime-startTime;
+            std::chrono::duration<double> elapsed_seconds_last=currTime-lastTime;
+            std::time_t end_time = std::chrono::system_clock::to_time_t(currTime);
+
             
-            std::cout<<"time per step: "<<elapsed_seconds.count()/t<<"    mean order: "<<lipidsystem.getMeanOrder()<<std::endl;
+            std::cout<<"time per step curr: "<<elapsed_seconds_last.count()/imageRate/inputfile->paras.at("width")/inputfile->paras.at("height")<<" mean: "<<elapsed_seconds_start.count()/t<<"    mean order: "<<lipidsystem.getMeanOrder()<<" "<<std::ctime(&end_time)<<std::endl;
+            lastTime = currTime;
+
         }
     }
     
@@ -71,9 +79,11 @@ void MCHost::run()
 
 void MCHost::doSystemloop() //loop one time over all lipids
 {
-    for(unsigned int id=0;id<inputfile->width*inputfile->height;id++)
+    std::shuffle(IDs.begin(), IDs.end(), enhance::rand_engine);
+    
+    for(int &ID: IDs)
     {
-        lipidsystem.setHost(id);
+        lipidsystem.setHost(ID);
         double FreeEnergie1=0;
         double FreeEnergie2=0;
 

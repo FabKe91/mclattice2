@@ -49,7 +49,7 @@ void DataFile::createFile()
         createDataset(o,file);
     }
     
-    for (auto const& mapitem: inputfile->paras) std::cout<< mapitem.first<<std::endl;
+    for (auto const& mapitem: inputfile->paras) createAttribute(mapitem.first,mapitem.second,file);
     
 
 }

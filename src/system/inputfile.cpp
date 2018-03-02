@@ -14,7 +14,9 @@ InputFile::InputFile(std::string filename)
 
     while (std::getline(infile, line))
     {   
-        //erase comments
+//             std::cout<<line<<std::endl;
+
+        //remove comments
         auto pos=line.find("#");
         if (pos==0 or line.size()==0) continue;
         if (pos==std::string::npos);
@@ -22,15 +24,13 @@ InputFile::InputFile(std::string filename)
         {
             line.erase(pos,std::string::npos);
         }
-//         std::cout<<line<<std::endl;
-
 
         std::istringstream iss(line);
         if(!(iss>>name)) throw std::invalid_argument( "cant read line: "+line );
         if(name=="outs")    while(iss>>name)    outs.push_back(name);
         else if(name=="Type") //type definition 
         {
-            if (!firstCall) throw std::invalid_argument( "type def must be bevor Enthalpy "+line );
+            if (!firstCall) throw std::invalid_argument( "type def must happen bevor Enthalpy "+line );
             std::string typeName;
             iss>>typeName;
             typeMap[typeName]=nType;

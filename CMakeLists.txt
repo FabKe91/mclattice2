@@ -13,7 +13,9 @@ set(CMAKE_CXX_FLAGS "-std=c++11")
 # set (CMAKE_CXX_FLAGS_DEBUG "-std=c++11 -DDEBUG" ${CMAKE_CXX_FLAGS_DEBUG})
 
 find_package(HDF5 REQUIRED)
-include_directories(${HDF5_INCLUDE_DIR})
+FIND_PACKAGE(Boost COMPONENTS program_options REQUIRED)
+
+include_directories(${HDF5_INCLUDE_DIR} ${Boost_INCLUDE_DIRS})
 set(_hdf5_libs hdf5 hdf5_cpp)
 
 
@@ -25,8 +27,11 @@ add_executable(mclattice2 ${mclattice2_SRC} ${sources})
 
 
 add_library(enhance SHARED lib/enhance.cpp)
-target_link_libraries(mclattice2 enhance)
 
+
+target_link_libraries(mclattice2 enhance)
 target_link_libraries(mclattice2 ${_hdf5_libs})
+target_link_libraries(mclattice2 ${Boost_LIBRARIES})
 
 install(TARGETS mclattice2 RUNTIME DESTINATION bin)
+

@@ -30,29 +30,19 @@ void Lipidsystem::setup()
     #endif
     
     
-  
     int defaultOrderIndex=(inputfile->paras.at("defaultOrderPara")-inputfile->paras.at("minOrder"))/inputfile->paras.at("DeltaOrder");
     
-    //set up concentrations
+    //setting up type destr
     int N=width*height;
-    std::vector<int> concLeft{};
-    int NLeft =N;
-    for(int i=0;i<inputfile->nType-1;i++)
-    {
-        concLeft.push_back((int) (inputfile->concentrations[i]*N));
-        NLeft-=(int) (inputfile->concentrations[i]*N);
+    std::vector<int> types{};
+    for(int type=0;type<inputfile->nType-1;type++)
+        for(int j=0;j<inputfile->concentrations[type]*N and types.size()<=N ;j++)
+            types.push_back(type);
 
-    }
-    concLeft.push_back(NLeft);
-    
+    while (types.size()<N) types.push_back(inputfile->nType-1); 
+    std::shuffle(types.begin(), types.end(), enhance::rand_engine); //randomize order of types
 
-    
-    //make rnd IDs
-    std::vector<int> IDs;
-    for(int i=0;i<width*height;i++) IDs.push_back(i);
-    std::shuffle(IDs.begin(), IDs.end(), enhance::rand_engine);
-    
-    
+
     map =new  int*[width];
     for(int i=0;i<width;i++)
     {
@@ -60,19 +50,7 @@ void Lipidsystem::setup()
         for(int j=0;j<height;j++)
         {   
             map[i][j]=i*height+j;
-            int rndNumber=enhance::random_int(0,N-i*height-j-1);
-            int sum=0;
-            for(int k=0;k<inputfile->nType;k++)
-            {
-                sum+=concLeft[k];
-                if(rndNumber<sum)
-                {
-                    lipids.push_back(Lipid(IDs[i*height+j],k,defaultOrderIndex,i,j));
-                    concLeft[k]--;
-                    break;
-
-                }
-            }
+            lipids.push_back(Lipid(i*height+j,types[i*height+j],defaultOrderIndex,i,j));
         }
     }
 }
@@ -176,13 +154,13 @@ void Lipidsystem::setPartner()
     
     switch (rdnPartnerNumber)
     {
-        case 0 :    ID1=map[(posX0+1)%width][posY0];
+        case 0 :    ID1=map[(posX0+1)%width][posY0]; //up
                     break;
-        case 1 :    ID1=map[(posX0-1+width)%width][posY0];
+        case 1 :    ID1=map[(posX0-1+width)%width][posY0]; //down
                     break;
-        case 2 :    ID1=map[posX0][(posY0+1)%height];
+        case 2 :    ID1=map[posX0][(posY0+1)%height]; //right
                     break;
-        case 3 :    ID1=map[posX0][(posY0-1+height)%height];
+        case 3 :    ID1=map[posX0][(posY0-1+height)%height]; //left
     }
 }
 
@@ -280,7 +258,6 @@ double Lipidsystem::calcHostFreeEnerg()
     std::cout<<"H "<<G<<std::endl;
     std::cout<<"kB T S "<<-inputfile->kBT*lipidproperties->entropyFunction[lipids[ID0].getType()][lipids[ID0].getOrderPara()]<<std::endl;
     std::cout<<"self E "<<lipidproperties->selfEnergieFunction[lipids[ID0].getType()][lipids[ID0].getOrderPara()]<<std::endl;
-    
     #endif
 
     G+=lipidproperties->selfEnergieFunction[lipids[ID0].getType()][lipids[ID0].getOrderPara()]-inputfile->kBT*lipidproperties->entropyFunction[lipids[ID0].getType()][lipids[ID0].getOrderPara()];

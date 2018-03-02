@@ -46,7 +46,6 @@ private:
 public:
 
 
-//     DataFile();
     ~DataFile();
     DataFile(Lipidsystem&,std::shared_ptr<InputFile>);
     void createFile();
