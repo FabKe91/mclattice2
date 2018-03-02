@@ -10,10 +10,10 @@ def polynom(paras,x):
     return y
 
 
-destrOut=np.loadtxt("../MCLattice2/DestrOut.txt")
+distrOut=np.loadtxt("../MCLattice2/DistrOut.txt")
 
-#print(destrOut)
-#print(destrOut.shape)
+#print(distrOut)
+#print(distrOut.shape)
 
 #MD_paras=np.array([-0.14122, 7.51277, -9.36903, -4.43679, -97.86418, 192.92704, 19.37517, -168.20577])#dupc 330
 MD_paras=np.array([-0.9767356, 8.69286553, -12.7808724, 12.12000201, -21.41776641, 7.14478559])#dppc 330
@@ -21,13 +21,13 @@ MD_paras=np.array([-0.9767356, 8.69286553, -12.7808724, 12.12000201, -21.4177664
 
 
 order=np.arange(-0.5,1.01,0.01)
-MD_destr=np.exp(polynom(MD_paras,order))
+MD_distr=np.exp(polynom(MD_paras,order))
 
 ax1=plt.subplot(211)
-ax1.plot(order[::2],MD_destr[::2],"rx",label="MD",zorder=100)
+ax1.plot(order[::2],MD_distr[::2],"rx",label="MD",zorder=100)
 
-for i in range (destrOut.shape[0]):
-    ax1.plot(order,destrOut[i,:],label="run %s"%i)
+for i in range (distrOut.shape[0]):
+    ax1.plot(order,distrOut[i,:],label="run %s"%i)
     
 ax1.legend()
 

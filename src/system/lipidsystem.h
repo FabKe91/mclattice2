@@ -28,7 +28,7 @@ public:
     const boost::multi_array<int,2> getTypes();
     const boost::multi_array<int,2> getIDs();
     int getMeanOrder();
-    std::vector<int> getOrderDestr();
+    std::vector<int> getOrderDistr();
 
     double calcSwapEnthalpy();
     double calcHostFreeEnerg();

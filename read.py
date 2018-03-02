@@ -25,14 +25,14 @@ class data(object):
     def getStep(self,dataSetName,step):
         return np.array(self.f["/"+dataSetName][step,:,:])
 
-    def getOrderDestr(self):
+    def getOrderDistr(self):
         counter=np.zeros((self.paras["maxOrderIndex"]+1))
         for image in range(20,self.images):
             for order in np.nditer(self.getStep("orderPara",image)):
                 counter[order]+=1
         return counter/np.sum(counter)/self.paras["DeltaOrder"]
 
-    def getSingleOrderDestr(self,imageNumber):
+    def getSingleOrderDistr(self,imageNumber):
             counter=np.zeros((self.paras["maxOrderIndex"]+1))
             for order in np.nditer(self.getStep("orderPara",imageNumber)):
                 counter[order]+=1
@@ -49,24 +49,24 @@ class data(object):
     
 
     
-def orderDestrAni(data):
+def orderDistrAni(data):
     fig=plt.figure()
     ax=plt.subplot(111)
-    plot,=ax.plot(np.arange(self.paras["minOrder"],self.paras["minOrder"]+self.paras["DeltaOrder"],self.paras["DeltaOrder"]),data.getSingleOrderDestr(0),"k-")
+    plot,=ax.plot(np.arange(self.paras["minOrder"],self.paras["minOrder"]+self.paras["DeltaOrder"],self.paras["DeltaOrder"]),data.getSingleOrderDistr(0),"k-")
     ax.set_ylim([0,5])
 
     def update (i):
-        plot.set_ydata(data.getSingleOrderDestr(i))
+        plot.set_ydata(data.getSingleOrderDistr(i))
         print(i)
 
     ani=animation.FuncAnimation(fig, update, blit=False,frames=300, interval=100, repeat_delay=600)
     #mywriter = animation.FFMpegWriter(fps=10)
-    #ani.save('orderDestrAni.avi',writer=mywriter,dpi=400)
+    #ani.save('orderDistrAni.avi',writer=mywriter,dpi=400)
     plt.show()
 
 
     
-def orderDestrAndType(data):
+def orderDistrAndType(data):
     fig=plt.figure(figsize=(12,4))
     
     ax2=plt.subplot(121)
@@ -123,17 +123,17 @@ data1=data("../MCLattice2/out.h5")
 
 
 
-orderDestrAndType(data1)
+orderDistrAndType(data1)
 
 
 #snap(data1,int(argv[1]))
-#orderdestr=data1.getOrderDestr()
-#np.save("orderdestr.npy",orderdestr)
+#orderdistr=data1.getOrderDistr()
+#np.save("orderdistr.npy",orderdistr)
 
-#plt.plot(np.arange(-0.5,1.01,0.01),orderdestr,"k-")
+#plt.plot(np.arange(-0.5,1.01,0.01),orderdistr,"k-")
 ###plt.show()
 
-#print(argv[1],np.sum(orderdestr*np.arange(-0.5,1.01,0.01)*0.01))
+#print(argv[1],np.sum(orderdistr*np.arange(-0.5,1.01,0.01)*0.01))
 #plt.savefig("T_%s.png"%argv[1],bbox_inches="tight",dpi=400)
 
 

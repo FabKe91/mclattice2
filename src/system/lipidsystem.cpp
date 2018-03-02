@@ -32,7 +32,7 @@ void Lipidsystem::setup()
     
     int defaultOrderIndex=(inputfile->paras.at("defaultOrderPara")-inputfile->paras.at("minOrder"))/inputfile->paras.at("DeltaOrder");
     
-    //setting up type destr
+    //setting up type distr
     int N=width*height;
     std::vector<int> types{};
     for(int type=0;type<inputfile->nType-1;type++)
@@ -75,13 +75,13 @@ int Lipidsystem::getMeanOrder()
     return mean/count;
 }
 
-std::vector<int> Lipidsystem::getOrderDestr()
+std::vector<int> Lipidsystem::getOrderDistr()
 {
-    std::vector<int> destr((int)inputfile->paras.at("maxOrderIndex")+1,0);
+    std::vector<int> distr((int)inputfile->paras.at("maxOrderIndex")+1,0);
     for(int i=0;i<width;i++)
     for(int j=0;j<height;j++)
-        destr[lipids[map[i][j]].getOrderPara()]++;
-    return destr;
+        distr[lipids[map[i][j]].getOrderPara()]++;
+    return distr;
     
 }
 

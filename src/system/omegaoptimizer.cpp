@@ -28,22 +28,22 @@ void OmegaOptimizer::setupOptimization(std::string inputFileName,std::string typ
     
     
 
-    //setting up the md destr
+    //setting up the md distr
     std::vector<double> coeff;
     if (typeName=="DPPC")   coeff=std::vector<double>({-0.9767356, 8.69286553, -12.7808724, 12.12000201, -21.41776641, 7.14478559});
     else if (typeName=="DUPC") coeff=std::vector<double>({-0.14122, 7.51277, -9.36903, -4.43679, -97.86418, 192.92704, 19.37517, -168.20577});
-    else throw std::invalid_argument( "no MD destr found for type: "+typeName);
+    else throw std::invalid_argument( "no MD distr found for type: "+typeName);
         
     for(double order=inputfile->paras.at("minOrder");order<inputfile->paras.at("maxOrder")+inputfile->paras.at("DeltaOrder");order+=inputfile->paras.at("DeltaOrder"))
     {
-        MDOrderDestr.push_back(std::exp(enhance::polynom(coeff,order)));       
+        MDOrderDistr.push_back(std::exp(enhance::polynom(coeff,order)));       
     }
     
     //normalization
     double normSum=0;
-    for(auto& Porder: MDOrderDestr)   normSum+=Porder;
+    for(auto& Porder: MDOrderDistr)   normSum+=Porder;
     normSum*=inputfile->paras.at("DeltaOrder");
-    for(auto& Porder: MDOrderDestr)   Porder/=normSum;
+    for(auto& Porder: MDOrderDistr)   Porder/=normSum;
    
 }
 
@@ -54,44 +54,44 @@ void OmegaOptimizer::optimizeOmega()
 
 //     initual guess
     for(int i=0;i<=(int)inputfile->paras["maxOrderIndex"];i++)
-        lipidproperties->entropyFunction[type][i]=std::log(MDOrderDestr[i])+(lipidproperties->enthalpyFunction[type][type][i]*lipidproperties->neighbourFunction[type][i]/2+lipidproperties->selfEnergieFunction[type][i])/inputfile->kBT;
+        lipidproperties->entropyFunction[type][i]=std::log(MDOrderDistr[i])+(lipidproperties->enthalpyFunction[type][type][i]*lipidproperties->neighbourFunction[type][i]/2+lipidproperties->selfEnergieFunction[type][i])/inputfile->kBT;
     
     //create files for output
     std::ofstream OmegaOut;
     OmegaOut.open("OptimzeOut.txt", std::ios_base::out);
-    std::ofstream DestrOut;
-    DestrOut.open("DestrOut.txt", std::ios_base::out);
+    std::ofstream DistrOut;
+    DistrOut.open("DistrOut.txt", std::ios_base::out);
     OmegaOut.close();
-    DestrOut.close();
+    DistrOut.close();
     
     int run=0;
     double DeltaEnthr=0; 
     double max_alpha=0.2; 
     double alpha=max_alpha;
-    int orderCalcRuns=1000;  //number of runs to calc OrderDestr
+    int orderCalcRuns=1000;  //number of runs to calc OrderDistr
     double lastMDDiff=INFINITY;
     double alphaFaktor=1; //faktor to decrease alpha 
     while(true)
     {
         runUntilEquilibrium();
-        calcCurrentOrderDestr(orderCalcRuns);
+        calcCurrentOrderDistr(orderCalcRuns);
         double StepDiff=0; //diff to last step
         double MDDiff=0; // diff to MD
         OmegaOut.open("OptimzeOut.txt", std::ios_base::app);
-        DestrOut.open("DestrOut.txt", std::ios_base::app);
+        DistrOut.open("DistrOut.txt", std::ios_base::app);
 
         for(int i=0;i<=(int)inputfile->paras.at("maxOrderIndex");i++) 
         {
             //write to file
             OmegaOut<<lipidproperties->entropyFunction[type][i]<<" "; 
-            DestrOut<<currentOrderDestr[i]<<" ";
+            DistrOut<<currentOrderDistr[i]<<" ";
             
-            MDDiff+=(MDOrderDestr[i]-currentOrderDestr[i])*(MDOrderDestr[i]-currentOrderDestr[i]); //diff to md squared
+            MDDiff+=(MDOrderDistr[i]-currentOrderDistr[i])*(MDOrderDistr[i]-currentOrderDistr[i]); //diff to md squared
 
             //update omega
-            if (currentOrderDestr[i]!=0) // if ==0 zero division
+            if (currentOrderDistr[i]!=0) // if ==0 zero division
             { 
-                DeltaEnthr=alpha*std::log(MDOrderDestr[i]/currentOrderDestr[i]);
+                DeltaEnthr=alpha*std::log(MDOrderDistr[i]/currentOrderDistr[i]);
                 StepDiff+=DeltaEnthr*DeltaEnthr;
                 lipidproperties->entropyFunction[type][i]+=DeltaEnthr;
             }
@@ -100,23 +100,23 @@ void OmegaOptimizer::optimizeOmega()
         //following 2 loops only because zero division error from above, making entropyFunction constant in that case
         for(int i=1;i<=(int)inputfile->paras.at("maxOrderIndex");i++) 
         {
-            if (currentOrderDestr[i]==0)
+            if (currentOrderDistr[i]==0)
             { 
                 lipidproperties->entropyFunction[type][i]= lipidproperties->entropyFunction[type][i-1];                           
             }  
         }
         for(int i=(int)inputfile->paras.at("maxOrderIndex")-1;i>=0;i--) 
         {
-            if (currentOrderDestr[i]==0)
+            if (currentOrderDistr[i]==0)
             { 
                 lipidproperties->entropyFunction[type][i]= lipidproperties->entropyFunction[type][i+1];                           
             }  
         }
 
         OmegaOut<<"\n";
-        DestrOut<<"\n";
+        DistrOut<<"\n";
         OmegaOut.close();
-        DestrOut.close();
+        DistrOut.close();
 
         if (MDDiff>lastMDDiff) 
         {
@@ -158,20 +158,20 @@ void OmegaOptimizer::runUntilEquilibrium()
     }
 }
 
-void OmegaOptimizer::calcCurrentOrderDestr(int orderCalcRuns)//doing orderCalcRuns more loops to calc order destr
+void OmegaOptimizer::calcCurrentOrderDistr(int orderCalcRuns)//doing orderCalcRuns more loops to calc order distr
 {
-    currentOrderDestr=std::vector<double>(inputfile->paras.at("maxOrderIndex")+1);//resetting and setting to first step
-    std::vector<int> thisLoopOrderDestr;
+    currentOrderDistr=std::vector<double>(inputfile->paras.at("maxOrderIndex")+1);//resetting and setting to first step
+    std::vector<int> thisLoopOrderDistr;
     
     for(int t=0;t<orderCalcRuns;t++) 
     {
         doSystemloop();
-        thisLoopOrderDestr=lipidsystem.getOrderDestr();
-        for(int i=0;i<=(int)inputfile->paras.at("maxOrderIndex");i++)  currentOrderDestr[i]+=thisLoopOrderDestr[i];
+        thisLoopOrderDistr=lipidsystem.getOrderDistr();
+        for(int i=0;i<=(int)inputfile->paras.at("maxOrderIndex");i++)  currentOrderDistr[i]+=thisLoopOrderDistr[i];
     }
     for(int i=0;i<=(int)inputfile->paras.at("maxOrderIndex");i++)    //normalization
     {
-        currentOrderDestr[i]/=inputfile->paras.at("DeltaOrder")*inputfile->paras.at("width")*inputfile->paras.at("height")*orderCalcRuns;       
+        currentOrderDistr[i]/=inputfile->paras.at("DeltaOrder")*inputfile->paras.at("width")*inputfile->paras.at("height")*orderCalcRuns;       
     }
 }
 

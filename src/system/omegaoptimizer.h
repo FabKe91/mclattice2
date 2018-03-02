@@ -32,9 +32,9 @@ private:
     void updateOmega(std::vector<int>);
     void runUntilEquilibrium();
     void doSystemloop();
-    void calcCurrentOrderDestr(int);
-    std::vector<double> MDOrderDestr;
-    std::vector<double> currentOrderDestr;
+    void calcCurrentOrderDistr(int);
+    std::vector<double> MDOrderDistr;
+    std::vector<double> currentOrderDistr;
 
     
 public:
