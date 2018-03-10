@@ -28,6 +28,7 @@ int main(int argc, char **argv) {
         ("help", "produce help message")
         ("optimize", po::value<std::string>(), "do optimization, type name")
         ("o", po::value<std::string>(), "do optimization, type name")
+        ("continue","continue from existing file named 'out.h5'")
     ;
     
     po::variables_map vm;
@@ -41,7 +42,7 @@ int main(int argc, char **argv) {
         std::cout << desc << "\n";
         return 1;
     }
-    if (vm.count("optimize") or vm.count("o"))
+    else if (vm.count("optimize") or vm.count("o"))
     {
         std::string typeName;
         if (vm.count("optimize")) typeName=vm["optimize"].as<std::string>();
@@ -50,6 +51,9 @@ int main(int argc, char **argv) {
         OmegaOptimizer omegaoptimizer;
         omegaoptimizer.setupOptimization("in.txt",typeName);
         omegaoptimizer.optimizeOmega();
+    }
+    else if (vm.count("continue") or vm.count("o"))
+    {
     }
     else
     {

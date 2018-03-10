@@ -30,6 +30,35 @@ void MCHost::setup(std::string inputFileName)
     imageRate=inputfile->paras.at("imageRate");
 }
 
+// void MCHost::setupForRestart(std::string inputFileName)
+// {
+//     #ifndef NDEBUG
+//     std::cout<<"MCHost::setup"<<std::endl;
+//     #endif
+//     
+//     
+//     inputfile.reset(new InputFile(inputFileName));  //all input parameters are stored in the shared pointer "inputfile". all classes get the pointer 
+//     
+//     lipidproperties.reset(new LipidProperties()); //the fit functions are stored in lipidproperties
+//     lipidproperties->readParas(inputfile);
+//     
+// 
+//     lipidsystem.readParas(lipidproperties,inputfile); 
+//     lipidsystem.setup();
+//     
+//     
+//     datafile.reset(new DataFile(lipidsystem,inputfile));
+//     datafile->createFile();   
+//     
+// 
+//     
+// 
+// 
+//     for(int i=0;i<inputfile->width*inputfile->height;i++) IDs.push_back(i);
+//     
+//     steps=inputfile->paras.at("steps");
+//     imageRate=inputfile->paras.at("imageRate");
+// }
 
 
 void MCHost::run()

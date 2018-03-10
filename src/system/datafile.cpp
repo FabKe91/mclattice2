@@ -2,8 +2,6 @@
 
 
 
-using namespace H5;
-
 
 DataFile::~DataFile()
 {
@@ -29,7 +27,9 @@ DataFile::DataFile(Lipidsystem& lipidsystem,std::shared_ptr<InputFile> _inputfil
 
 void DataFile::createFile()
 {
-   H5File file( filename, H5F_ACC_TRUNC );
+    hid_t file;
+    
+    file= H5Fcreate( filename, H5F_ACC_TRUNC , H5P_DEFAULT, H5P_DEFAULT);
     
     dimsf[0] = 1;
     dimsf[1] = NX;
@@ -49,39 +49,42 @@ void DataFile::createFile()
         createDataset(o,file);
     }
     
-    for (auto const& mapitem: inputfile->paras) createAttribute(mapitem.first,mapitem.second,file);
+//     for (auto const& mapitem: inputfile->paras) createAttribute(mapitem.first,mapitem.second,file);
     
 
 }
 
-void DataFile::createDataset(std::string datasetName, H5File& file)
+void DataFile::createDataset(std::string datasetName, hid_t& file)
 {
-    DataSpace dataspace( 3, size, maxdimsf);  
+    hid_t   dataspace,dcpl,dataset ;
+//     herr_t          status;
+
+    dataspace= H5Screate_simple( 3, size, NULL);  
 
       
-    DSetCreatPropList cparms;
-    cparms.setChunk( 3, chunk_dims );
-    int fill_val = 0;
-    cparms.setFillValue( PredType::NATIVE_INT, &fill_val);
+    dcpl = H5Pcreate (H5P_DATASET_CREATE);
+    H5Pset_chunk (dcpl, 3, chunk_dims);
+
    
     
-    DataSet dataset = file.createDataSet( datasetName, PredType::NATIVE_INT, dataspace,cparms);
+    dataset = H5Dcreate (file, datasetName.c_str(), H5T_NATIVE_INT, dataspace, H5P_DEFAULT, dcpl,
+                H5P_DEFAULT); 
     
     buffer.push_back(boost::multi_array<int,3>(boost::extents[0][NX][NY]));
 }
 
-void DataFile::createAttribute(std::string attrName, double val, H5File& file)
-{
-    double* data;
-    data=&val;
-    const hsize_t dims=1;
-    DataSpace* dspace = new DataSpace(1,&dims);
-    Attribute attr = file.createAttribute(attrName, PredType::NATIVE_DOUBLE, *dspace);
-    delete dspace;
-    
-    attr.write(PredType::NATIVE_DOUBLE,data);
-    
-}
+// void DataFile::createAttribute(std::string attrName, double val, hid_t& file)
+// {
+//     double* data;
+//     data=&val;
+//     const hsize_t dims=1;
+//     DataSpace* dspace = new DataSpace(1,&dims);
+//     Attribute attr = file.createAttribute(attrName, PredType::NATIVE_DOUBLE, *dspace);
+//     delete dspace;
+//     
+//     attr.write(PredType::NATIVE_DOUBLE,data);
+//     
+// }
 
 void DataFile::writeStep()
 {
@@ -103,15 +106,16 @@ void DataFile::writeStep()
 
 void DataFile::flush()
 {
-
-    H5File file( filename, H5F_ACC_RDWR );
+    hid_t file;
+    
+    file= H5Fcreate( filename, H5F_ACC_RDWR , H5P_DEFAULT, H5P_DEFAULT);
     
     images+=bufferLen;
     dimsf[0]=bufferLen;
     offset[0]=images-bufferLen;
     size[0]=images;
     
-    spaceDummy=DataSpace( 3, dimsf); 
+    spaceDummy=H5Screate_simple(3, dimsf ,NULL); 
 
     for(int i=0; i<inputfile->outs.size();i++)
     {
@@ -128,14 +132,17 @@ void DataFile::flush()
 
 
 template<typename INTorFloat>
-void DataFile::extendDataset(std::string datasetName, const boost::multi_array<INTorFloat,3>& data_array, H5File& file)
+void DataFile::extendDataset(std::string datasetName, const boost::multi_array<INTorFloat,3>& data_array, hid_t& file)
 {  
-    DataSet dataset=file.openDataSet(datasetName);
-
-    dataset.extend(size);
-    DataSpace fspace = dataset.getSpace ();
-    fspace.selectHyperslab( H5S_SELECT_SET, dimsf, offset );
-    dataset.write( data_array.data(), PredType::NATIVE_INT, spaceDummy, fspace );
+    hid_t dataset,filespace;
+    dataset=H5Dopen(file, datasetName.c_str(),H5P_DEFAULT);
+    
+    
+    H5Dset_extent(dataset,size);
+    filespace = H5Dget_space(dataset);
+    
+    H5Sselect_hyperslab(filespace, H5S_SELECT_SET, offset,NULL,dimsf, NULL );
+    H5Dwrite(dataset,  H5T_NATIVE_INT, spaceDummy, filespace, H5P_DEFAULT,data_array.data() );
 
 }
 

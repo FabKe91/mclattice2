@@ -1,6 +1,6 @@
 #ifndef DATAFILE_H
 #define DATAFILE_H
-#include "H5Cpp.h"
+#include "hdf5.h"
 #include <string>
 #include <vector>
 
@@ -13,13 +13,12 @@
 #include <vector>
 #include <map>
 #include <stdio.h>
-using namespace H5;
 
 class DataFile
 {
 
 private:    
-    std::string filename="out.h5";
+    const char* filename="out.h5";
     
     std::vector<std::string> outs;
     std::map<std::string,std::function<const boost::multi_array<int,2>()>> getterMap;
@@ -39,7 +38,7 @@ private:
     hsize_t      chunk_dims[3];
     hsize_t      maxdimsf[3] = {H5S_UNLIMITED, H5S_UNLIMITED,H5S_UNLIMITED};
 
-    DataSpace spaceDummy;
+    hid_t spaceDummy;
     std::shared_ptr<InputFile> inputfile;
 
     
@@ -53,9 +52,9 @@ public:
 
 private:
     template<typename INTorFloat>
-    void extendDataset(std::string ,const boost::multi_array<INTorFloat,3>&,H5File&);
-    void createDataset(std::string, H5File&);
-    void createAttribute(std::string, double, H5File&);
+    void extendDataset(std::string ,const boost::multi_array<INTorFloat,3>&,hid_t&);
+    void createDataset(std::string, hid_t&);
+    void createAttribute(std::string, double, hid_t&);
     void flush();
     
 };
