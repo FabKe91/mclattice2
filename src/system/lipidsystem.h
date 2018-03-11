@@ -20,9 +20,7 @@ public:
     void setup();
    
     
-    unsigned int getHeight(){ return height; };
-    unsigned int getWidth(){ return width; };
-    
+   
     
     const boost::multi_array<int,2> getOrderParas();
     const boost::multi_array<int,2> getTypes();
@@ -33,14 +31,15 @@ public:
     double calcSwapEnthalpy();
     double calcHostFreeEnerg();
 
-    void findPair();
     void swap();
     
     void setHost(int x, int y);
     void setHost(int ID);
     void setRNDHost();
     void setPartner();
-   
+
+    void setTypes(boost::multi_array<int,2>);
+    void setOrder(boost::multi_array<int,2>);
     
     
     void fluctuate();

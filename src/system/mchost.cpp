@@ -30,35 +30,42 @@ void MCHost::setup(std::string inputFileName)
     imageRate=inputfile->paras.at("imageRate");
 }
 
-// void MCHost::setupForRestart(std::string inputFileName)
-// {
-//     #ifndef NDEBUG
-//     std::cout<<"MCHost::setup"<<std::endl;
-//     #endif
-//     
-//     
-//     inputfile.reset(new InputFile(inputFileName));  //all input parameters are stored in the shared pointer "inputfile". all classes get the pointer 
-//     
-//     lipidproperties.reset(new LipidProperties()); //the fit functions are stored in lipidproperties
-//     lipidproperties->readParas(inputfile);
-//     
-// 
-//     lipidsystem.readParas(lipidproperties,inputfile); 
-//     lipidsystem.setup();
-//     
-//     
-//     datafile.reset(new DataFile(lipidsystem,inputfile));
-//     datafile->createFile();   
-//     
-// 
-//     
-// 
-// 
-//     for(int i=0;i<inputfile->width*inputfile->height;i++) IDs.push_back(i);
-//     
-//     steps=inputfile->paras.at("steps");
-//     imageRate=inputfile->paras.at("imageRate");
-// }
+void MCHost::setupForRestart(std::string inputFileName)
+{
+    #ifndef NDEBUG
+    std::cout<<"MCHost::setup"<<std::endl;
+    #endif
+    
+    
+    inputfile.reset(new InputFile(inputFileName));  //all input parameters are stored in the shared pointer "inputfile". all classes get the pointer 
+    
+    
+    datafile.reset(new DataFile(lipidsystem,inputfile));
+    datafile->readFile();
+    
+    if(inputfile->paras.at("steps")/inputfile->paras.at("imageRate")+1==datafile->getImages()) throw std::logic_error("run already finished");
+    loopCounter=(datafile->getImages()-1)*inputfile->paras.at("imageRate");
+    
+
+    lipidproperties.reset(new LipidProperties()); //the fit functions are stored in lipidproperties
+    lipidproperties->readParas(inputfile);
+    
+
+    lipidsystem.readParas(lipidproperties,inputfile); 
+    lipidsystem.setup();
+    
+    
+    lipidsystem.setOrder(datafile->getLastStep("orderPara"));
+    lipidsystem.setTypes(datafile->getLastStep("Type"));
+//     lipidsystem.setIDs(datafile->getLastStep("IDs"));
+
+
+
+    for(int i=0;i<inputfile->width*inputfile->height;i++) IDs.push_back(i);
+    
+    steps=inputfile->paras.at("steps");
+    imageRate=inputfile->paras.at("imageRate");
+}
 
 
 void MCHost::run()
@@ -72,10 +79,10 @@ void MCHost::run()
     long long t=0;
     
     
-    
-    datafile->writeStep();
-    for(int loopCounter=1;loopCounter<=steps;loopCounter++)
+    if (loopCounter == 0) datafile->writeStep();
+    while(loopCounter<steps)
     {   
+        loopCounter++;
         doSystemloop();
         t+=inputfile->paras.at("width")*inputfile->paras.at("height");
         
@@ -90,20 +97,18 @@ void MCHost::run()
         if(loopCounter%imageRate==0)
         {
             datafile->writeStep();
+            
             std::cout<<"loop: "<<loopCounter<<" flucAccepRate: "<< (t-notAcceptedFlucs)/(double)t<<" swapAccepRate: "<< (t-notAcceptedFlucs-notAcceptedSwaps)/(double)(t-notAcceptedFlucs)<<std::endl;
             
             auto currTime = std::chrono::system_clock::now();
             std::chrono::duration<double> elapsed_seconds_start=currTime-startTime;
             std::chrono::duration<double> elapsed_seconds_last=currTime-lastTime;
             std::time_t end_time = std::chrono::system_clock::to_time_t(currTime);
-
             
             std::cout<<"time per step curr: "<<elapsed_seconds_last.count()/imageRate/inputfile->paras.at("width")/inputfile->paras.at("height")<<" mean: "<<elapsed_seconds_start.count()/t<<"    mean order: "<<lipidsystem.getMeanOrder()<<" "<<std::ctime(&end_time)<<std::endl;
             lastTime = currTime;
-
         }
     }
-    
 }
 
 void MCHost::doSystemloop() //loop one time over all lipids
@@ -124,7 +129,6 @@ void MCHost::doSystemloop() //loop one time over all lipids
         {
             lipidsystem.fluctuateBack();
             notAcceptedFlucs++;
-
         }
 
         lipidsystem.setPartner();
@@ -136,7 +140,6 @@ void MCHost::doSystemloop() //loop one time over all lipids
         {
             lipidsystem.swap();
             notAcceptedSwaps++;
-
         }
     }
 }

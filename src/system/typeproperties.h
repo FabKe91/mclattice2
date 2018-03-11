@@ -10,8 +10,6 @@ class TypeProperties
         int maxOrder=0;
         int minOrder=0;
         int maxFluc;
-//         int getOrderIndex(double&);
-//         double getOrderValue(int&);
 
 };
 

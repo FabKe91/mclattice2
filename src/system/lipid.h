@@ -23,9 +23,10 @@ public:
 //     void setY(int Y) { posY=Y; }
     int  getID()   const { return ID; }
     int  getType() const { return type; }
-    int  getOrderPara() const { return orderPara; }
-    void  setOrderPara(int newOrder) { orderPara=newOrder; }
+    int  getOrder() const { return orderPara; }
+    void  setOrder(int newOrder) { orderPara=newOrder; }
     void  setID(int newID) { ID=newID; }
+    void  setType(int newType) { type=newType; }
 
 
 };

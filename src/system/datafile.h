@@ -28,7 +28,7 @@ private:
     long int maxBufferSize=1024*1024*10;
     
     
-    unsigned int   NX = 0;          
+    unsigned int   NX = 0;
     unsigned int   NY = 0;
     unsigned int images = 0;
 
@@ -48,7 +48,11 @@ public:
     ~DataFile();
     DataFile(Lipidsystem&,std::shared_ptr<InputFile>);
     void createFile();
+    void readFile();
     void writeStep();
+    boost::multi_array<int,2> getLastStep(std::string);
+    
+    int getImages() {return images;}
 
 private:
     template<typename INTorFloat>

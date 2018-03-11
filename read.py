@@ -19,8 +19,11 @@ class data(object):
         self.paras={}
         
         for item in self.f.attrs.keys():
-            self.paras[item]=self.f.attrs[item][0]
-        
+            if self.f.attrs[item]==int(self.f.attrs[item]):
+                self.paras[item]=int(self.f.attrs[item])
+            else:
+                self.paras[item]=self.f.attrs[item]
+
         
     def getStep(self,dataSetName,step):
         return np.array(self.f["/"+dataSetName][step,:,:])
@@ -82,7 +85,7 @@ def orderDistrAndType(data):
     plt.colorbar(im2,ax=ax3)
     
     def update (i):
-        j=i*100
+        j=i
         ax2.set_title('%s'%j)
         im.set_array((data.getStep("orderPara",j)-50)*0.01)
         im2.set_array(data.getStep("Type",j))

@@ -17,6 +17,7 @@ private:
     int imageRate;
     int notAcceptedSwaps=0;
     int notAcceptedFlucs=0;
+    int loopCounter=0;
     std::vector<int> IDs;
 
 
@@ -34,6 +35,7 @@ public:
     
 
     void setup(std::string);
+    void setupForRestart(std::string);
     
     inline bool acceptance(const double Enthalpy1, const double Enthalpy2);
 

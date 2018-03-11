@@ -1,14 +1,14 @@
 #erst muessen alle type definitionen kommen, dann die parameter
 
 
-maxBufferSize 0 #bufferSize in MegaByte
-steps 1000
-imageRate 10
+maxBufferSize 1  #bufferSize in MegaByte
+steps 200
+imageRate 1
 T 290
 height 100
 width 100
 DeltaOrder 0.01
-outs Type orderPara IDs
+outs Type orderPara
 kB 0.00831448664
 defaultOrderPara 0.3 #achtung, speicherfehler falls < als minOrder eines types
 

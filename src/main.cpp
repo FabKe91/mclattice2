@@ -15,7 +15,8 @@ int main(int argc, char **argv) {
     
     
     enhance::seed = std::random_device{}();
-    
+//     enhance::seed = 123456749;
+
     #ifndef NDEBUG
     std::cout<<"Debugging"<<std::endl;
     enhance::seed = 123456749;
@@ -52,8 +53,11 @@ int main(int argc, char **argv) {
         omegaoptimizer.setupOptimization("in.txt",typeName);
         omegaoptimizer.optimizeOmega();
     }
-    else if (vm.count("continue") or vm.count("o"))
+    else if (vm.count("continue"))
     {
+        MCHost mchost;
+        mchost.setupForRestart("in.txt");
+        mchost.run();
     }
     else
     {

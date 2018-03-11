@@ -23,7 +23,6 @@ void OmegaOptimizer::setupOptimization(std::string inputFileName,std::string typ
     lipidsystem.setup();
     
     
-    
     for(int i=0;i<inputfile->width*inputfile->height;i++) IDs.push_back(i); //setup IDs to get rndOrder in each doSystemloop
     
     
@@ -41,7 +40,7 @@ void OmegaOptimizer::setupOptimization(std::string inputFileName,std::string typ
     
     //normalization
     double normSum=0;
-    for(auto& Porder: MDOrderDistr)   normSum+=Porder;
+    for(int i=inputfile->types[type].minOrder;i<=inputfile->types[type].maxOrder;i++)   normSum+=MDOrderDistr[i];
     normSum*=inputfile->paras.at("DeltaOrder");
     for(auto& Porder: MDOrderDistr)   Porder/=normSum;
    
@@ -66,11 +65,11 @@ void OmegaOptimizer::optimizeOmega()
     
     int run=0;
     double DeltaEnthr=0; 
-    double max_alpha=0.2; 
-    double alpha=max_alpha;
+    double maxAlpha=0.5;
+    double alpha=maxAlpha;
     int orderCalcRuns=1000;  //number of runs to calc OrderDistr
     double lastMDDiff=INFINITY;
-    double alphaFaktor=1; //faktor to decrease alpha 
+    
     while(true)
     {
         runUntilEquilibrium();
@@ -80,6 +79,9 @@ void OmegaOptimizer::optimizeOmega()
         OmegaOut.open("OptimzeOut.txt", std::ios_base::app);
         DistrOut.open("DistrOut.txt", std::ios_base::app);
 
+        int VZW=0;
+        bool VZ=true; //true=positiv
+        bool lastVZ=true;
         for(int i=0;i<=(int)inputfile->paras.at("maxOrderIndex");i++) 
         {
             //write to file
@@ -92,6 +94,12 @@ void OmegaOptimizer::optimizeOmega()
             if (currentOrderDistr[i]!=0) // if ==0 zero division
             { 
                 DeltaEnthr=alpha*std::log(MDOrderDistr[i]/currentOrderDistr[i]);
+                VZ=DeltaEnthr>0;
+                if(VZ != lastVZ)
+                {
+                    VZW++;
+                    lastVZ=VZ;
+                }
                 StepDiff+=DeltaEnthr*DeltaEnthr;
                 lipidproperties->entropyFunction[type][i]+=DeltaEnthr;
             }
@@ -103,14 +111,14 @@ void OmegaOptimizer::optimizeOmega()
             if (currentOrderDistr[i]==0)
             { 
                 lipidproperties->entropyFunction[type][i]= lipidproperties->entropyFunction[type][i-1];                           
-            }  
+            }
         }
         for(int i=(int)inputfile->paras.at("maxOrderIndex")-1;i>=0;i--) 
         {
             if (currentOrderDistr[i]==0)
             { 
                 lipidproperties->entropyFunction[type][i]= lipidproperties->entropyFunction[type][i+1];                           
-            }  
+            }
         }
 
         OmegaOut<<"\n";
@@ -118,15 +126,14 @@ void OmegaOptimizer::optimizeOmega()
         OmegaOut.close();
         DistrOut.close();
 
-        if (MDDiff>lastMDDiff) 
-        {
-            orderCalcRuns*=2;
-            alphaFaktor/=2;
-            std::cout<<"keine verbesserung! orderCalcRuns = "<<orderCalcRuns<<" alphaFaktor = "<<alphaFaktor<<std::endl;
-        }
-        alpha=MDDiff*alphaFaktor;
-        if (alpha>max_alpha) alpha=max_alpha;
-        std::cout<<"run "<<run<<" StepDiff "<<StepDiff<<" MDDiff "<<MDDiff<<" alpha "<<alpha<<std::endl;
+        if (MDDiff>lastMDDiff)
+            {
+                orderCalcRuns*=2;
+                if(VZW <15)
+                    alpha*=0.5;
+            }
+        if (alpha > maxAlpha) alpha=maxAlpha;
+        std::cout<<"run "<<run<<" StepDiff "<<StepDiff<<" MDDiff "<<MDDiff<<" orderCalcRuns "<<orderCalcRuns<<" alpha "<<alpha<<" VZW "<<VZW<<std::endl;
 
         lastMDDiff=MDDiff;
         run++;

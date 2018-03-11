@@ -20,6 +20,12 @@ void Lipidsystem::readParas( std::shared_ptr<LipidProperties> _lipidproperties,s
     inputfile=_inputfile;
     height=inputfile->height;
     width=inputfile->width;
+    
+    map =new  int*[width];
+    for(int i=0;i<width;i++)
+        map[i] =new  int[height];
+
+
 }
 
 
@@ -43,16 +49,31 @@ void Lipidsystem::setup()
     std::shuffle(types.begin(), types.end(), enhance::rand_engine); //randomize order of types
 
 
-    map =new  int*[width];
     for(int i=0;i<width;i++)
     {
-        map[i] =new  int[height];
         for(int j=0;j<height;j++)
         {   
             map[i][j]=i*height+j;
             lipids.push_back(Lipid(i*height+j,types[i*height+j],defaultOrderIndex,i,j));
         }
     }
+}
+
+
+void Lipidsystem::setOrder(boost::multi_array<int, 2> data)
+{
+    for(int i=0;i<width;i++)
+        for(int j=0;j<height;j++)
+            lipids[i*height+j].setOrder(data[i][j]);
+
+}
+
+void Lipidsystem::setTypes(boost::multi_array<int, 2> data)
+{
+    for(int i=0;i<width;i++)
+        for(int j=0;j<height;j++)
+            lipids[i*height+j].setType(data[i][j]);
+
 }
 
 
@@ -69,7 +90,7 @@ int Lipidsystem::getMeanOrder()
         for(int j=0;j<height;j++)
         {   
             count++;
-            mean += lipids[map[i][j]].getOrderPara();
+            mean += lipids[map[i][j]].getOrder();
         }
     }
     return mean/count;
@@ -80,7 +101,7 @@ std::vector<int> Lipidsystem::getOrderDistr()
     std::vector<int> distr((int)inputfile->paras.at("maxOrderIndex")+1,0);
     for(int i=0;i<width;i++)
     for(int j=0;j<height;j++)
-        distr[lipids[map[i][j]].getOrderPara()]++;
+        distr[lipids[map[i][j]].getOrder()]++;
     return distr;
     
 }
@@ -93,7 +114,7 @@ const boost::multi_array<int,2> Lipidsystem::getOrderParas()
     boost::multi_array<int,2> data(boost::extents[width][height]);
     for(int i=0;i<width;i++)    
     for(int j=0;j<height;j++)
-        data[i][j] = lipids[map[i][j]].getOrderPara();
+        data[i][j] = lipids[map[i][j]].getOrder();
     return data;
 }
 
@@ -133,7 +154,7 @@ void Lipidsystem::setHost(int ID)
 
 void Lipidsystem::setRNDHost()
 {
-    ID0=enhance::random_int(0,height*width);
+    ID0=enhance::random_int(0,height*width-1);
 }
 
 
@@ -256,11 +277,11 @@ double Lipidsystem::calcHostFreeEnerg()
    
     #ifndef NDEBUG
     std::cout<<"H "<<G<<std::endl;
-    std::cout<<"kB T S "<<-inputfile->kBT*lipidproperties->entropyFunction[lipids[ID0].getType()][lipids[ID0].getOrderPara()]<<std::endl;
-    std::cout<<"self E "<<lipidproperties->selfEnergieFunction[lipids[ID0].getType()][lipids[ID0].getOrderPara()]<<std::endl;
+    std::cout<<"kB T S "<<-inputfile->kBT*lipidproperties->entropyFunction[lipids[ID0].getType()][lipids[ID0].getOrder()]<<std::endl;
+    std::cout<<"self E "<<lipidproperties->selfEnergieFunction[lipids[ID0].getType()][lipids[ID0].getOrder()]<<std::endl;
     #endif
 
-    G+=lipidproperties->selfEnergieFunction[lipids[ID0].getType()][lipids[ID0].getOrderPara()]-inputfile->kBT*lipidproperties->entropyFunction[lipids[ID0].getType()][lipids[ID0].getOrderPara()];
+    G+=lipidproperties->selfEnergieFunction[lipids[ID0].getType()][lipids[ID0].getOrder()]-inputfile->kBT*lipidproperties->entropyFunction[lipids[ID0].getType()][lipids[ID0].getOrder()];
     
     
     return G;
@@ -273,8 +294,8 @@ double Lipidsystem::calcPairEnthalpy(unsigned int ID_1,unsigned int ID_2)
 { 
     int type1=lipids[ID_1].getType();
     int type2=lipids[ID_2].getType();
-    int order1=lipids[ID_1].getOrderPara();
-    int order2=lipids[ID_2].getOrderPara();
+    int order1=lipids[ID_1].getOrder();
+    int order2=lipids[ID_2].getOrder();
     
 
     if (type1>=type2)
@@ -295,16 +316,16 @@ void Lipidsystem::fluctuate()
     std::cout<<"Lipidsystem::fluctuate"<<std::endl;
     #endif
 
-    oldOrder=lipids[ID0].getOrderPara();
+    oldOrder=lipids[ID0].getOrder();
     int maxOrder=inputfile->types[lipids[ID0].getType()].maxOrder;
     int minOrder=inputfile->types[lipids[ID0].getType()].minOrder;
     int maxFluc=inputfile->types[lipids[ID0].getType()].maxFluc;
     
-    lipids[ID0].setOrderPara(enhance::random_int((oldOrder-maxFluc+minOrder+std::abs(oldOrder-maxFluc-minOrder))/2,(oldOrder+maxFluc+maxOrder-std::abs(oldOrder+maxFluc-maxOrder))/2));
+    lipids[ID0].setOrder(enhance::random_int((oldOrder-maxFluc+minOrder+std::abs(oldOrder-maxFluc-minOrder))/2,(oldOrder+maxFluc+maxOrder-std::abs(oldOrder+maxFluc-maxOrder))/2));
     
     #ifndef NDEBUG
     std::cout<<"oldOrder: "<<oldOrder<<" maxOrder: "<<maxOrder<<" minOrder: "<<minOrder<<" maxFluc: "<<maxFluc<<std::endl;
-    std::cout<<"searching order between "<<(oldOrder-maxFluc+minOrder+std::abs(oldOrder-maxFluc-minOrder))/2<<" "<<(oldOrder+maxFluc+maxOrder-std::abs(oldOrder+maxFluc-maxOrder))/2<<" new order: "<<lipids[ID0].getOrderPara()<<std::endl;
+    std::cout<<"searching order between "<<(oldOrder-maxFluc+minOrder+std::abs(oldOrder-maxFluc-minOrder))/2<<" "<<(oldOrder+maxFluc+maxOrder-std::abs(oldOrder+maxFluc-maxOrder))/2<<" new order: "<<lipids[ID0].getOrder()<<std::endl;
     #endif
     
     
@@ -316,7 +337,7 @@ void Lipidsystem::fluctuateBack()
     #ifndef NDEBUG
     std::cout<<"Lipidsystem::fluctuateBack"<<std::endl;
     #endif
-    lipids[ID0].setOrderPara(oldOrder);
+    lipids[ID0].setOrder(oldOrder);
     
 }
 
