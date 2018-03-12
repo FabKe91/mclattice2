@@ -16,7 +16,7 @@ find_package(HDF5 REQUIRED)
 FIND_PACKAGE(Boost COMPONENTS program_options REQUIRED)
 
 include_directories(${HDF5_INCLUDE_DIR} ${Boost_INCLUDE_DIRS})
-set(_hdf5_libs hdf5 hdf5_cpp)
+set(_hdf5_libs hdf5)
 
 
 file(GLOB mclattice2_SRC
