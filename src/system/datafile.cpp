@@ -66,7 +66,7 @@ void DataFile::createDataset(std::string datasetName, hid_t& file)
 
       
     dcpl = H5Pcreate (H5P_DATASET_CREATE);
-    H5Pset_deflate (dcpl, 9); // 9 = best compression, lowest speed
+//     H5Pset_deflate (dcpl, 9); // 9 = best compression, lowest speed
     H5Pset_chunk (dcpl, 3, chunk_dims);
 
    
@@ -121,7 +121,8 @@ void DataFile::flush()
     #ifndef NDEBUG
     std::cout<<"DataFile::flush"<<std::endl;
     #endif
-    
+    auto startTime = std::chrono::system_clock::now();
+
     
     hid_t file;
     
@@ -140,7 +141,10 @@ void DataFile::flush()
         buffer[i].resize(boost::extents[0][NX][NY]);
     }
     
-    std::cout<<"flushing! size: "<<bufferSize/1024.0/1024<<"MB images: "<<images<<std::endl;
+    
+    std::chrono::duration<double> elapsed_seconds=std::chrono::system_clock::now()-startTime;
+
+    std::cout<<"flushing! size: "<<bufferSize/1024.0/1024<<"MB images: "<<images<<" time to flush: "<<elapsed_seconds.count()<<" s"<< std::endl;
 
     bufferLen=0;
     bufferSize=0;
@@ -169,7 +173,7 @@ void DataFile::extendDataset(std::string datasetName, const boost::multi_array<I
 
     H5Sselect_hyperslab(filespace, H5S_SELECT_SET, offset,NULL,dimsf, NULL );
     H5Dwrite(dataset,  H5T_NATIVE_INT, spaceDummy, filespace, H5P_DEFAULT,data_array.data() );
-    
+
 
     H5Dclose (dataset);
     H5Sclose (filespace);

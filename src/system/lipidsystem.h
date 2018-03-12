@@ -28,44 +28,55 @@ public:
     int getMeanOrder();
     std::vector<int> getOrderDistr();
 
-    double calcSwapEnthalpy();
-    double calcHostFreeEnerg();
-
-    void swap();
+    void swap(int ID_0, int ID_1);
     
-    void setHost(int x, int y);
-    void setHost(int ID);
-    void setRNDHost();
-    void setPartner();
 
     void setTypes(boost::multi_array<int,2>);
     void setOrder(boost::multi_array<int,2>);
     
     
-    void fluctuate();
-    void fluctuateBack();
+    void fluctuate(int ID);
+    void fluctuateBack(int ID);
+
+    inline double calcPairEnthalpy(int ID_0,int ID_1);
     
+    int** map;
+
+    std::vector<Lipid> lipids {};
+
 private:
     std::shared_ptr<LipidProperties> lipidproperties;
     std::shared_ptr<InputFile> inputfile;
 
-    unsigned int height;
-    unsigned int width;
-    int lastSwappedIDs[2]={0,0};
-
     int oldOrder=0;
-    std::vector<Lipid> lipids {};
     
 
-    int** map;
-    int rdnPartnerNumber=0;
+
     
     void printMap();//only for debugging
 
     
-    inline double calcPairEnthalpy(unsigned int ID1,unsigned int ID2);
 
 
 };
+
+double Lipidsystem::calcPairEnthalpy(int ID_1,int ID_2)
+{ 
+    int type1=lipids[ID_1].getType();
+    int type2=lipids[ID_2].getType();
+    int order1=lipids[ID_1].getOrder();
+    int order2=lipids[ID_2].getOrder();
+    
+
+    if (type1>=type2)
+    {
+        return lipidproperties->enthalpyFunction[type1][type2][(int)((order1+order2)/2)]*(lipidproperties->neighbourFunction[type1][order1]+lipidproperties->neighbourFunction[type2][order2])/16;
+    }
+    else
+    {
+        return lipidproperties->enthalpyFunction[type2][type1][(int)((order1+order2)/2)]*(lipidproperties->neighbourFunction[type1][order1]+lipidproperties->neighbourFunction[type2][order2])/16;;
+    }
+
+}
 
 #endif // LIPIDSYSTEM_H

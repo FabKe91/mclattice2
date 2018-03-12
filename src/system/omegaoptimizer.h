@@ -37,13 +37,25 @@ private:
     std::vector<double> currentOrderDistr;
 
     
+    double calcSwapEnthalpy();
+    double calcHostFreeEnerg();
+   
+    int lastSwappedIDs[2]={0,0};    
+    void setHost(int x, int y);
+    void setHost(int ID);
+    void setRNDHost();
+    void setPartner();
+    
+    int rdnPartnerNumber=0;
+    
+    inline bool acceptance(const double Enthalpy1, const double Enthalpy2);
+
 public:
     void run();
     void optimizeOmega();
 
     void setupOptimization(std::string,std::string);
     
-    bool acceptance(const double Enthalpy1, const double Enthalpy2);
 
 };
 

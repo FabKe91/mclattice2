@@ -1,5 +1,17 @@
 #include "omegaoptimizer.h"
 
+
+    #define ID0 lastSwappedIDs[0]
+    #define LIPID0 lipidsystem.lipids[ID0]
+    #define posX0 LIPID0.posX
+    #define posY0 LIPID0.posY
+    
+    #define ID1 lastSwappedIDs[1]
+    #define LIPID1 lipidsystem.lipids[ID1]
+    #define posX1 LIPID1.posX
+    #define posY1 LIPID1.posY
+    
+
 void OmegaOptimizer::setupOptimization(std::string inputFileName,std::string typeName)
 {
     #ifndef NDEBUG
@@ -184,38 +196,149 @@ void OmegaOptimizer::calcCurrentOrderDistr(int orderCalcRuns)//doing orderCalcRu
 
 void OmegaOptimizer::doSystemloop() //loop one time over all lipids
 {
-    std::shuffle(IDs.begin(), IDs.end(), enhance::rand_engine); //get new rnd id order
+    std::shuffle(IDs.begin(), IDs.end(), enhance::rand_engine);
+    
     for(int &ID: IDs)
     {
-        lipidsystem.setHost(ID);
+        setHost(ID);
         double FreeEnergie1=0;
         double FreeEnergie2=0;
 
-        FreeEnergie1=lipidsystem.calcHostFreeEnerg();
-        lipidsystem.fluctuate();
-        FreeEnergie2=lipidsystem.calcHostFreeEnerg();
+        FreeEnergie1=calcHostFreeEnerg();
+        lipidsystem.fluctuate(ID0);
+        FreeEnergie2=calcHostFreeEnerg();
 
         if(!acceptance(FreeEnergie1,FreeEnergie2))
         {
-            lipidsystem.fluctuateBack();
+            lipidsystem.fluctuateBack(ID0);
             notAcceptedFlucs++;
-
         }
 
-        lipidsystem.setPartner();
-        FreeEnergie1=lipidsystem.calcSwapEnthalpy();
-        lipidsystem.swap();
-        FreeEnergie2=lipidsystem.calcSwapEnthalpy();
+        setPartner();
+        FreeEnergie1=calcSwapEnthalpy();
+        lipidsystem.swap(ID0,ID1);
+        FreeEnergie2=calcSwapEnthalpy();
 
         if(!acceptance(FreeEnergie1,FreeEnergie2))
         {
-            lipidsystem.swap();
+            lipidsystem.swap(ID0,ID1);
             notAcceptedSwaps++;
-
         }
     }
 }
 
+double OmegaOptimizer::calcSwapEnthalpy()
+{
+    #ifndef NDEBUG
+    std::cout<<"OmegaOptimizer::calcSwapEnthalpy"<<std::endl;
+    #endif
+
+    double H=0;
+    
+
+    switch(rdnPartnerNumber)
+    {
+        case 0: H+=lipidsystem.calcPairEnthalpy(ID0,lipidsystem.map[(posX0-1+inputfile->width)%inputfile->width][posY0]);
+                H+=lipidsystem.calcPairEnthalpy(ID0,lipidsystem.map[posX0][(posY0+1)%inputfile->height]);
+                H+=lipidsystem.calcPairEnthalpy(ID0,lipidsystem.map[posX0][(posY0-1+inputfile->height)%inputfile->height]);
+                
+                H+=lipidsystem.calcPairEnthalpy(ID1,lipidsystem.map[(posX1+1)%inputfile->width][posY1]);
+                H+=lipidsystem.calcPairEnthalpy(ID1,lipidsystem.map[posX1][(posY1+1)%inputfile->height]);
+                H+=lipidsystem.calcPairEnthalpy(ID1,lipidsystem.map[posX1][(posY1-1+inputfile->height)%inputfile->height]);
+                break;
+                
+        case 1: H+=lipidsystem.calcPairEnthalpy(ID0,lipidsystem.map[(posX0+1)%inputfile->width][posY0]);
+                H+=lipidsystem.calcPairEnthalpy(ID0,lipidsystem.map[posX0][(posY0+1)%inputfile->height]);
+                H+=lipidsystem.calcPairEnthalpy(ID0,lipidsystem.map[posX0][(posY0-1+inputfile->height)%inputfile->height]);
+                
+                H+=lipidsystem.calcPairEnthalpy(ID1,lipidsystem.map[(posX1-1+inputfile->width)%inputfile->width][posY1]);
+                H+=lipidsystem.calcPairEnthalpy(ID1,lipidsystem.map[posX1][(posY1+1)%inputfile->height]);
+                H+=lipidsystem.calcPairEnthalpy(ID1,lipidsystem.map[posX1][(posY1-1+inputfile->height)%inputfile->height]);
+                break;
+       
+        case 2: H+=lipidsystem.calcPairEnthalpy(ID0,lipidsystem.map[(posX0+1)%inputfile->width][posY0]);
+                H+=lipidsystem.calcPairEnthalpy(ID0,lipidsystem.map[(posX0-1+inputfile->width)%inputfile->width][posY0]);
+                H+=lipidsystem.calcPairEnthalpy(ID0,lipidsystem.map[posX0][(posY0-1+inputfile->height)%inputfile->height]);
+                
+                H+=lipidsystem.calcPairEnthalpy(ID1,lipidsystem.map[(posX1+1)%inputfile->width][posY1]);
+                H+=lipidsystem.calcPairEnthalpy(ID1,lipidsystem.map[(posX1-1+inputfile->width)%inputfile->width][posY1]);
+                H+=lipidsystem.calcPairEnthalpy(ID1,lipidsystem.map[posX1][(posY1+1)%inputfile->height]);
+                break;
+                
+        case 3: H+=lipidsystem.calcPairEnthalpy(ID0,lipidsystem.map[(posX0+1)%inputfile->width][posY0]);
+                H+=lipidsystem.calcPairEnthalpy(ID0,lipidsystem.map[(posX0-1+inputfile->width)%inputfile->width][posY0]);
+                H+=lipidsystem.calcPairEnthalpy(ID0,lipidsystem.map[posX0][(posY0+1)%inputfile->height]);
+                
+                H+=lipidsystem.calcPairEnthalpy(ID1,lipidsystem.map[(posX1+1)%inputfile->width][posY1]);
+                H+=lipidsystem.calcPairEnthalpy(ID1,lipidsystem.map[(posX1-1+inputfile->width)%inputfile->width][posY1]);
+                H+=lipidsystem.calcPairEnthalpy(ID1,lipidsystem.map[posX1][(posY1-1+inputfile->height)%inputfile->height]);
+    }
+    #ifndef NDEBUG
+    std::cout<<"H "<<H<<std::endl;
+    #endif
+    
+    return H;
+}
+
+double OmegaOptimizer::calcHostFreeEnerg()
+{
+    #ifndef NDEBUG
+    std::cout<<"OmegaOptimizer::calcHostFreeEnerg"<<std::endl;
+    std::cout<<"ID0 "<<ID0<<" posX0 "<<posX0<<" posY0 "<<posY0<<std::endl;
+    #endif
+
+    
+    double G=0;
+
+    G+=lipidsystem.calcPairEnthalpy(ID0,lipidsystem.map[(posX0-1+inputfile->width)%inputfile->width][posY0]);
+    G+=lipidsystem.calcPairEnthalpy(ID0,lipidsystem.map[(posX0+1)%inputfile->width][posY0]);
+    G+=lipidsystem.calcPairEnthalpy(ID0,lipidsystem.map[posX0][(posY0+1)%inputfile->height]);
+    G+=lipidsystem.calcPairEnthalpy(ID0,lipidsystem.map[posX0][(posY0-1+inputfile->height)%inputfile->height]);
+
+   
+    #ifndef NDEBUG
+    std::cout<<"H "<<G<<std::endl;
+    std::cout<<"kB T S "<<-inputfile->kBT*lipidproperties->entropyFunction[LIPID0.getType()][LIPID0.getOrder()]<<std::endl;
+    std::cout<<"self E "<<lipidproperties->selfEnergieFunction[LIPID0.getType()][LIPID0.getOrder()]<<std::endl;
+    #endif
+
+    G+=lipidproperties->selfEnergieFunction[LIPID0.getType()][LIPID0.getOrder()]-inputfile->kBT*lipidproperties->entropyFunction[LIPID0.getType()][LIPID0.getOrder()];
+    
+    
+    return G;
+}
+
+
+void OmegaOptimizer::setHost(int x, int y)
+{
+    ID0=lipidsystem.map[x][y];
+}
+
+void OmegaOptimizer::setHost(int ID)
+{
+    ID0=ID;
+}
+
+void OmegaOptimizer::setRNDHost()
+{
+    ID0=enhance::random_int(0,inputfile->height*inputfile->width-1);
+}
+
+void OmegaOptimizer::setPartner()
+{
+    rdnPartnerNumber=enhance::random_int(0,3);
+    
+    switch (rdnPartnerNumber)
+    {
+        case 0 :    ID1=lipidsystem.map[(posX0+1)%inputfile->width][posY0]; //up
+                    break;
+        case 1 :    ID1=lipidsystem.map[(posX0-1+inputfile->width)%inputfile->width][posY0]; //down
+                    break;
+        case 2 :    ID1=lipidsystem.map[posX0][(posY0+1)%inputfile->height]; //right
+                    break;
+        case 3 :    ID1=lipidsystem.map[posX0][(posY0-1+inputfile->height)%inputfile->height]; //left
+    }
+}
 
 
 bool OmegaOptimizer::acceptance(const double FreeEnergie1, const double FreeEnergie2)

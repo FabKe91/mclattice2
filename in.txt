@@ -1,12 +1,12 @@
 #erst muessen alle type definitionen kommen, dann die parameter
 
 
-maxBufferSize 1  #bufferSize in MegaByte
-steps 200
-imageRate 1
-T 290
-height 100
-width 100
+maxBufferSize 10  #bufferSize in MegaByte
+steps 2000000
+imageRate 100
+T 330
+height 200
+width 200
 DeltaOrder 0.01
 outs Type orderPara
 kB 0.00831448664

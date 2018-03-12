@@ -19,7 +19,7 @@ int main(int argc, char **argv) {
 
     #ifndef NDEBUG
     std::cout<<"Debugging"<<std::endl;
-    enhance::seed = 123456749;
+//     enhance::seed = 123456749;
     #endif
     
     enhance::rand_engine.seed(enhance::seed);

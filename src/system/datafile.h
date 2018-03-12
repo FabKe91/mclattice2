@@ -1,18 +1,20 @@
 #ifndef DATAFILE_H
 #define DATAFILE_H
+
+#include "lipidsystem.h"
+#include "inputfile.h"
+
 #include "hdf5.h"
 #include <string>
-#include <vector>
-
 #include <iostream>
-#include "inputfile.h"
 #include <boost/multi_array.hpp>
-#include "lipidsystem.h"
 #include <iostream>
 #include <functional>
 #include <vector>
 #include <map>
 #include <stdio.h>
+#include <ctime>
+#include <chrono>
 
 class DataFile
 {
