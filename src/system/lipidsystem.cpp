@@ -13,8 +13,6 @@ void Lipidsystem::readParas( std::shared_ptr<LipidProperties> _lipidproperties,s
     map =new  int*[inputfile->width];
     for(int i=0;i<inputfile->width;i++)
         map[i] =new  int[inputfile->height];
-
-
 }
 
 
@@ -119,7 +117,7 @@ const boost::multi_array<int,2> Lipidsystem::getIDs()
     boost::multi_array<int,2> data(boost::extents[inputfile->width][inputfile->height]);
     for(int i=0;i<inputfile->width;i++)
     for(int j=0;j<inputfile->height;j++)  
-        data[i][j] = lipids[map[i][j]].getID();
+        data[i][j] = map[i][j];
     return data;
 }
 

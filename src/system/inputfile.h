@@ -19,10 +19,15 @@ public:
     std::vector<TypeProperties> types;
     std::vector<double> concentrations;
     
-    std::vector<std::vector<double>> neighbourPara;
     std::vector<std::vector<double>> entropyPara;
     std::vector<std::vector<double>> selfEnergiePara;
-    std::vector<std::vector<std::vector<double>>> enthalpyPara;
+    std::vector<std::vector<std::vector<double>>> lipidCholEnergiePara;
+    std::vector<std::vector<std::vector<std::vector<double>>>> enthalpyPara;
+    
+    
+    std::vector<std::vector<double>>  cholLipidNeighPara;
+    std::vector<std::vector<std::vector<double>>> LipidLipidNeighPara;
+    std::vector<double> CholCholEnergiePara;
     
     InputFile(std::string);
 };

@@ -19,7 +19,10 @@ public:
     double** neighbourFunction;
     double** entropyFunction;
     double** selfEnergieFunction;
-    double*** enthalpyFunction;
+    double**** enthalpyFunction;
+    double*** lipidCholEnergieFunction;
+    double* cholCholEnergie;
+    double* cholLipidNeigh; //N^CL(N^CC)
     
     
     void updateKBT();

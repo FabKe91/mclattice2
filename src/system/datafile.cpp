@@ -9,13 +9,15 @@ DataFile::~DataFile()
 }
 
 
-DataFile::DataFile(Lipidsystem& lipidsystem,std::shared_ptr<InputFile> _inputfile)
+DataFile::DataFile(Lipidsystem& lipidsystem,CholesterinSystem& cholesterinsystem,std::shared_ptr<InputFile> _inputfile)
 {
     inputfile=_inputfile;
     
     getterMap["orderPara"]=std::bind(&Lipidsystem::getOrderParas,&lipidsystem);
     getterMap["Type"]=std::bind(&Lipidsystem::getTypes,&lipidsystem);
     getterMap["IDs"]=std::bind(&Lipidsystem::getIDs,&lipidsystem);
+    getterMap["Chol"]=std::bind(&CholesterinSystem::getOcc,&cholesterinsystem);
+    getterMap["CholIDs"]=std::bind(&CholesterinSystem::getIDs,&cholesterinsystem);
 
 
     NX=inputfile->width;

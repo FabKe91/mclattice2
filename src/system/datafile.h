@@ -2,6 +2,7 @@
 #define DATAFILE_H
 
 #include "lipidsystem.h"
+#include "cholesterinsystem.h"
 #include "inputfile.h"
 
 #include "hdf5.h"
@@ -48,7 +49,7 @@ public:
 
 
     ~DataFile();
-    DataFile(Lipidsystem&,std::shared_ptr<InputFile>);
+    DataFile(Lipidsystem&,CholesterinSystem&,std::shared_ptr<InputFile>);
     void createFile();
     void readFile();
     void writeStep();

@@ -5,7 +5,6 @@ TypeProperties::TypeProperties(std::string _typeName, int _maxOrder, int _minOrd
     typeName=_typeName;
     minOrder=_minOrder;
     maxOrder=_maxOrder;
-    maxFluc=_maxFluc;
-    
+    maxFluc=_maxFluc;    
 }
 

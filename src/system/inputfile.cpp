@@ -4,17 +4,21 @@ InputFile::InputFile(std::string filename)
 {
     #ifndef NDEBUG
     std::cout<<"InputFile::InputFile"<<std::endl;
+    std::cout<<"reading lines..."<<std::endl;
     #endif
     
     std::ifstream infile(filename);
     std::string line;
     double val;  //buffer for values
+    double val2;  //buffer for values
     std::string name; //buffer for strings
     bool firstCall =true; //see name=="Enthalpy"
 
     while (std::getline(infile, line))
     {   
-//             std::cout<<line<<std::endl;
+        #ifndef NDEBUG
+        std::cout<<line<<std::endl;
+        #endif      
 
         //remove comments
         auto pos=line.find("#");
@@ -44,19 +48,25 @@ InputFile::InputFile(std::string filename)
             
             
             std::vector<double> vec;
-            neighbourPara.push_back(vec);
+            std::vector<std::vector<double>> vec2;
+            
+            LipidLipidNeighPara.push_back(vec2);
             entropyPara.push_back(vec);
             selfEnergiePara.push_back(vec);
+            lipidCholEnergiePara.push_back(vec2);
             nType++;
         }
-        else if(name=="Neighbour")
+        else if(name=="LipidLipidNeighPara")
         {
             iss>>name;
-            while(iss>>val)
+            iss>>val;
+            
+            std::vector<double> vec;
+            while(iss>>val2)
             {
-            neighbourPara[typeMap.at(name)].push_back(val);
+                vec.push_back(val2);
             }
-                
+            LipidLipidNeighPara[typeMap.at(name)].push_back(vec);
         }        
         else if(name=="Entropy")
         {
@@ -76,12 +86,43 @@ InputFile::InputFile(std::string filename)
             }
                 
         }
+        else if(name=="CholCholEnergie")
+        {
+            while(iss>>val)
+            {
+                CholCholEnergiePara.push_back(val);
+            }
+        }        
+        else if(name=="LipidCholEnergie")
+        {
+            iss>>name;
+            iss>>val;
+            
+            std::vector<double> vec;
+            while(iss>>val2)
+            {
+                vec.push_back(val2);
+            }
+            lipidCholEnergiePara[typeMap.at(name)].push_back(vec);
+
+        }
+        else if(name=="CholLipidNeigh")
+        {
+            std::vector<double> vec;
+            cholLipidNeighPara.push_back(vec);
+            iss>>val;
+            while(iss>>val2)
+            {
+            cholLipidNeighPara[val].push_back(val2);
+            }
+                
+        }
         else if(name=="Enthalpy")
         {
             if (firstCall) //if first called, create vec<vec<>>... for defined types to push_back fit parameters
             {
-                std::vector<double> vec;
-                std::vector<std::vector<double>> vec2;
+                std::vector<std::vector<double>> vec;
+                std::vector<std::vector<std::vector<double>>> vec2;
                 for(int i=0;i<nType;i++)
                 {
                     vec2.push_back(vec);
@@ -91,17 +132,20 @@ InputFile::InputFile(std::string filename)
             }
             std::string name2;
             iss>>name>>name2;
+            iss>>val;
+            std::vector<double> vec3;
             while(iss>>val)
             {
-                if (typeMap.at(name)>=typeMap.at(name2))
-                {
-                    enthalpyPara[typeMap.at(name)][typeMap.at(name2)].push_back(val);
+                vec3.push_back(val);
+            }
+            if (typeMap.at(name)>=typeMap.at(name2))
+            {
+                enthalpyPara[typeMap.at(name)][typeMap.at(name2)].push_back(vec3);
 
-                }                
-                else
-                {
-                    enthalpyPara[typeMap.at(name2)][typeMap.at(name)].push_back(val);
-                }
+            }                
+            else
+            {
+                enthalpyPara[typeMap.at(name2)][typeMap.at(name)].push_back(vec3);
             }
         }
         else
@@ -119,6 +163,7 @@ InputFile::InputFile(std::string filename)
     kBT=paras.at("kB")*T;
     width=paras.at("width");
     height=paras.at("height");
+    paras["numberCholesterin"]=paras.at("cholesterinConc")*paras.at("height")*paras.at("width");
     
     
     
