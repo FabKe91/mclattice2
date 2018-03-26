@@ -11,6 +11,7 @@ def polynom(paras,x):
 
 
 distrOut=np.loadtxt("../MCLattice2/DistrOut.txt")
+#distrOut=np.loadtxt("DistrOut.txt")
 
 #print(distrOut)
 #print(distrOut.shape)
@@ -32,6 +33,7 @@ for i in range (distrOut.shape[0]):
 ax1.legend()
 
 OptimzeOut=np.loadtxt("../MCLattice2/OptimzeOut.txt")
+#OptimzeOut=np.loadtxt("OptimzeOut.txt")
 
 
 order=np.arange(-0.5,1.01,0.01)
@@ -46,11 +48,11 @@ for i in range (OptimzeOut.shape[0]):
 
 
 
-fit_paras=np.polyfit(order[20:-20],OptimzeOut[-1,20:-20]-max(OptimzeOut[-1,:]),13)[::-1]
+fit_paras=np.polyfit(order[20:],OptimzeOut[-1,20:]-max(OptimzeOut[-1,:]),13)[::-1]
 for fp in fit_paras:
     print(fp,end=" ")
 print()
-print(fit_paras)
+#print(fit_paras)
 
 ax3.plot(order,polynom(fit_paras,order),"r-",label="final",zorder=100)
 

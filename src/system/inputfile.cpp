@@ -163,8 +163,9 @@ InputFile::InputFile(std::string filename)
     kBT=paras.at("kB")*T;
     width=paras.at("width");
     height=paras.at("height");
-    paras["numberCholesterin"]=paras.at("cholesterinConc")*paras.at("height")*paras.at("width");
     
+    paras["numberCholesterin"]=paras.at("height")*paras.at("width")/(1/paras.at("cholesterinConc")-1);
+    std::cout<<paras["numberCholesterin"]<<std::endl;
     
     
     

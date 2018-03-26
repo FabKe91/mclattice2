@@ -211,6 +211,7 @@ int MCHost::findLipidPairCholNeighbours(int ID1, int ID2)
             numberCholNeigh+=cholesterinsystem.chols[cholNeigh2[i]].occupied;
         }
     }
+//     if (numberCholNeigh==6) std::cout<<"6 lipid pair"<<hostID<<std::endl;
     return numberCholNeigh;
 }
 
@@ -228,6 +229,7 @@ int MCHost::findLipidCholPairCholNeighbours(int lipidID, int cholID)
             numberCholNeigh+=cholesterinsystem.chols[lipidCholNeigh[i]].occupied;
         }
     }
+//     if (numberCholNeigh==5) std::cout<<"5 chol lipid pair"<<hostID <<std::endl;
     return numberCholNeigh;
 }
 
@@ -245,7 +247,7 @@ int MCHost::findCholPairCholNeighbours(int ID1, int ID2)
         if (!IDinArrayLen4(cholNeigh2[i],cholNeigh1) and cholNeigh2[i] != ID1)
             numberCholNeigh+=cholesterinsystem.chols[cholNeigh2[i]].occupied;
     }
-    
+//     if (numberCholNeigh==6) std::cout<<"6 chol pair"<<hostID<<std::endl;
     return numberCholNeigh;
 }
 
@@ -276,9 +278,9 @@ double MCHost::calcSwapEnthalpy()
     for(int i=0;i<4;i++)//H^LL
     {
         if (hostNeighbours[i]!=partnerID)
-            H+=lipidsystem.calcPairEnthalpy(hostID,hostNeighbours[i],getNumberCholNeighOfLipid(hostID),getNumberCholNeighOfLipid(hostNeighbours[i]),findLipidPairCholNeighbours(hostID,hostNeighbours[i])); //H^LL host     
+            H+=lipidsystem.calcPairEnthalpy(hostID,hostNeighbours[i],findLipidPairCholNeighbours(hostID,hostNeighbours[i])); //H^LL host     
         if (partnerNeighbours[i]!=hostID)
-            H+=lipidsystem.calcPairEnthalpy(partnerID,partnerNeighbours[i],getNumberCholNeighOfLipid(partnerID),getNumberCholNeighOfLipid(partnerNeighbours[i]),findLipidPairCholNeighbours(partnerID,partnerNeighbours[i])); //H^LL partner
+            H+=lipidsystem.calcPairEnthalpy(partnerID,partnerNeighbours[i],findLipidPairCholNeighbours(partnerID,partnerNeighbours[i])); //H^LL partner
     }   
 
     #ifndef NDEBUG
@@ -306,12 +308,12 @@ double MCHost::calcHostFreeEnerg()
     for(int i=0;i<4;i++)//H^LC
     {
         if (cholesterinsystem.chols[lipidHostCholNeighbours[i]].occupied)//H^LC host
-            G+=lipidproperties->lipidCholEnergieFunction[HOST_LIPID.getType()][findLipidCholPairCholNeighbours(hostID, lipidHostCholNeighbours[i])][HOST_LIPID.getOrder()]*lipidproperties->cholLipidNeigh[getNumberCholNeighOfChol(lipidHostCholNeighbours[i])]/4;
+            G+=lipidproperties->lipidCholEnergieFunction[HOST_LIPID.getType()][findLipidCholPairCholNeighbours(hostID, lipidHostCholNeighbours[i])][HOST_LIPID.getOrder()]*lipidproperties->cholLipidNeigh[getNumberCholNeighOfChol(lipidHostCholNeighbours[i])]/4*inputfile->paras.at("scaleFaktor");
     }    
         
     for(int i=0;i<4;i++)
     {
-        G+=lipidsystem.calcPairEnthalpy(hostID,hostNeighbours[i],getNumberCholNeighOfLipid(hostID),getNumberCholNeighOfLipid(hostNeighbours[i]),findLipidPairCholNeighbours(hostID,hostNeighbours[i]));
+        G+=lipidsystem.calcPairEnthalpy(hostID,hostNeighbours[i],findLipidPairCholNeighbours(hostID,hostNeighbours[i]));
     }
    
     #ifndef NDEBUG
@@ -349,11 +351,11 @@ double MCHost::calcCholSwapEnerg()
                 {
                     if (IDinArrayLen4(cholHostLipidNeighbourLipidNeighbours[j],cholHostLipidNeighbours))
                     {
-                        E+=0.5*lipidsystem.calcPairEnthalpy(cholHostLipidNeighbours[i],cholHostLipidNeighbourLipidNeighbours[j],getNumberCholNeighOfLipid(cholHostLipidNeighbours[j]),getNumberCholNeighOfLipid(cholHostLipidNeighbourLipidNeighbours[j]),findLipidPairCholNeighbours(cholHostLipidNeighbours[i],cholHostLipidNeighbourLipidNeighbours[j]));
+                        E+=0.5*lipidsystem.calcPairEnthalpy(cholHostLipidNeighbours[i],cholHostLipidNeighbourLipidNeighbours[j],findLipidPairCholNeighbours(cholHostLipidNeighbours[i],cholHostLipidNeighbourLipidNeighbours[j]));
                     }
                     else
                     {
-                        E+=lipidsystem.calcPairEnthalpy(cholHostLipidNeighbours[i],cholHostLipidNeighbourLipidNeighbours[j],getNumberCholNeighOfLipid(cholHostLipidNeighbours[i]),getNumberCholNeighOfLipid(cholHostLipidNeighbourLipidNeighbours[j]),findLipidPairCholNeighbours(cholHostLipidNeighbours[i],cholHostLipidNeighbourLipidNeighbours[j]));
+                        E+=lipidsystem.calcPairEnthalpy(cholHostLipidNeighbours[i],cholHostLipidNeighbourLipidNeighbours[j],findLipidPairCholNeighbours(cholHostLipidNeighbours[i],cholHostLipidNeighbourLipidNeighbours[j]));
                     }
                 }
             }
@@ -372,9 +374,9 @@ double MCHost::calcCholSwapEnerg()
                 if (IDinArrayLen4(cholPartnerLipidNeighbourLipidNeighbours[j],cholHostLipidNeighbours))
                 {
                     if (IDinArrayLen4(cholPartnerLipidNeighbourLipidNeighbours[j],cholPartnerLipidNeighbours))
-                        E+=0.5*lipidsystem.calcPairEnthalpy(cholPartnerLipidNeighbours[i],cholPartnerLipidNeighbourLipidNeighbours[j],getNumberCholNeighOfLipid(cholPartnerLipidNeighbours[i]),getNumberCholNeighOfLipid(cholPartnerLipidNeighbourLipidNeighbours[i]),findLipidPairCholNeighbours(cholPartnerLipidNeighbours[i],cholPartnerLipidNeighbourLipidNeighbours[j]));
+                        E+=0.5*lipidsystem.calcPairEnthalpy(cholPartnerLipidNeighbours[i],cholPartnerLipidNeighbourLipidNeighbours[j],findLipidPairCholNeighbours(cholPartnerLipidNeighbours[i],cholPartnerLipidNeighbourLipidNeighbours[j]));
                     else
-                        E+=lipidsystem.calcPairEnthalpy(cholPartnerLipidNeighbours[i],cholPartnerLipidNeighbourLipidNeighbours[j],getNumberCholNeighOfLipid(cholPartnerLipidNeighbours[i]),getNumberCholNeighOfLipid(cholPartnerLipidNeighbourLipidNeighbours[j]),findLipidPairCholNeighbours(cholPartnerLipidNeighbours[i],cholPartnerLipidNeighbourLipidNeighbours[j]));
+                        E+=lipidsystem.calcPairEnthalpy(cholPartnerLipidNeighbours[i],cholPartnerLipidNeighbourLipidNeighbours[j],findLipidPairCholNeighbours(cholPartnerLipidNeighbours[i],cholPartnerLipidNeighbourLipidNeighbours[j]));
                 }
             }
         }
@@ -386,7 +388,7 @@ double MCHost::calcCholSwapEnerg()
     {
         if (cholesterinsystem.chols[cholHostCholNeighbours[i]].occupied)
         {
-            E+=lipidproperties->cholCholEnergie[findCholPairCholNeighbours(cholHostID,cholHostCholNeighbours[i])];
+            E+=lipidproperties->cholCholEnergie[findCholPairCholNeighbours(cholHostID,cholHostCholNeighbours[i])]/2;
         }
     }
     

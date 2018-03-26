@@ -26,7 +26,7 @@ public:
     
     
     std::vector<std::vector<double>>  cholLipidNeighPara;
-    std::vector<std::vector<std::vector<double>>> LipidLipidNeighPara;
+    std::vector<std::vector<std::vector<double>>> LipidLipidNeighPara; //not used
     std::vector<double> CholCholEnergiePara;
     
     InputFile(std::string);

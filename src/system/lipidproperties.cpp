@@ -6,20 +6,20 @@ LipidProperties::LipidProperties()
 }
 
 
-// double NN_DPPC(double temp, double order)
-// {
-//    double Tm        = 323;
-//    double mag       = 10.;
-//    double sign      = -2*Tm<temp+1;
-//    double x_Tshift  = 0.65 + 0.4 / (1 + std::exp( mag * (-(temp - Tm)) ) );
-//    double y_Tc      = 0.61 - 0.7 * sign;
-//    double y_Tf      = 0.042 + 0.018 * sign;
-//    double y_Tmag    = 1.5 - 1.0 * sign;
-//    double y_Tshift  = sign * (y_Tmag / (1 + std::exp(-(y_Tf * std::abs(Tm - temp)))) ) ;
-//    double k         = 1.8 + 12.2 / (1 + std::exp( mag * (-(Tm - temp)) ) );
-// 
-//    return ( 4.12 + y_Tc + y_Tshift + sign * 0.5 / (1 + std::exp(-k * (order - x_Tshift))) );
-// }
+double NN_DPPC(double temp, double order)
+{
+   double Tm        = 323;
+   double mag       = 10.;
+   double sign      = -2*Tm<temp+1;
+   double x_Tshift  = 0.65 + 0.4 / (1 + std::exp( mag * (-(temp - Tm)) ) );
+   double y_Tc      = 0.61 - 0.7 * sign;
+   double y_Tf      = 0.042 + 0.018 * sign;
+   double y_Tmag    = 1.5 - 1.0 * sign;
+   double y_Tshift  = sign * (y_Tmag / (1 + std::exp(-(y_Tf * std::abs(Tm - temp)))) ) ;
+   double k         = 1.8 + 12.2 / (1 + std::exp( mag * (-(Tm - temp)) ) );
+
+   return ( 4.12 + y_Tc + y_Tshift + sign * 0.5 / (1 + std::exp(-k * (order - x_Tshift))) );
+}
 
 
 
@@ -51,7 +51,7 @@ void LipidProperties::readParas(std::shared_ptr<InputFile> _inputfile)
     
     for(int i=0;i<inputfile->nType;i++)
     {
-        neighbourFunction[i]= new double[5];
+        neighbourFunction[i]= new double[(int)inputfile->paras.at("maxOrderIndex")+1];
         entropyFunction[i]= new double[(int)inputfile->paras.at("maxOrderIndex")+1];
         selfEnergieFunction[i]= new double[(int)inputfile->paras.at("maxOrderIndex")+1];
         lipidCholEnergieFunction[i]= new double*[6];
@@ -77,19 +77,20 @@ void LipidProperties::readParas(std::shared_ptr<InputFile> _inputfile)
     for(int i=0;i<5;i++)
     {
         cholLipidNeigh[i]=enhance::polynom(inputfile->cholLipidNeighPara[i],inputfile->paras.at("T"));
+//         std::cout<<cholLipidNeigh[i]<<std::endl;
         cholCholEnergie[i]=enhance::polynom(inputfile->CholCholEnergiePara,i);
     }
     
     
     
-    for(int i=0;i<inputfile->nType;i++)
-    {
-        for(int j=0;j<5;j++)
-        {
-            neighbourFunction[i][j]=enhance::polynom(inputfile->LipidLipidNeighPara[i][j],inputfile->paras.at("T"));
-        }
-    }
-    
+//     for(int i=0;i<inputfile->nType;i++)
+//     {
+//         for(int j=0;j<5;j++)
+//         {
+//             neighbourFunction[i][j]=enhance::polynom(inputfile->LipidLipidNeighPara[i][j],inputfile->paras.at("T"));
+//         }
+//     }
+//     
     
     for(int i=0;i<inputfile->nType;i++)
     {
@@ -98,7 +99,9 @@ void LipidProperties::readParas(std::shared_ptr<InputFile> _inputfile)
         for(double order=inputfile->paras.at("minOrder");order<inputfile->paras.at("maxOrder")+inputfile->paras.at("DeltaOrder");order+=inputfile->paras.at("DeltaOrder"))
         {   
             
-            
+            if (inputfile->types[i].typeName=="DPPC")   neighbourFunction[i][k]=NN_DPPC(inputfile->paras.at("T"),order);
+//             else if (inputfile->types[i].typeName=="DUPC")   neighbourFunction[i][k]=NN_DUPC(inputfile->paras.at("T"),order);
+
             entropyFunction[i][k]=enhance::polynom(inputfile->entropyPara[i],order);
             selfEnergieFunction[i][k]=enhance::polynom(inputfile->selfEnergiePara[i],order);
             

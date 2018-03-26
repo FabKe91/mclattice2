@@ -38,7 +38,11 @@ void OmegaOptimizer::setupOptimization(std::string inputFileName,std::string typ
     cholesterinsystem.setup(inputfile);
 
     
-    for(int i=0;i<inputfile->width*inputfile->height;i++) IDs.push_back(i); //setup IDs to get rndOrder in each doSystemloop
+    for(int i=0;i<inputfile->width*inputfile->height;i++)
+    {
+        IDs.push_back(i);
+        cholIDs.push_back(i);
+    }
     
     
 
@@ -83,8 +87,8 @@ void OmegaOptimizer::optimizeOmega()
     
     int run=0;
     double DeltaEnthr=0; 
-    double alpha=0.5;
-    int orderCalcRuns=1000;  //number of runs to calc OrderDistr
+    double alpha=0.2;
+    int orderCalcRuns=200;  //number of runs to calc OrderDistr
     double lastMDDiff=INFINITY;
     
     while(true)
