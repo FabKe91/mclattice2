@@ -2,11 +2,10 @@
 #define LIPIDPROPERTIES_H
 #include <vector>
 #include <memory>
-#include "inputfile.h"
+#include "../IO/inputfile.h"
 #include <cmath>
 #include <boost/multi_array.hpp>
 #include "../lib/enhance.hpp"
-#include "inputfile.h"
 
 
 

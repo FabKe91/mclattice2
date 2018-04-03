@@ -2,12 +2,11 @@
 #define LIPIDSYSTEM_H
 #include "lipid.h"
 #include <vector>
-#include "../lib/enhance.hpp"
 #include <iostream>
 #include <fstream>
 #include <map>
 #include <boost/multi_array.hpp>
-#include "inputfile.h"
+#include "../IO/inputfile.h"
 #include "lipidproperties.h"
 #include <cmath>
 

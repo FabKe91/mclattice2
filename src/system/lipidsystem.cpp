@@ -49,6 +49,9 @@ void Lipidsystem::setup()
 
 void Lipidsystem::setOrder(boost::multi_array<int, 2> data)
 {
+    #ifndef NDEBUG
+    std::cout<<"Lipidsystem::setOrder"<<std::endl;
+    #endif
     for(int i=0;i<inputfile->width;i++)
         for(int j=0;j<inputfile->height;j++)
             lipids[i*inputfile->height+j].setOrder(data[i][j]);
@@ -57,6 +60,9 @@ void Lipidsystem::setOrder(boost::multi_array<int, 2> data)
 
 void Lipidsystem::setTypes(boost::multi_array<int, 2> data)
 {
+    #ifndef NDEBUG
+    std::cout<<"Lipidsystem::setTypes"<<std::endl;
+    #endif
     for(int i=0;i<inputfile->width;i++)
         for(int j=0;j<inputfile->height;j++)
             lipids[i*inputfile->height+j].setType(data[i][j]);
@@ -153,9 +159,9 @@ void Lipidsystem::fluctuate(int ID)
     #endif
 
     oldOrder=lipids[ID].getOrder();
-    int maxOrder=inputfile->types[lipids[ID].getType()].maxOrder;
-    int minOrder=inputfile->types[lipids[ID].getType()].minOrder;
-    int maxFluc=inputfile->types[lipids[ID].getType()].maxFluc;
+    int maxOrder=std::get<1>(inputfile->types[lipids[ID].getType()]);
+    int minOrder=std::get<2>(inputfile->types[lipids[ID].getType()]);
+    int maxFluc=std::get<3>(inputfile->types[lipids[ID].getType()]);
     
     lipids[ID].setOrder(enhance::random_int((oldOrder-maxFluc+minOrder+std::abs(oldOrder-maxFluc-minOrder))/2,(oldOrder+maxFluc+maxOrder-std::abs(oldOrder+maxFluc-maxOrder))/2));
     

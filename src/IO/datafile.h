@@ -1,8 +1,8 @@
 #ifndef DATAFILE_H
 #define DATAFILE_H
 
-#include "lipidsystem.h"
-#include "cholesterinsystem.h"
+#include "../system/lipidsystem.h"
+#include "../system/cholesterinsystem.h"
 #include "inputfile.h"
 
 #include "hdf5.h"

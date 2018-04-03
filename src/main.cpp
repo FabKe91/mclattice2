@@ -1,8 +1,8 @@
 #include "../lib/enhance.hpp"
 #include "system/mchost.h"
-#include "system/datafile.h"
+#include "IO/datafile.h"
 #include "system/omegaoptimizer.h"
-#include "system/inputfile.h"
+#include "IO/inputfile.h"
 
 #include <random>
 #include <iostream>
@@ -15,11 +15,10 @@ int main(int argc, char **argv) {
     
     
     enhance::seed = std::random_device{}();
-//     enhance::seed = 123456749;
 
     #ifndef NDEBUG
     std::cout<<"Debugging"<<std::endl;
-//     enhance::seed = 123456749;
+    enhance::seed = 123456749;
     #endif
     
     enhance::rand_engine.seed(enhance::seed);
@@ -50,19 +49,19 @@ int main(int argc, char **argv) {
         if (vm.count("o")) typeName=vm["o"].as<std::string>();
 
         OmegaOptimizer omegaoptimizer;
-        omegaoptimizer.setupOptimization("in.txt",typeName);
+        omegaoptimizer.setupOptimization(typeName);
         omegaoptimizer.optimizeOmega();
     }
     else if (vm.count("continue"))
     {
         MCHost mchost;
-        mchost.setupForRestart("in.txt");
+        mchost.setupForRestart();
         mchost.run();
     }
     else
     {
         MCHost mchost;
-        mchost.setup("in.txt");
+        mchost.setup();
         mchost.run();
     }
   

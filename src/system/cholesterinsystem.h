@@ -1,7 +1,7 @@
 #ifndef CHOLESTERINSYSTEM_H
 #define CHOLESTERINSYSTEM_H
 
-#include "inputfile.h"
+#include "../IO/inputfile.h"
 #include "cholesterin.h"
 #include "../lib/enhance.hpp"
 
@@ -32,7 +32,8 @@ public:
     
     void printMap();
 
-    
+    void setOccupation(boost::multi_array<int,2>);
+
 };
 
 #endif // CHOLESTERINSYSTEM_H

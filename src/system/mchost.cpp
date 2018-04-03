@@ -20,14 +20,14 @@
     
 
     
-void MCHost::setup(std::string inputFileName)
+void MCHost::setup()
 {
     #ifndef NDEBUG
     std::cout<<"MCHost::setup"<<std::endl;
     #endif
     
     
-    inputfile.reset(new InputFile(inputFileName));  //all input parameters are stored in the shared pointer "inputfile". all classes get the pointer 
+    inputfile.reset(new InputFile());  //all input parameters are stored in the shared pointer "inputfile". all classes get the pointer 
     
     lipidproperties.reset(new LipidProperties()); //the fit functions are stored in lipidproperties
     lipidproperties->readParas(inputfile);
@@ -56,14 +56,14 @@ void MCHost::setup(std::string inputFileName)
     imageRate=inputfile->paras.at("imageRate");
 }
 
-void MCHost::setupForRestart(std::string inputFileName)
+void MCHost::setupForRestart()
 {
     #ifndef NDEBUG
-    std::cout<<"MCHost::setup"<<std::endl;
+    std::cout<<"MCHost::setupForRestart"<<std::endl;
     #endif
     
     
-    inputfile.reset(new InputFile(inputFileName));  //all input parameters are stored in the shared pointer "inputfile". all classes get the pointer 
+    inputfile.reset(new InputFile());  //all input parameters are stored in the shared pointer "inputfile". all classes get the pointer 
     
     
     datafile.reset(new DataFile(lipidsystem, cholesterinsystem, inputfile));
@@ -80,9 +80,12 @@ void MCHost::setupForRestart(std::string inputFileName)
     lipidsystem.readParas(lipidproperties,inputfile); 
     lipidsystem.setup();
     
+    cholesterinsystem.setup(inputfile);
+
     
     lipidsystem.setOrder(datafile->getLastStep("orderPara"));
     lipidsystem.setTypes(datafile->getLastStep("Type"));
+    cholesterinsystem.setOccupation(datafile->getLastStep("Chol"));
 //     lipidsystem.setIDs(datafile->getLastStep("IDs"));
 
 
@@ -121,7 +124,7 @@ void MCHost::run()
         {
             datafile->writeStep();
             
-            std::cout<<"loop: "<<loopCounter<<" flucAccepRate: "<< (t-notAcceptedFlucs)/(double)t<<" swapAccepRate: "<<AcceptedSwaps/(double)t<<" chol Hits "<<CholSwaps/(double) t<<" accCholSwaps "<<(CholSwaps-notAcceptedCholSwaps)/(double) CholSwaps<<std::endl;
+            std::cout<<"loop: "<<loopCounter<<" flucAccepRate: "<< (t-notAcceptedFlucs)/(double)t<<" swapAccepRate: "<<(t-notAcceptedSwaps)/(double)t<<" chol Hits "<<CholSwaps/(double) t<<" accCholSwaps "<<(CholSwaps-notAcceptedCholSwaps)/(double) CholSwaps<<std::endl;
             
             auto currTime = std::chrono::system_clock::now();
             std::chrono::duration<double> elapsed_seconds_start=currTime-startTime;
@@ -169,11 +172,15 @@ void MCHost::doSystemloop() //loop one time over all lipids
         
         FreeEnergie2=calcSwapEnthalpy();
 
-        if(acceptance(FreeEnergie1,FreeEnergie2))
+        if(!acceptance(FreeEnergie1,FreeEnergie2))
         {
             lipidsystem.swap(hostID,partnerID);
-            AcceptedSwaps++;
+            notAcceptedSwaps++;
         }
+        
+        
+        
+        
         if(setCholHost(cholIDs[i]))
         {
             if(!setCholPartner())
@@ -308,7 +315,7 @@ double MCHost::calcHostFreeEnerg()
     for(int i=0;i<4;i++)//H^LC
     {
         if (cholesterinsystem.chols[lipidHostCholNeighbours[i]].occupied)//H^LC host
-            G+=lipidproperties->lipidCholEnergieFunction[HOST_LIPID.getType()][findLipidCholPairCholNeighbours(hostID, lipidHostCholNeighbours[i])][HOST_LIPID.getOrder()]*lipidproperties->cholLipidNeigh[getNumberCholNeighOfChol(lipidHostCholNeighbours[i])]/4*inputfile->paras.at("scaleFaktor");
+            G+=lipidproperties->lipidCholEnergieFunction[HOST_LIPID.getType()][findLipidCholPairCholNeighbours(hostID, lipidHostCholNeighbours[i])][HOST_LIPID.getOrder()]*lipidproperties->cholLipidNeigh[getNumberCholNeighOfChol(lipidHostCholNeighbours[i])]/4;
     }    
         
     for(int i=0;i<4;i++)
@@ -512,10 +519,6 @@ bool MCHost::setCholPartner()
 {
     std::array<int,4> cholHostCholNeighbours=getCholNeighOfChol(cholHostID);
     cholPartnerID=cholHostCholNeighbours[enhance::random_int(0,3)];
-//     std::cout<<"host    "<<cholesterinsystem.chols[cholHostID].posX<<" "<<cholesterinsystem.chols[cholHostID].posY<<std::endl;
-//     std::cout<<"partner "<<cholesterinsystem.chols[cholPartnerID].posX<<" "<<cholesterinsystem.chols[cholPartnerID].posY<<std::endl;
-//     std::cout<<"rel     "<<cholesterinsystem.chols[cholPartnerID].posX-cholesterinsystem.chols[cholHostID].posX<<" "<<cholesterinsystem.chols[cholPartnerID].posY-cholesterinsystem.chols[cholHostID].posY<<std::endl;
-
     return cholesterinsystem.chols[cholPartnerID].occupied;
 }
 

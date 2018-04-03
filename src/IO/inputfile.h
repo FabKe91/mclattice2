@@ -1,11 +1,10 @@
 #ifndef INPUTFILE_H
 #define INPUTFILE_H
-#include<fstream>
+#include <fstream>
 #include <vector>
 #include <map>
 #include <iostream>
 #include <sstream>
-#include "typeproperties.h"
 class InputFile
 {
     
@@ -16,7 +15,7 @@ public:
     std::map<std::string,double> paras; //general parameter map
     std::map<std::string,int> typeMap; //mapping typenames to typeIDs
     std::vector<std::string> outs; //strings to print (see datafile)
-    std::vector<TypeProperties> types;
+    std::vector<std::tuple<std::string,int,int,int>> types;
     std::vector<double> concentrations;
     
     std::vector<std::vector<double>> entropyPara;
@@ -29,7 +28,7 @@ public:
     std::vector<std::vector<std::vector<double>>> LipidLipidNeighPara; //not used
     std::vector<double> CholCholEnergiePara;
     
-    InputFile(std::string);
+    InputFile();
 };
 
 #endif // INPUTFILE_H

@@ -4,8 +4,8 @@
 #include <iostream>
 #include <map>
 #include <fstream>
-#include "datafile.h"
-#include "inputfile.h"
+#include "../IO/datafile.h"
+#include "../IO/inputfile.h"
 #include "cholesterinsystem.h"
 #include <chrono>
 #include <ctime>
@@ -17,7 +17,7 @@ protected:
     CholesterinSystem cholesterinsystem;
     int steps=0;
     int imageRate;
-    int AcceptedSwaps=0;
+    int notAcceptedSwaps=0;
     int notAcceptedFlucs=0;
     int loopCounter=0;
     int CholSwaps=0;
@@ -50,8 +50,6 @@ protected:
     void setRNDHost();
     void setPartner();
     
-    int rdnPartnerNumber=0;
-
     int findLipidPairCholNeighbours(int ID1, int ID2);
     int findCholPairCholNeighbours(int ID1, int ID2);
     int findLipidCholPairCholNeighbours(int, int );
@@ -86,8 +84,8 @@ protected:
 public:
     void run();   
 
-    void setup(std::string);
-    void setupForRestart(std::string);
+    void setup();
+    void setupForRestart();
     
 
 };

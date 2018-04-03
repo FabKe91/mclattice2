@@ -17,7 +17,7 @@ private:
 
 public:
     void optimizeOmega();
-    void setupOptimization(std::string,std::string);
+    void setupOptimization(std::string);
     
 
 };

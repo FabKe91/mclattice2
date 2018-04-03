@@ -10,13 +10,13 @@
     #define PARTNER_posY PARTNER_LIPID.posY
     
 
-void OmegaOptimizer::setupOptimization(std::string inputFileName,std::string typeName)
+void OmegaOptimizer::setupOptimization(std::string typeName)
 {
     #ifndef NDEBUG
     std::cout<<"OmegaOptimizer::setupOptimization"<<std::endl;
     #endif
     
-    inputfile.reset(new InputFile(inputFileName));
+    inputfile.reset(new InputFile());
     inputfile->T=330;
     inputfile->paras["T"]=330;
     inputfile->kBT=inputfile->T*inputfile->paras.at("kB");
@@ -59,7 +59,7 @@ void OmegaOptimizer::setupOptimization(std::string inputFileName,std::string typ
     
     //normalization
     double normSum=0;
-    for(int i=inputfile->types[type].minOrder;i<=inputfile->types[type].maxOrder;i++)   normSum+=MDOrderDistr[i];
+    for(int i=std::get<1>(inputfile->types[type]);i<=std::get<2>(inputfile->types[type]);i++)   normSum+=MDOrderDistr[i];
     normSum*=inputfile->paras.at("DeltaOrder");
     for(auto& Porder: MDOrderDistr)   Porder/=normSum;
    

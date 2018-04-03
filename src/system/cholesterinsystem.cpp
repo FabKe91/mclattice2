@@ -85,3 +85,20 @@ void CholesterinSystem::printMap()
         std::cout<<std::endl;
     }
 }
+
+
+void CholesterinSystem::setOccupation(boost::multi_array<int, 2> data)
+{
+    #ifndef NDEBUG
+    std::cout<<"CholesterinSystem::setOccupation"<<std::endl;
+    #endif
+    for(int i=0;i<inputfile->width;i++)
+        for(int j=0;j<inputfile->height;j++)
+            chols[map[i][j]].occupied=data[i][j];
+}
+
+
+
+
+
+

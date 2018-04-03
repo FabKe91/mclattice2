@@ -99,8 +99,9 @@ void LipidProperties::readParas(std::shared_ptr<InputFile> _inputfile)
         for(double order=inputfile->paras.at("minOrder");order<inputfile->paras.at("maxOrder")+inputfile->paras.at("DeltaOrder");order+=inputfile->paras.at("DeltaOrder"))
         {   
             
-            if (inputfile->types[i].typeName=="DPPC")   neighbourFunction[i][k]=NN_DPPC(inputfile->paras.at("T"),order);
-//             else if (inputfile->types[i].typeName=="DUPC")   neighbourFunction[i][k]=NN_DUPC(inputfile->paras.at("T"),order);
+            if (std::get<0>(inputfile->types[i])=="DPPC")   neighbourFunction[i][k]=NN_DPPC(inputfile->paras.at("T"),order);
+//             else if (std::get<0>(inputfile->types[i])=="DUPC")   neighbourFunction[i][k]=NN_DUPC(inputfile->paras.at("T"),order);
+            else throw std::invalid_argument("no NN funktion found for type: "+std::get<0>(inputfile->types[i]));
 
             entropyFunction[i][k]=enhance::polynom(inputfile->entropyPara[i],order);
             selfEnergieFunction[i][k]=enhance::polynom(inputfile->selfEnergiePara[i],order);
