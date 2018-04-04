@@ -11,7 +11,7 @@ DeltaOrder 0.01
 outs Type orderPara Chol CholIDs
 kB 0.00831448664
 defaultOrderPara 0.3 #achtung, speicherfehler falls < als minOrder eines types
-cholesterinConc 0.3
+cholesterinConc 0.0
 
 
 #absolute Grenzen, in type noch einmal spezifisch

@@ -10,7 +10,7 @@ double NN_DPPC(double temp, double order)
 {
    double Tm        = 323;
    double mag       = 10.;
-   double sign      = -2*Tm<temp+1;
+   double sign      = -2*(Tm<temp)+1;
    double x_Tshift  = 0.65 + 0.4 / (1 + std::exp( mag * (-(temp - Tm)) ) );
    double y_Tc      = 0.61 - 0.7 * sign;
    double y_Tf      = 0.042 + 0.018 * sign;
