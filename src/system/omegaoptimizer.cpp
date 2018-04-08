@@ -74,9 +74,9 @@ void OmegaOptimizer::optimizeOmega()
     #endif
     
 //     initual guess
-    for(int i=0;i<=(int)inputfile->paras["maxOrderIndex"];i++)
-        lipidproperties->entropyFunction[type][i]=std::log(MDOrderDistr[i])+(lipidproperties->enthalpyFunction[type][type][0][i]*lipidproperties->neighbourFunction[type][i]/2+lipidproperties->selfEnergieFunction[type][i])/inputfile->kBT;
-    
+//     for(int i=0;i<=(int)inputfile->paras["maxOrderIndex"];i++)
+//         lipidproperties->entropyFunction[type][i]=std::log(MDOrderDistr[i])+(lipidproperties->enthalpyFunction[type][type][0][i]*lipidproperties->neighbourFunction[type][i]+lipidproperties->selfEnergieFunction[type][i])/inputfile->kBT;
+//     
     //create files for output
     std::ofstream OmegaOut;
     OmegaOut.open("OptimzeOut.txt", std::ios_base::out);
@@ -87,7 +87,7 @@ void OmegaOptimizer::optimizeOmega()
     
     int run=0;
     double DeltaEnthr=0; 
-    double alpha=0.2;
+    double alpha=0.1;
     int orderCalcRuns=200;  //number of runs to calc OrderDistr
     double lastMDDiff=INFINITY;
     

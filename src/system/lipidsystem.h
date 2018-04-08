@@ -65,7 +65,6 @@ double Lipidsystem::calcPairEnthalpy(int ID_1,int ID_2, int pairCholNeighs)
     std::cout<<"Lipidsystem::calcPairEnthalpy"<<std::endl;
     #endif
     
-    
     int type1=lipids[ID_1].getType();
     int type2=lipids[ID_2].getType();
     int order1=lipids[ID_1].getOrder();
@@ -74,11 +73,11 @@ double Lipidsystem::calcPairEnthalpy(int ID_1,int ID_2, int pairCholNeighs)
 
     if (type1>=type2) 
     {
-        return lipidproperties->enthalpyFunction[type1][type2][pairCholNeighs][(int)((order1+order2)/2)]*(lipidproperties->neighbourFunction[type1][order1]+lipidproperties->neighbourFunction[type2][order2])/16;
+        return lipidproperties->enthalpyFunction[type1][type2][pairCholNeighs][(int)((order1+order2)/2)]*(lipidproperties->neighbourFunction[type1][order1]+lipidproperties->neighbourFunction[type2][order2])/8;
     }
     else
     {
-        return lipidproperties->enthalpyFunction[type2][type1][pairCholNeighs][(int)((order1+order2)/2)]*(lipidproperties->neighbourFunction[type1][order1]+lipidproperties->neighbourFunction[type2][order2])/16;;
+        return lipidproperties->enthalpyFunction[type2][type1][pairCholNeighs][(int)((order1+order2)/2)]*(lipidproperties->neighbourFunction[type1][order1]+lipidproperties->neighbourFunction[type2][order2])/8;
     }
 
 }

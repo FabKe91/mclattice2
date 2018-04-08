@@ -43,6 +43,7 @@ void MCHost::setup()
     datafile->createFile();   
     
 
+    freeEnergieOut.open("freeEnergieOut.txt", std::ios_base::out);
     
 
 
@@ -156,6 +157,9 @@ void MCHost::doSystemloop() //loop one time over all lipids
         FreeEnergie1=calcHostFreeEnerg();
         lipidsystem.fluctuate(hostID);
         FreeEnergie2=calcHostFreeEnerg();
+        
+                writeHostFreeEnergie();
+
 
         if(!acceptance(FreeEnergie1,FreeEnergie2))
         {
@@ -169,11 +173,13 @@ void MCHost::doSystemloop() //loop one time over all lipids
         partnerNeighbours=getLipidNeighOfLipid(partnerID);
         hostNeighbours=getLipidNeighOfLipid(hostID);
 
-        
+                writeHostFreeEnergie();
+
         FreeEnergie2=calcSwapEnthalpy();
 
         if(!acceptance(FreeEnergie1,FreeEnergie2))
         {
+
             lipidsystem.swap(hostID,partnerID);
             notAcceptedSwaps++;
         }
@@ -258,7 +264,42 @@ int MCHost::findCholPairCholNeighbours(int ID1, int ID2)
     return numberCholNeigh;
 }
 
+void MCHost::writeHostFreeEnergie()
+{
+    #ifndef NDEBUG
+    std::cout<<"MCHost::writeHostFreeEnergie"<<std::endl;
+    std::cout<<"hostID "<<hostID<<" HOST_posX "<<HOST_posX<<" HOST_posY "<<HOST_posY<<std::endl;
+    #endif
+    double G=0;
+    
+    std::array<int,4> lipidHostCholNeighbours=getCholNeighOfLipid(hostID);  
+    int numberOfNeigh=0;
 
+    for(int i=0;i<4;i++)//H^LC
+    {
+        if (cholesterinsystem.chols[lipidHostCholNeighbours[i]].occupied)//H^LC host
+        {
+            G+=lipidproperties->lipidCholEnergieFunction[HOST_LIPID.getType()][findLipidCholPairCholNeighbours(hostID, lipidHostCholNeighbours[i])][HOST_LIPID.getOrder()]*lipidproperties->cholLipidNeigh[getNumberCholNeighOfChol(lipidHostCholNeighbours[i])]/4;
+            numberOfNeigh++;
+        }
+    }    
+        
+    for(int i=0;i<4;i++)
+    {
+        G+=lipidsystem.calcPairEnthalpy(hostID,hostNeighbours[i],findLipidPairCholNeighbours(hostID,hostNeighbours[i]))/2;
+    }
+   
+    #ifndef NDEBUG
+    std::cout<<"H "<<G<<std::endl;
+    std::cout<<"kB T S "<<-inputfile->kBT*lipidproperties->entropyFunction[HOST_LIPID.getType()][HOST_LIPID.getOrder()]<<std::endl;
+    std::cout<<"self E "<<lipidproperties->selfEnergieFunction[HOST_LIPID.getType()][HOST_LIPID.getOrder()]<<std::endl;
+    #endif
+
+    G+=lipidproperties->selfEnergieFunction[HOST_LIPID.getType()][HOST_LIPID.getOrder()]-inputfile->kBT*lipidproperties->entropyFunction[HOST_LIPID.getType()][HOST_LIPID.getOrder()];
+    
+    
+    freeEnergieOut<<loopCounter<<" "<<HOST_LIPID.getOrder()<<" "<<numberOfNeigh<<" "<<G<<std::endl;
+}
 
 double MCHost::calcSwapEnthalpy()
 {
@@ -395,7 +436,7 @@ double MCHost::calcCholSwapEnerg()
     {
         if (cholesterinsystem.chols[cholHostCholNeighbours[i]].occupied)
         {
-            E+=lipidproperties->cholCholEnergie[findCholPairCholNeighbours(cholHostID,cholHostCholNeighbours[i])]/2;
+            E+=lipidproperties->cholCholEnergie[findCholPairCholNeighbours(cholHostID,cholHostCholNeighbours[i])];
         }
     }
     

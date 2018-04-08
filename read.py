@@ -1,5 +1,6 @@
 #!/usr/bin/python3
-
+import warnings
+warnings.filterwarnings("ignore")
 import numpy as np
 #import matplotlib
 #matplotlib.use('Agg')
@@ -9,7 +10,7 @@ import matplotlib.animation as animation
 import h5py
 from sys import argv
 
-
+np.set_printoptions(precision=6,linewidth=150)
 
 class data(object):
     def __init__(self,filename):
@@ -59,6 +60,17 @@ class data(object):
         hit+=np.sum(step[np.roll(step,-1,axis=1)])
         return hit/np.sum(step)**2/4*self.paras["width"]*self.paras["height"]
     
+    def getLipidCholNeig(self,imageNumber):
+        chol=np.array(self.f["/Chol"][imageNumber,:,:],dtype=bool)
+        neigh=np.zeros(chol.shape)
+        neigh+=chol
+        neigh+=np.roll(chol,1,axis=0)
+        neigh+=np.roll(chol,1,axis=1)
+        neigh+=np.roll(np.roll(chol,1,axis=0),1,axis=1)
+        #print(neigh)
+        return neigh
+
+    
     def findEqui(self):
         lastMeanOrder=np.mean(self.getStep("orderPara",-1))
         i=self.images-1
@@ -76,6 +88,21 @@ class data(object):
             mean+=self.getCholMeanNN(image)
             n+=1
         return mean/n
+    
+    def getOrderOfNeigh(self):
+        orders=np.zeros((5))
+        counter=np.zeros((5))
+        #print("images: ",self.images)
+        for image in range(self.findEqui(),self.images):
+            #print(image,orders,counter)
+            neighs=self.getLipidCholNeig(image)
+            orderParas=self.getStep("orderPara",image)
+            for i in range(self.paras["width"]):
+                for j in range (self.paras["height"]):
+                    orders[neighs[i,j]]+=orderParas[i,j]
+                    counter[neighs[i,j]]+=1
+                
+        print(orders/counter*self.paras["DeltaOrder"]+self.paras["minOrder"],counter/np.sum(counter))
 
         
     
@@ -175,20 +202,27 @@ def snap(data,imageNumber):
     
 
 def subgridPlot(data,imageNumber):
-    fig=plt.figure()
+    plt.rc('text', usetex=True)
+    from mpl_toolkits.axes_grid1 import make_axes_locatable
+    fig=plt.figure(figsize=(4.980614173228346,3.2))
     ax=plt.subplot(111)
     ax.set_axis_off()
-    im=ax.imshow(data.getStep("orderPara",imageNumber)*data.paras["DeltaOrder"]+data.paras["minOrder"],vmax=1,vmin=-0.3,interpolation='None',cmap='gnuplot')
-    plt.colorbar(im,ax=ax)
+    ax.set_xlim([0,50])
+    ax.set_ylim([0,50])
+    im=ax.imshow(data.getStep("orderPara",imageNumber)[:50,:50]*data.paras["DeltaOrder"]+data.paras["minOrder"],vmax=1,vmin=-0.3,interpolation='None',cmap='gnuplot')
+    plt.colorbar(im,ax=ax,pad=0.005)
+    #plt.colorbar(im, cax=make_axes_locatable(ax).append_axes("right", size="5%", pad=0))
 
     
-    chol=data.getStep("Chol",imageNumber)
+    chol=data.getStep("Chol",imageNumber)[:51,:51]
     chol=np.array(chol,dtype=bool)
 
     occ=np.where(chol)
     empt=np.where(np.invert(chol))
-    scat=ax.scatter(occ[0]-0.5,occ[1]-0.5,c="green",s=100)#,edgecolor='k')
+    scat=ax.scatter(occ[0]-0.5,occ[1]-0.5,c="w",s=6,edgecolor='k',linewidth=0.2,)
     #ax.scatter(empt[0]-0.5,empt[1]-0.5,facecolors='none',edgecolor='k')
+
+    plt.savefig("snap_chol_image%s.png"%imageNumber,bbox_inches="tight",dpi=300,pad_inches=0)
 
     plt.show()
     
@@ -215,20 +249,24 @@ def subgridAni(data):
 
         print("step:",i)
 
-    ani=animation.FuncAnimation(fig, update, blit=False,frames=data.images, interval=500,repeat_delay=600)
+    ani=animation.FuncAnimation(fig, update, blit=False,frames=data.images, interval=1000,repeat_delay=600)
     #mywriter = animation.FFMpegWriter(fps=10)
     #ani.save('Ani.avi',writer=mywriter,dpi=150)
     plt.show()
     
+
+
     
 #data1=data("../MCLattice2/out.h5")
 data1=data("out.h5")
 
 
+#data1.getOrderOfNeigh()
 
 #subgridAni(data1)
+subgridPlot(data1,int(argv[1]))
 #orderDistrAni(data1)
-#orderDistrAndType(data1)
+##orderDistrAndType(data1)
 #cholAni(data1)
 
 #from matplotlib.collections import LineCollection
@@ -321,8 +359,8 @@ data1=data("out.h5")
 
 #print("",data1.getMeanCholMeanNN())
 #snap(data1,int(argv[1]))
-orderdistr=data1.getOrderDistr()
-np.save("orderdistr.npy",orderdistr)
+#orderdistr=data1.getOrderDistr()
+#np.save("orderdistr.npy",orderdistr)
 
 #plt.plot(np.arange(-0.5,1.01,0.01),orderdistr,"k-")
 #plt.show()

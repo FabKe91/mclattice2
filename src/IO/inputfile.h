@@ -15,7 +15,7 @@ public:
     std::map<std::string,double> paras; //general parameter map
     std::map<std::string,int> typeMap; //mapping typenames to typeIDs
     std::vector<std::string> outs; //strings to print (see datafile)
-    std::vector<std::tuple<std::string,int,int,int>> types;
+    std::vector<std::tuple<std::string,int,int,int>> types;//tuple values: 0->typeName 1->maxOrder 2->minOrder 3->maxFluc
     std::vector<double> concentrations;
     
     std::vector<std::vector<double>> entropyPara;

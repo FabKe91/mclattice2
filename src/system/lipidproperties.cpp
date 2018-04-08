@@ -45,7 +45,7 @@ void LipidProperties::readParas(std::shared_ptr<InputFile> _inputfile)
     lipidCholEnergieFunction= new double**[inputfile->nType];
     enthalpyFunction= new double***[inputfile->nType];
     cholLipidNeigh= new double[5];
-    cholCholEnergie= new double[5];
+    cholCholEnergie= new double[7];
     
     
     
@@ -77,10 +77,11 @@ void LipidProperties::readParas(std::shared_ptr<InputFile> _inputfile)
     for(int i=0;i<5;i++)
     {
         cholLipidNeigh[i]=enhance::polynom(inputfile->cholLipidNeighPara[i],inputfile->paras.at("T"));
-//         std::cout<<cholLipidNeigh[i]<<std::endl;
+    }
+    for(int i=0;i<7;i++)
+    {
         cholCholEnergie[i]=enhance::polynom(inputfile->CholCholEnergiePara,i);
     }
-    
     
     
 //     for(int i=0;i<inputfile->nType;i++)
