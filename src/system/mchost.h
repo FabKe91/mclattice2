@@ -75,10 +75,7 @@ protected:
 
     
     bool IDinArrayLen4(int& ID, std::array<int,4>&);
-
-    void writeHostFreeEnergie();
-    std::ofstream freeEnergieOut;
-    
+   
     
     
 
