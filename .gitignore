@@ -1,0 +1,11 @@
+*.txt
+callgrind.out.*
+mclattice2
+*.npy
+*.json
+*.cmake
+CMakeFiles
+out.h5
+*.swp
+*.swo
+MakeFile
