@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 2.6)
 #set(CMAKE_CXX_COMPILER "/usr/bin/g++")	# to avoid using clang on macbook
 #set(CMAKE_C_COMPILER "/usr/bin/gcc")	# ,,
 
+set(CMAKE_INSTALL_PREFIX "$ENV{HOME}")
+
+
 project(mclattice2)
 
 
@@ -26,7 +29,7 @@ file(GLOB mclattice2_SRC
 add_executable(mclattice2 ${mclattice2_SRC} ${sources})
 
 
-add_library(enhance SHARED lib/enhance.cpp)
+add_library(enhance STATIC lib/enhance.cpp)
 
 
 target_link_libraries(mclattice2 enhance)
