@@ -3,7 +3,7 @@
 void OmegaOptimizer::setupOptimization(std::string inputFileName,std::string typeName)
 {
     #ifndef NDEBUG
-    std::cout<<"OmegaOptimizer::setupOptimization"<<std::endl;
+    std::cerr<<"OmegaOptimizer::setupOptimization"<<std::endl;
     #endif
     
     inputfile.reset(new InputFile(inputFileName));
@@ -52,13 +52,13 @@ void OmegaOptimizer::setupOptimization(std::string inputFileName,std::string typ
 void OmegaOptimizer::optimizeOmega()
 {
 
-//     initual guess
+    //     initual guess
     for(int i=0;i<=(int)inputfile->paras["maxOrderIndex"];i++)
         lipidproperties->entropyFunction[type][i]=std::log(MDOrderDistr[i])+(lipidproperties->enthalpyFunction[type][type][i]*lipidproperties->neighbourFunction[type][i]/2+lipidproperties->selfEnergieFunction[type][i])/inputfile->kBT;
     
     //create files for output
     std::ofstream OmegaOut;
-    OmegaOut.open("OptimzeOut.txt", std::ios_base::out);
+    OmegaOut.open("OptimizeOut.txt", std::ios_base::out);
     std::ofstream DistrOut;
     DistrOut.open("DistrOut.txt", std::ios_base::out);
     OmegaOut.close();
@@ -74,11 +74,16 @@ void OmegaOptimizer::optimizeOmega()
     while(true)
     {
         runUntilEquilibrium();
+
+        std::cout<<"calculate average order in equilibrium"<<std::endl;
         calcCurrentOrderDistr(orderCalcRuns);
         double StepDiff=0; //diff to last step
         double MDDiff=0; // diff to MD
-        OmegaOut.open("OptimzeOut.txt", std::ios_base::app);
+      
+        OmegaOut.open("OptimizeOut.txt", std::ios_base::app);
         DistrOut.open("DistrOut.txt", std::ios_base::app);
+
+        std::cout<<"writing data"<<std::endl;
 
         for(int i=0;i<=(int)inputfile->paras.at("maxOrderIndex");i++) 
         {
@@ -141,6 +146,7 @@ void OmegaOptimizer::runUntilEquilibrium()
     
     while(true) //run until equi
     {
+
         doSystemloop();
         loopCounter++;
         if (loopCounter %100==0)
@@ -150,7 +156,7 @@ void OmegaOptimizer::runUntilEquilibrium()
             if (std::abs(lipidsystem.getMeanOrder()-meanOrder)<=1)//check convergence
             {
                 std::cout<<"Equilibrium!"<<std::endl;
-                break;
+                return;
             }
             meanOrder=lipidsystem.getMeanOrder();
 
@@ -165,6 +171,8 @@ void OmegaOptimizer::calcCurrentOrderDistr(int orderCalcRuns)//doing orderCalcRu
     
     for(int t=0;t<orderCalcRuns;t++) 
     {
+        std::cout<<"at "<<t<<"\r"<<std::flush;
+
         doSystemloop();
         thisLoopOrderDistr=lipidsystem.getOrderDistr();
         for(int i=0;i<=(int)inputfile->paras.at("maxOrderIndex");i++)  currentOrderDistr[i]+=thisLoopOrderDistr[i];
@@ -214,7 +222,7 @@ void OmegaOptimizer::doSystemloop() //loop one time over all lipids
 bool OmegaOptimizer::acceptance(const double FreeEnergie1, const double FreeEnergie2)
 {
     #ifndef NDEBUG
-    std::cout<<"OmegaOptimizer::acceptance:   DeltaG: "<<(FreeEnergie2-FreeEnergie1)<<" DeltaG/kbT: " <<(FreeEnergie2-FreeEnergie1)/inputfile->kBT<<std::endl;
+    std::cerr<<"OmegaOptimizer::acceptance:   DeltaG: "<<(FreeEnergie2-FreeEnergie1)<<" DeltaG/kbT: " <<(FreeEnergie2-FreeEnergie1)/inputfile->kBT<<std::endl;
     #endif
 
     return enhance::random_double(0.0, 1.0) < enhance::fastExp((FreeEnergie1-FreeEnergie2)/inputfile->kBT);
