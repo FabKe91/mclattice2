@@ -4,6 +4,7 @@ cmake_minimum_required(VERSION 2.6)
 
 set(CMAKE_INSTALL_PREFIX "$ENV{HOME}")
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON) 
 
 project(mclattice2)
 
@@ -11,8 +12,13 @@ project(mclattice2)
 include_directories("./src/")
 
 
-# set(CMAKE_CXX_FLAGS "-std=c++11 -O0 -DDEBUG -g")
-set(CMAKE_CXX_FLAGS "-std=c++11")
+# Standard
+set(CMAKE_CXX_FLAGS "-std=c++11 -O3 -DNDEBUG")
+# Debug
+#set(CMAKE_CXX_FLAGS "-std=c++11 -O0 -DDEBUG")
+
+#set(CMAKE_CXX_FLAGS "-std=c++11 -O0 -DDEBUG -g")
+#set(CMAKE_CXX_FLAGS "-std=c++11")
 # set (CMAKE_CXX_FLAGS_DEBUG "-std=c++11 -DDEBUG" ${CMAKE_CXX_FLAGS_DEBUG})
 
 find_package(HDF5 REQUIRED)
