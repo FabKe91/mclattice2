@@ -7,4 +7,5 @@ install_manifest.txt
 libenhance.a
 libenhance.so
 out.h5
-
+mclattice2
+compile_commands.json
