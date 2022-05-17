@@ -279,11 +279,11 @@ double Lipidsystem::calcPairEnthalpy(unsigned int ID_1,unsigned int ID_2)
 
     if (type1>=type2)
     {
-        return lipidproperties->enthalpyFunction[type1][type2][(int)((order1+order2)/2)]*(lipidproperties->neighbourFunction[type1][order1]+lipidproperties->neighbourFunction[type2][order2])/16;
+        return lipidproperties->enthalpyFunction[type1][type2][(int)(std::min(order1, order2))]*(lipidproperties->neighbourFunction[type1][order1]+lipidproperties->neighbourFunction[type2][order2])/16;
     }
     else
     {
-        return lipidproperties->enthalpyFunction[type2][type1][(int)((order1+order2)/2)]*(lipidproperties->neighbourFunction[type1][order1]+lipidproperties->neighbourFunction[type2][order2])/16;;
+        return lipidproperties->enthalpyFunction[type2][type1][(int)(std::min(order1, order2))]*(lipidproperties->neighbourFunction[type1][order1]+lipidproperties->neighbourFunction[type2][order2])/16;;
     }
 
 }
