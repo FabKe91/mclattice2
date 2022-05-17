@@ -61,8 +61,7 @@ void LipidProperties::readParas(std::shared_ptr<InputFile> _inputfile)
     //set array values
     for(int i=0;i<inputfile->nType;i++)
     {
-            int k=0;
-
+        int k=0;
         for(double order=inputfile->paras.at("minOrder");order<inputfile->paras.at("maxOrder")+inputfile->paras.at("DeltaOrder");order+=inputfile->paras.at("DeltaOrder"))
         {   
             if (inputfile->types[i].typeName=="DPPC")   neighbourFunction[i][k]=NN_DPPC(inputfile->paras.at("T"),order);
