@@ -32,7 +32,7 @@ double NN_DUPC(double temp, double order)
 void LipidProperties::readParas(std::shared_ptr<InputFile> _inputfile)
 {
     #ifndef NDEBUG
-    std::cout<<"LipidProperties::readParas"<<std::endl;
+    std::cerr<<"LipidProperties::readParas"<<std::endl;
     #endif
 
     inputfile=_inputfile;

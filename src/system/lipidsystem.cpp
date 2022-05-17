@@ -26,7 +26,7 @@ void Lipidsystem::readParas( std::shared_ptr<LipidProperties> _lipidproperties,s
 void Lipidsystem::setup()
 {   
     #ifndef NDEBUG
-    std::cout<<"Lipidsystem::setup"<<std::endl;
+    std::cerr<<"Lipidsystem::setup"<<std::endl;
     #endif
     
     
@@ -59,7 +59,7 @@ void Lipidsystem::setup()
 int Lipidsystem::getMeanOrder()
 {
     #ifndef NDEBUG
-    std::cout<<"Lipidsystem::getMeanOrder"<<std::endl;
+    std::cerr<<"Lipidsystem::getMeanOrder"<<std::endl;
     #endif
     
     int mean=0;
@@ -167,7 +167,7 @@ void Lipidsystem::setPartner()
 void Lipidsystem::swap()
 {
     #ifndef NDEBUG
-    std::cout<<"Lipidsystem::swap"<<std::endl;
+    std::cerr<<"Lipidsystem::swap"<<std::endl;
     #endif
 //     std::cout<<posX0<<" "<<posY0<<std::endl;
 //     std::cout<<posX1<<" "<<posY1<<std::endl;
@@ -187,7 +187,7 @@ void Lipidsystem::swap()
 double Lipidsystem::calcSwapEnthalpy()
 {
     #ifndef NDEBUG
-    std::cout<<"Lipidsystem::calcSwapEnthalpy"<<std::endl;
+    std::cerr<<"Lipidsystem::calcSwapEnthalpy"<<std::endl;
     #endif
 
     double H=0;
@@ -232,7 +232,7 @@ double Lipidsystem::calcSwapEnthalpy()
                 H+=calcPairEnthalpy(ID1,map[posX1][(posY1-1+height)%height]);
     }
     #ifndef NDEBUG
-    std::cout<<"H "<<H<<std::endl;
+    std::cerr<<"H "<<H<<std::endl;
     #endif
     
     return H;
@@ -241,8 +241,8 @@ double Lipidsystem::calcSwapEnthalpy()
 double Lipidsystem::calcHostFreeEnerg()
 {
     #ifndef NDEBUG
-    std::cout<<"Lipidsystem::calcHostFreeEnerg"<<std::endl;
-    std::cout<<"ID0 "<<ID0<<" posX0 "<<posX0<<" posY0 "<<posY0<<std::endl;
+    std::cerr<<"Lipidsystem::calcHostFreeEnerg"<<std::endl;
+    std::cerr<<"ID0 "<<ID0<<" posX0 "<<posX0<<" posY0 "<<posY0<<std::endl;
     #endif
 
     
@@ -255,9 +255,9 @@ double Lipidsystem::calcHostFreeEnerg()
 
    
     #ifndef NDEBUG
-    std::cout<<"H "<<G<<std::endl;
-    std::cout<<"kB T S "<<-inputfile->kBT*lipidproperties->entropyFunction[lipids[ID0].getType()][lipids[ID0].getOrderPara()]<<std::endl;
-    std::cout<<"self E "<<lipidproperties->selfEnergieFunction[lipids[ID0].getType()][lipids[ID0].getOrderPara()]<<std::endl;
+    std::cerr<<"H "<<G<<std::endl;
+    std::cerr<<"kB T S "<<-inputfile->kBT*lipidproperties->entropyFunction[lipids[ID0].getType()][lipids[ID0].getOrderPara()]<<std::endl;
+    std::cerr<<"self E "<<lipidproperties->selfEnergieFunction[lipids[ID0].getType()][lipids[ID0].getOrderPara()]<<std::endl;
     #endif
 
     G+=lipidproperties->selfEnergieFunction[lipids[ID0].getType()][lipids[ID0].getOrderPara()]-inputfile->kBT*lipidproperties->entropyFunction[lipids[ID0].getType()][lipids[ID0].getOrderPara()];
@@ -292,7 +292,7 @@ double Lipidsystem::calcPairEnthalpy(unsigned int ID_1,unsigned int ID_2)
 void Lipidsystem::fluctuate()
 {
     #ifndef NDEBUG
-    std::cout<<"Lipidsystem::fluctuate"<<std::endl;
+    std::cerr<<"Lipidsystem::fluctuate"<<std::endl;
     #endif
 
     oldOrder=lipids[ID0].getOrderPara();
@@ -303,8 +303,8 @@ void Lipidsystem::fluctuate()
     lipids[ID0].setOrderPara(enhance::random_int((oldOrder-maxFluc+minOrder+std::abs(oldOrder-maxFluc-minOrder))/2,(oldOrder+maxFluc+maxOrder-std::abs(oldOrder+maxFluc-maxOrder))/2));
     
     #ifndef NDEBUG
-    std::cout<<"oldOrder: "<<oldOrder<<" maxOrder: "<<maxOrder<<" minOrder: "<<minOrder<<" maxFluc: "<<maxFluc<<std::endl;
-    std::cout<<"searching order between "<<(oldOrder-maxFluc+minOrder+std::abs(oldOrder-maxFluc-minOrder))/2<<" "<<(oldOrder+maxFluc+maxOrder-std::abs(oldOrder+maxFluc-maxOrder))/2<<" new order: "<<lipids[ID0].getOrderPara()<<std::endl;
+    std::cerr<<"oldOrder: "<<oldOrder<<" maxOrder: "<<maxOrder<<" minOrder: "<<minOrder<<" maxFluc: "<<maxFluc<<std::endl;
+    std::cerr<<"searching order between "<<(oldOrder-maxFluc+minOrder+std::abs(oldOrder-maxFluc-minOrder))/2<<" "<<(oldOrder+maxFluc+maxOrder-std::abs(oldOrder+maxFluc-maxOrder))/2<<" new order: "<<lipids[ID0].getOrderPara()<<std::endl;
     #endif
     
     
@@ -314,7 +314,7 @@ void Lipidsystem::fluctuate()
 void Lipidsystem::fluctuateBack()
 {
     #ifndef NDEBUG
-    std::cout<<"Lipidsystem::fluctuateBack"<<std::endl;
+    std::cerr<<"Lipidsystem::fluctuateBack"<<std::endl;
     #endif
     lipids[ID0].setOrderPara(oldOrder);
     

@@ -86,7 +86,7 @@ void DataFile::createAttribute(std::string attrName, double val, H5File& file)
 void DataFile::writeStep()
 {
     #ifndef NDEBUG
-    std::cout<<"DataFile::writeStep"<<std::endl;
+    std::cerr<<"DataFile::writeStep"<<std::endl;
     #endif
 
     bufferLen++;

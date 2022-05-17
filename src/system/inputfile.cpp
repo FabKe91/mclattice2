@@ -3,7 +3,7 @@
 InputFile::InputFile(std::string filename)
 {
     #ifndef NDEBUG
-    std::cout<<"InputFile::InputFile"<<std::endl;
+    std::cerr<<"InputFile::InputFile"<<std::endl;
     #endif
     
     std::ifstream infile(filename);
@@ -139,7 +139,7 @@ InputFile::InputFile(std::string filename)
         
     }
     #ifndef NDEBUG
-    std::cout<<"InputFile::InputFile   finished reading"<<std::endl;
+    std::cerr<<"InputFile::InputFile   finished reading"<<std::endl;
     #endif
     
 }
