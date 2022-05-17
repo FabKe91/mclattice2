@@ -77,7 +77,7 @@ void LipidProperties::readParas(std::shared_ptr<InputFile> _inputfile)
             
             for(int j=0;j<=i;j++)
             {
-                enthalpyFunction[i][j][k]=enhance::polynom(inputfile->enthalpyPara[i][j],order);
+                enthalpyFunction[i][j][k]=enhance::logistic(inputfile->enthalpyPara[i][j],order);
             }
         
             k++;
