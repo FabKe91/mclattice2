@@ -83,6 +83,46 @@ void LipidProperties::readParas(std::shared_ptr<InputFile> _inputfile)
             k++;
         }
     }
+
+    #ifndef NDEBUG
+        // Print out the evaluated input functions
+        std::cerr<<"enthalpy function:"<<std::endl;
+        int Sndx;
+        for (int typendx=0; typendx<inputfile->nType; typendx++)
+        {
+            for (int neibtypendx=0; neibtypendx<=typendx; neibtypendx++)
+            {
+                std::cerr<<"Type-Type: "<<inputfile->types[typendx].typeName<<"-"<<inputfile->types[neibtypendx].typeName<<std::endl;
+
+                Sndx=0;
+                for(double order=inputfile->paras.at("minOrder");order<inputfile->paras.at("maxOrder")+inputfile->paras.at("DeltaOrder");order+=inputfile->paras.at("DeltaOrder"))
+                {
+
+                    std::cerr<<order<<":"<<enthalpyFunction[typendx][neibtypendx][Sndx]<<' ';   
+                    Sndx++;
+                }
+                std::cerr<<std::endl;
+            }
+
+            std::cerr<<"neighbor function:"<<std::endl;
+            Sndx=0;
+            for(double order=inputfile->paras.at("minOrder");order<inputfile->paras.at("maxOrder")+inputfile->paras.at("DeltaOrder");order+=inputfile->paras.at("DeltaOrder"))
+            {
+                std::cerr<<order<<":"<<neighbourFunction[typendx][Sndx]<<' ';   
+                Sndx++;
+            }
+            std::cerr<<std::endl;
+
+            std::cerr<<"entropy function:"<<std::endl;
+            Sndx=0;
+            for(double order=inputfile->paras.at("minOrder");order<inputfile->paras.at("maxOrder")+inputfile->paras.at("DeltaOrder");order+=inputfile->paras.at("DeltaOrder"))
+            {
+                std::cerr<<order<<":"<<entropyFunction[typendx][Sndx]<<' ';   
+                Sndx++;
+            }
+            std::cerr<<std::endl;
+        }
+    #endif
 }
 
 
