@@ -100,21 +100,26 @@ void LipidProperties::readParas(std::shared_ptr<InputFile> _inputfile)
         {   
             
             // Now the neighbor functions only depend on T
-            if (inputfile->types[i].typeName=="DPPC")   neighbourFunction[i][k]=enhance::sigmoid(inputfile->neighbourPara[i], inputfile->paras.at("T"));
-            else if (inputfile->types[i].typeName=="DUPC")   neighbourFunction[i][k]=enhance::polynom(inputfile->neighbourPara[i], inputfile->paras.at("T"));
-            else throw std::invalid_argument("no NN funktion found for type: "+inputfile->types[i].typeName);
-            
+
+            for(int j=0;j<6;j++)
+            {
+                if (inputfile->types[i].typeName=="DPPC")   neighbourFunction[i][j][k]=enhance::sigmoid(inputfile->neighbourPara[i], inputfile->paras.at("T"));
+                else if (inputfile->types[i].typeName=="DUPC")   neighbourFunction[i][j][k]=enhance::polynom(inputfile->neighbourPara[i], inputfile->paras.at("T"));
+                else throw std::invalid_argument("no NN funktion found for type: "+inputfile->types[i].typeName);
+            }
+
             entropyFunction[i][k]=enhance::polynom(inputfile->entropyPara[i],order);
             selfEnergieFunction[i][k]=enhance::polynom(inputfile->selfEnergiePara[i],order);
             
             for(int j=0;j<6;j++)
+            {
                 lipidCholEnergieFunction[i][j][k]=enhance::polynom(inputfile->lipidCholEnergiePara[i][j],order);
+            }
 
             for(int j=0;j<=i;j++)
             {
                 for(int l=0;l<7;l++)
                     enthalpyFunction[i][j][l][k]=enhance::logistic(inputfile->enthalpyPara[i][j][l],order);
-                    //enthalpyFunction[i][j][k]=enhance::logistic(inputfile->enthalpyPara[i][j],order);
             }
         
             k++;

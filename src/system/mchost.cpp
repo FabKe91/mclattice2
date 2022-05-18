@@ -202,59 +202,90 @@ void MCHost::doSystemloop() //loop one time over all lipids
 
 
 
-
-int MCHost::findLipidPairCholNeighbours(int ID1, int ID2)
+std::array<int, 3> MCHost::findLipidPairCholNeighbours(int ID1, int ID2)
 {   
     std::array<int,4> cholNeigh1=getCholNeighOfLipid(ID1);
     std::array<int,4> cholNeigh2=getCholNeighOfLipid(ID2);
-    int numberCholNeigh=0;
+    //int numberCholNeigh=0;
+
+    int mutualNc = 0;
+    int hostNc = 0;
+    int neibNc = 0;
     
     for(int i=0;i<4;i++)
     {
-        numberCholNeigh+=cholesterinsystem.chols[cholNeigh1[i]].occupied;
-        if (!IDinArrayLen4(cholNeigh2[i],cholNeigh1))
+        hostNc+=cholesterinsystem.chols[cholNeigh1[i]].occupied;
+        neibNc+=cholesterinsystem.chols[cholNeigh2[i]].occupied;
+
+        if (IDinArrayLen4(cholNeigh2[i],cholNeigh1))
         {
-            numberCholNeigh+=cholesterinsystem.chols[cholNeigh2[i]].occupied;
+            mutualNc+=cholesterinsystem.chols[cholNeigh2[i]].occupied;
         }
     }
-//     if (numberCholNeigh==6) std::cout<<"6 lipid pair"<<hostID<<std::endl;
-    return numberCholNeigh;
+
+    //     if (numberCholNeigh==6) std::cout<<"6 lipid pair"<<hostID<<std::endl;
+
+    LipidPairCholNeighbors[0] = hostNc;
+    LipidPairCholNeighbors[1] = hostNc;
+    LipidPairCholNeighbors[2] = mutualNc;
+
+    return LipidPairCholNeighbors;
 }
 
-int MCHost::findLipidCholPairCholNeighbours(int lipidID, int cholID)
+std::array<int, 3> MCHost::findLipidCholPairCholNeighbours(int lipidID, int cholID)
 {   
     std::array<int,4> lipidCholNeigh=getCholNeighOfLipid(lipidID);
     std::array<int,4> cholCholNeigh=getCholNeighOfChol(cholID);
-    int numberCholNeigh=0;
+    //int numberCholNeigh=0;
+
+    int mutualNc = 0;
+    int hostNc = 0;
+    int neibNc = 0;
     
     for(int i=0;i<4;i++)
     {
-        numberCholNeigh+=cholesterinsystem.chols[cholCholNeigh[i]].occupied;
-        if (!IDinArrayLen4(lipidCholNeigh[i],cholCholNeigh) and lipidCholNeigh[i] != cholID)
+        //numberCholNeigh+=cholesterinsystem.chols[cholCholNeigh[i]].occupied;
+        neibNc+=cholesterinsystem.chols[cholCholNeigh[i]].occupied;
+        hostNc+=cholesterinsystem.chols[lipidNeigh2[i]].occupied;
+        if (IDinArrayLen4(lipidCholNeigh[i],cholCholNeigh) and lipidCholNeigh[i] != cholID)
         {
-            numberCholNeigh+=cholesterinsystem.chols[lipidCholNeigh[i]].occupied;
+            //numberCholNeigh+=cholesterinsystem.chols[lipidCholNeigh[i]].occupied;
+            mutualNc+=cholesterinsystem.chols[lipidCholNeigh[i]].occupied;
         }
     }
-//     if (numberCholNeigh==5) std::cout<<"5 chol lipid pair"<<hostID <<std::endl;
-    return numberCholNeigh;
+
+    LipidCholPairCholNeighbors[0] = hostNc;
+    LipidCholPairCholNeighbors[1] = hostNc;
+    LipidCholPairCholNeighbors[2] = mutualNc;
+
+    //if (numberCholNeigh==5) std::cout<<"5 chol lipid pair"<<hostID <<std::endl;
+    return LipidCholPairCholNeighbors;
 }
 
 
-int MCHost::findCholPairCholNeighbours(int ID1, int ID2)
+std::array<int, 3> MCHost::findCholPairCholNeighbours(int ID1, int ID2)
 {
     std::array<int,4> cholNeigh1=getCholNeighOfChol(ID1);
     std::array<int,4> cholNeigh2=getCholNeighOfChol(ID2);
-    int numberCholNeigh=0;
+    //int numberCholNeigh=0;
+
+    int mutualNc = 0; // CholPairs cannot have mutual Nc
+    int hostNc = 0;
+    int neibNc = 0;
     
     for(int i=0;i<4;i++)
     {
-        if (cholNeigh1[i]!= ID2)
-            numberCholNeigh+=cholesterinsystem.chols[cholNeigh1[i]].occupied;
-        if (!IDinArrayLen4(cholNeigh2[i],cholNeigh1) and cholNeigh2[i] != ID1)
-            numberCholNeigh+=cholesterinsystem.chols[cholNeigh2[i]].occupied;
+        if (cholNeigh1[i] != ID2)
+            hostNc+=cholesterinsystem.chols[cholNeigh1[i]].occupied;
+        if (cholNeigh2[i] != ID1)
+            neibNc+=cholesterinsystem.chols[cholNeigh2[i]].occupied;
     }
-//     if (numberCholNeigh==6) std::cout<<"6 chol pair"<<hostID<<std::endl;
-    return numberCholNeigh;
+
+    CholPairCholNeighbors[0] = hostNc;
+    CholPairCholNeighbors[1] = hostNc;
+    CholPairCholNeighbors[2] = mutualNc;
+    //if (numberCholNeigh==6) std::cout<<"6 chol pair"<<hostID<<std::endl;
+    return CholPairCholNeighbors;
 }
 
 double MCHost::calcSwapEnthalpy()

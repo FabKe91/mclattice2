@@ -44,15 +44,19 @@ protected:
     int partnerID=0;
     std::array<int,4> partnerNeighbours;
     
+    // hostNc neibNc mutualNc
+    std::array<int,3> LipidPairCholNeighbors;
+    std::array<int,3> CholPairCholNeighbors;
+    std::array<int,3> LipidCholPairCholNeighbors;
     
     void setHost(int x, int y);
     void setHost(int ID);
     void setRNDHost();
     void setPartner();
     
-    int findLipidPairCholNeighbours(int ID1, int ID2);
-    int findCholPairCholNeighbours(int ID1, int ID2);
-    int findLipidCholPairCholNeighbours(int, int );
+    std::array<int, 3> findLipidPairCholNeighbours(int ID1, int ID2);
+    std::array<int, 3> findCholPairCholNeighbours(int ID1, int ID2);
+    std::array<int, 3> findLipidCholPairCholNeighbours(int, int );
     
     
     inline bool acceptance(const double Enthalpy1, const double Enthalpy2);
