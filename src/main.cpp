@@ -17,7 +17,7 @@ int main(int argc, char **argv) {
     enhance::seed = std::random_device{}();
 
     #ifndef NDEBUG
-    std::cout<<"Debugging"<<std::endl;
+    std::cerr<<"Debugging"<<std::endl;
     enhance::seed = 123456749;
     #endif
     
@@ -29,6 +29,7 @@ int main(int argc, char **argv) {
         ("optimize", po::value<std::string>(), "do optimization, type name")
         ("o", po::value<std::string>(), "do optimization, type name")
         ("continue","continue from existing file named 'out.h5'")
+        ("normal", "do normal run")
     ;
     
     po::variables_map vm;
@@ -44,9 +45,12 @@ int main(int argc, char **argv) {
     }
     else if (vm.count("optimize") or vm.count("o"))
     {
+
         std::string typeName;
         if (vm.count("optimize")) typeName=vm["optimize"].as<std::string>();
         if (vm.count("o")) typeName=vm["o"].as<std::string>();
+
+        std::cout<<"Starting optimization of "<<typeName<<std::endl;
 
         OmegaOptimizer omegaoptimizer;
         omegaoptimizer.setupOptimization(typeName);
@@ -58,11 +62,18 @@ int main(int argc, char **argv) {
         mchost.setupForRestart();
         mchost.run();
     }
-    else
+    else if ( vm.count("normal") )
     {
+        std::cout<<"Starting normal run"<<std::endl;
+
         MCHost mchost;
         mchost.setup();
         mchost.run();
+    }
+    else
+    {
+        std::cout << "Specify run options, or help" << "\n";
+    return 1;
     }
   
     

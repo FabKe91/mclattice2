@@ -23,7 +23,7 @@
 void MCHost::setup()
 {
     #ifndef NDEBUG
-    std::cout<<"MCHost::setup"<<std::endl;
+    std::cerr<<"MCHost::setup"<<std::endl;
     #endif
     
     
@@ -103,7 +103,7 @@ void MCHost::setupForRestart()
 void MCHost::run()
 {
     #ifndef NDEBUG
-    std::cout<<"MCHost::run"<<std::endl;
+    std::cerr<<"MCHost::run"<<std::endl;
     #endif
     
     auto startTime = std::chrono::system_clock::now();
@@ -523,7 +523,7 @@ bool MCHost::setCholPartner()
 bool MCHost::acceptance(const double FreeEnergie1, const double FreeEnergie2)
 {
     #ifndef NDEBUG
-    std::cout<<"MCHost::acceptance:   DeltaG: "<<(FreeEnergie2-FreeEnergie1)<<" DeltaG/kbT: " <<(FreeEnergie2-FreeEnergie1)/inputfile->kBT<<std::endl;
+    std::cerr<<"MCHost::acceptance:   DeltaG: "<<(FreeEnergie2-FreeEnergie1)<<" DeltaG/kbT: " <<(FreeEnergie2-FreeEnergie1)/inputfile->kBT<<std::endl;
     #endif
 
     return enhance::random_double(0.0, 1.0) < enhance::fastExp((FreeEnergie1-FreeEnergie2)/inputfile->kBT);

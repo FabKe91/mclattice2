@@ -1,18 +1,45 @@
 #!/usr/bin/python3
-import warnings
-warnings.filterwarnings("ignore")
-import numpy as np
-#import matplotlib
-#matplotlib.use('Agg')
-from matplotlib.colors import ListedColormap
-import matplotlib.pylab as plt
-import matplotlib.animation as animation
+'''
+class data
+    .getStep   <- dataSetName, step -> returns the dataSet of name <dataSetName> of <step>
+    .getOrderDistr <- -> Normalized orderparameter distribution for frames 20 to end
+    .getSingleOrderDistr <- imageNumber -> Normalized order parameter distribution of frame <imageNumber> 
+    .getMeanNN <- imageNumber, Type -> Average number of like-neighbor in frame <imageNumber> for type <Type>
+
+orderDistrAni <- instance of data -> creates an animation axs[0]=orderparadistr axs[1]=typedistr
+snap
+
+'''
 import h5py
-from sys import argv
+import numpy as np
+import pandas as pd 
+import seaborn as sns
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+from matplotlib.colors import ListedColormap
+import matplotlib.animation as animation
 
 np.set_printoptions(precision=6,linewidth=150)
 
+############
+
+cm = 1/2.54
+a169 = 1/(16/9)
+singlex=16*cm
+
+DATAFILE = "out.h5"
+
+###############
+
+def set_context():
+    sns.set_context("poster")
+    #sns.set_context("paper", font_scale=1.2, rc={"line.linewidth":1, **rc})
+
+set_context()
+
+
 class data(object):
+
     def __init__(self,filename):
         self.f = h5py.File(filename,  "r")
         
@@ -20,36 +47,46 @@ class data(object):
         self.paras={}
         
         for item in self.f.attrs.keys():
-            if self.f.attrs[item]==int(self.f.attrs[item]):
-                self.paras[item]=int(self.f.attrs[item])
-            else:
-                self.paras[item]=self.f.attrs[item]
+            # following lines important?
+            #if isinstance(self.f.attrs[item], int):
+            #    self.paras[item] = int(self.f.attrs[item])
+            #else:
+            #    self.paras[item] = self.f.attrs[item]
 
+            self.paras[item] = self.f.attrs[item][0]
+
+        print("Initialized parameters:\n", *["{}:{}\n".format(str(i), str(j)) for i,j in self.paras.items()])
+        
         
     def getStep(self,dataSetName,step):
         return np.array(self.f["/"+dataSetName][step,:,:])
 
     def getOrderDistr(self):
-        counter=np.zeros((self.paras["maxOrderIndex"]+1))
+        counter=np.zeros(int(self.paras["maxOrderIndex"]+1))
         for image in range(self.findEqui(),self.images):
             for order in np.nditer(self.getStep("orderPara",image)):
                 counter[order]+=1
         return counter/np.sum(counter)/self.paras["DeltaOrder"]
 
     def getSingleOrderDistr(self,imageNumber):
-            counter=np.zeros((self.paras["maxOrderIndex"]+1))
+            counter=np.zeros( int(self.paras["maxOrderIndex"]+1) )
             for order in np.nditer(self.getStep("orderPara",imageNumber)):
                 counter[order]+=1
             return counter/np.sum(counter)/self.paras["DeltaOrder"]
     
     def getMeanNN(self,imageNumber,Type):
-        step=np.array(self.f["/Type"][imageNumber,:,:])==Type
-        sameN=0
-        sameN+=np.sum(step[np.roll(step,1,axis=0)])
-        sameN+=np.sum(step[np.roll(step,-1,axis=0)])
-        sameN+=np.sum(step[np.roll(step,1,axis=1)])
-        sameN+=np.sum(step[np.roll(step,-1,axis=1)])
-        return sameN/np.sum(step)
+        '''
+            Looks for pairs in each direction for numpy roll: axis=0/1 and step 1/-1 
+            All equal pairs are summed in each direction
+
+        '''
+        step = np.array( self.f["/Type"][imageNumber,:,:] ) == Type
+        sameN = 0
+        sameN += np.sum(step[np.roll(step,1,axis=0)])
+        sameN += np.sum(step[np.roll(step,-1,axis=0)])
+        sameN += np.sum(step[np.roll(step,1,axis=1)])
+        sameN += np.sum(step[np.roll(step,-1,axis=1)])
+        return sameN/np.sum(step)        
     
     def getCholMeanNN(self,imageNumber):
         step=np.array(self.f["/Chol"][imageNumber,:,:],dtype=bool)
@@ -105,9 +142,6 @@ class data(object):
         print(orders/counter*self.paras["DeltaOrder"]+self.paras["minOrder"],counter/np.sum(counter))
 
         
-    
-
-    
 def orderDistrAni(data):
     fig=plt.figure()
     ax=plt.subplot(111)
@@ -119,23 +153,23 @@ def orderDistrAni(data):
         print(i)
 
     ani=animation.FuncAnimation(fig, update, blit=False,frames=300, interval=100, repeat_delay=600)
-    #mywriter = animation.FFMpegWriter(fps=10)
-    #ani.save('orderDistrAni.avi',writer=mywriter,dpi=400)
-    plt.show()
+    mywriter = animation.FFMpegWriter(fps=10)
+    ani.save('orderDistrAni.avi',writer=mywriter,dpi=400)
+    #plt.show()
 
 
     
 def orderDistrAndType(data):
-    fig=plt.figure(figsize=(12,4))
+    fig=plt.figure(figsize=(singlex*2,singlex*a169))
     
     ax2=plt.subplot(121)
-    empty=np.zeros((data.paras["width"],data.paras["height"]))
+    empty=np.zeros( ( int(data.paras["width"]), int(data.paras["height"]) ) )
     im=ax2.imshow(empty,vmax=1,vmin=-0.3,interpolation='None',cmap='gnuplot')
     plt.colorbar(im,ax=ax2)
     ax2.set_title('axes title')
 
     ax3=plt.subplot(122)
-    empty=np.zeros((data.paras["width"],data.paras["height"]))
+    empty=np.zeros( ( int(data.paras["width"]), int(data.paras["height"]) ) )
     my_cmap=ListedColormap([(1.0, 0.6, 0.6),(0.1, 0.7, 0.8)])
     im2=ax3.imshow(empty,vmax=1,vmin=0,interpolation='None',cmap=my_cmap)
     plt.colorbar(im2,ax=ax3)
@@ -147,10 +181,11 @@ def orderDistrAndType(data):
         im2.set_array(data.getStep("Type",j))
         print("step:",i,"sameN DPPC",data.getMeanNN(j,0))
 
-    ani=animation.FuncAnimation(fig, update, blit=False,frames=data.images, interval=20,repeat_delay=600)
-    #mywriter = animation.FFMpegWriter(fps=10)
-    #ani.save('Ani.avi',writer=mywriter,dpi=150)
-    plt.show()
+    ani=animation.FuncAnimation(fig, update, blit=False,frames=data.images//100, interval=20,repeat_delay=600)
+    mywriter = animation.FFMpegWriter(fps=1)
+    print("Saving animation...")
+    ani.save('Ani.avi', writer=mywriter, dpi=150)
+    #plt.show()
     
 def cholAni(data):
     fig=plt.figure(figsize=(12,4))
@@ -179,27 +214,17 @@ def cholAni(data):
     plt.show()
     
 def snap(data,imageNumber):
-    #fig=plt.figure(frameon=False)
-    #fig.set_size_inches(12,12)
-    #ax1 = plt.Axes(fig, [0., 0., 1., 1.])
-    #ax1.set_axis_off()
-    #fig.add_axes(ax1)
-    #im=ax1.imshow((data.getStep("orderPara",imageNumber)-50)*0.01,vmax=1,vmin=-0.3,interpolation='None',cmap='gnuplot')
-    #plt.colorbar(im,ax=ax1)
-    #plt.savefig("snap_order_image%s.png"%imageNumber,bbox_inches="tight",dpi=300,pad_inches=0)
-    #fig=None
+    fig, axs = plt.subplots(ncols=2, figsize=(singlex*2,singlex) )
+
+    axs[0].set_axis_off()
+    im=axs[0].imshow((data.getStep("orderPara",imageNumber)-50)*0.01,vmax=1,vmin=-0.3,interpolation='None',cmap='gnuplot')
+    plt.colorbar(im,ax=axs[0])
     
-    fig=plt.figure(frameon=False)
-    fig.set_size_inches(12,12)
-    ax1 = plt.Axes(fig, [0., 0., 1., 1.])
-    ax1.set_axis_off()
-    fig.add_axes(ax1)
+    axs[1].set_axis_off()
     my_cmap=ListedColormap([(1.0, 0.6, 0.6),(0.1, 0.7, 0.8)])
-    im2=ax1.imshow(data.getStep("Type",imageNumber),vmax=1,vmin=0,interpolation='None',cmap=my_cmap)
-    ax1.axis('off')
-    plt.savefig("n%s_snap_type_image%s.png"%(data.shape[0],imageNumber),bbox_inches="tight",dpi=300,pad_inches=0)
-    fig=None
-    
+    im2=axs[1].imshow(data.getStep("Type",imageNumber),vmax=1,vmin=0,interpolation='None',cmap=my_cmap)
+    plt.colorbar(im2,ax=axs[1])
+    axs[1].axis('off')
 
 def subgridPlot(data,imageNumber):
     plt.rc('text', usetex=True)
@@ -323,6 +348,30 @@ subgridPlot(data1,int(argv[1]))
 #plt.show()
     
 ##exit()
+    plt.tight_layout()
+    fig.savefig("snap_image%s.png"%(imageNumber), dpi=300)
+
+
+
+
+data = data(DATAFILE)
+
+temp = int(data.paras["T"])
+
+print("Saving snapshot of last frame...")
+snap(data, -1)
+
+print("Animate simulation...")
+orderDistrAndType(data)
+
+svals = np.arange(
+    data.paras["minOrder"], data.paras["maxOrder"]+0.00001, data.paras["DeltaOrder"]
+	)
+print("Calculating order distribution...")
+orderdistr=data.getOrderDistr()
+dat = pd.DataFrame({"order": svals, "freq": orderdistr})
+print("Avg Order:",  (dat["order"] * dat["freq"]).sum() / dat.freq.sum())
+dat.to_csv("orderdistr.csv", index=False)
 
 
 
@@ -365,7 +414,23 @@ subgridPlot(data1,int(argv[1]))
 #plt.plot(np.arange(-0.5,1.01,0.01),orderdistr,"k-")
 #plt.show()
 
-#print(argv[1],np.sum(orderdistr*np.arange(-0.5,1.01,0.01)*0.01))
-#plt.savefig("T_%s.png"%argv[1],bbox_inches="tight",dpi=400)
 
+
+
+############### Plot system evolution  ###################
+#fig, axs = plt.subplots(ncols=2, figsize=(singlex,singlex*a43) )
+#
+#ax = sns.lineplot(x="step", y="order", data=dt_s,  ax=axs[0])
+#ax = sns.lineplot(x="step", y="NN",    data=dt_NN, ax=axs[1])
+#
+#fig.savefig("system_evolution_T{temp}.png")
+
+
+
+
+
+
+
+
+############## Plot meanNN evolution ###################
 

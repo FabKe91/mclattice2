@@ -19,7 +19,7 @@ void Lipidsystem::readParas( std::shared_ptr<LipidProperties> _lipidproperties,s
 void Lipidsystem::setup()
 {   
     #ifndef NDEBUG
-    std::cout<<"Lipidsystem::setup"<<std::endl;
+    std::cerr<<"Lipidsystem::setup"<<std::endl;
     #endif
     
     
@@ -73,7 +73,7 @@ void Lipidsystem::setTypes(boost::multi_array<int, 2> data)
 int Lipidsystem::getMeanOrder()
 {
     #ifndef NDEBUG
-    std::cout<<"Lipidsystem::getMeanOrder"<<std::endl;
+    std::cerr<<"Lipidsystem::getMeanOrder"<<std::endl;
     #endif
     
     int mean=0;
@@ -143,7 +143,7 @@ void Lipidsystem::printMap()
 void Lipidsystem::swap(int ID_0, int ID_1)
 {
     #ifndef NDEBUG
-    std::cout<<"Lipidsystem::swap"<<std::endl;
+    std::cerr<<"Lipidsystem::swap"<<std::endl;
     #endif
 
     std::swap(lipids[ID_0].posX,lipids[ID_1].posX);
@@ -155,7 +155,7 @@ void Lipidsystem::swap(int ID_0, int ID_1)
 void Lipidsystem::fluctuate(int ID)
 {
     #ifndef NDEBUG
-    std::cout<<"Lipidsystem::fluctuate"<<std::endl;
+    std::cerr<<"Lipidsystem::fluctuate"<<std::endl;
     #endif
 
     oldOrder=lipids[ID].getOrder();
@@ -166,8 +166,8 @@ void Lipidsystem::fluctuate(int ID)
     lipids[ID].setOrder(enhance::random_int((oldOrder-maxFluc+minOrder+std::abs(oldOrder-maxFluc-minOrder))/2,(oldOrder+maxFluc+maxOrder-std::abs(oldOrder+maxFluc-maxOrder))/2));
     
     #ifndef NDEBUG
-    std::cout<<"oldOrder: "<<oldOrder<<" maxOrder: "<<maxOrder<<" minOrder: "<<minOrder<<" maxFluc: "<<maxFluc<<std::endl;
-    std::cout<<"searching order between "<<(oldOrder-maxFluc+minOrder+std::abs(oldOrder-maxFluc-minOrder))/2<<" "<<(oldOrder+maxFluc+maxOrder-std::abs(oldOrder+maxFluc-maxOrder))/2<<" new order: "<<lipids[ID].getOrder()<<std::endl;
+    std::cerr<<"oldOrder: "<<oldOrder<<" maxOrder: "<<maxOrder<<" minOrder: "<<minOrder<<" maxFluc: "<<maxFluc<<std::endl;
+    std::cerr<<"searching order between "<<(oldOrder-maxFluc+minOrder+std::abs(oldOrder-maxFluc-minOrder))/2<<" "<<(oldOrder+maxFluc+maxOrder-std::abs(oldOrder+maxFluc-maxOrder))/2<<" new order: "<<lipids[ID0].getOrderPara()<<std::endl;
     #endif
     
     
@@ -177,7 +177,7 @@ void Lipidsystem::fluctuate(int ID)
 void Lipidsystem::fluctuateBack(int ID)
 {
     #ifndef NDEBUG
-    std::cout<<"Lipidsystem::fluctuateBack"<<std::endl;
+    std::cerr<<"Lipidsystem::fluctuateBack"<<std::endl;
     #endif
     lipids[ID].setOrder(oldOrder);
     

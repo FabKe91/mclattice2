@@ -32,7 +32,7 @@ double NN_DPPC(double temp, double order)
 void LipidProperties::readParas(std::shared_ptr<InputFile> _inputfile)
 {
     #ifndef NDEBUG
-    std::cout<<"LipidProperties::readParas"<<std::endl;
+    std::cerr<<"LipidProperties::readParas"<<std::endl;
     #endif
 
     inputfile=_inputfile;
@@ -95,15 +95,15 @@ void LipidProperties::readParas(std::shared_ptr<InputFile> _inputfile)
     
     for(int i=0;i<inputfile->nType;i++)
     {
-            int k=0;
-
+        int k=0;
         for(double order=inputfile->paras.at("minOrder");order<inputfile->paras.at("maxOrder")+inputfile->paras.at("DeltaOrder");order+=inputfile->paras.at("DeltaOrder"))
         {   
             
-            if (std::get<0>(inputfile->types[i])=="DPPC")   neighbourFunction[i][k]=NN_DPPC(inputfile->paras.at("T"),order);
-//             else if (std::get<0>(inputfile->types[i])=="DUPC")   neighbourFunction[i][k]=NN_DUPC(inputfile->paras.at("T"),order);
-            else throw std::invalid_argument("no NN funktion found for type: "+std::get<0>(inputfile->types[i]));
-
+            // Now the neighbor functions only depend on T
+            if (inputfile->types[i].typeName=="DPPC")   neighbourFunction[i][k]=enhance::sigmoid(inputfile->neighbourPara[i], inputfile->paras.at("T"));
+            else if (inputfile->types[i].typeName=="DUPC")   neighbourFunction[i][k]=enhance::polynom(inputfile->neighbourPara[i], inputfile->paras.at("T"));
+            else throw std::invalid_argument("no NN funktion found for type: "+inputfile->types[i].typeName);
+            
             entropyFunction[i][k]=enhance::polynom(inputfile->entropyPara[i],order);
             selfEnergieFunction[i][k]=enhance::polynom(inputfile->selfEnergiePara[i],order);
             
@@ -113,12 +113,53 @@ void LipidProperties::readParas(std::shared_ptr<InputFile> _inputfile)
             for(int j=0;j<=i;j++)
             {
                 for(int l=0;l<7;l++)
-                    enthalpyFunction[i][j][l][k]=enhance::polynom(inputfile->enthalpyPara[i][j][l],order);
+                    enthalpyFunction[i][j][l][k]=enhance::logistic(inputfile->enthalpyPara[i][j][l],order);
+                    //enthalpyFunction[i][j][k]=enhance::logistic(inputfile->enthalpyPara[i][j],order);
             }
         
             k++;
         }
     }
+
+    #ifndef NDEBUG
+        // Print out the evaluated input functions
+        std::cerr<<"enthalpy function:"<<std::endl;
+        int Sndx;
+        for (int typendx=0; typendx<inputfile->nType; typendx++)
+        {
+            for (int neibtypendx=0; neibtypendx<=typendx; neibtypendx++)
+            {
+                std::cerr<<"Type-Type: "<<inputfile->types[typendx].typeName<<"-"<<inputfile->types[neibtypendx].typeName<<std::endl;
+
+                Sndx=0;
+                for(double order=inputfile->paras.at("minOrder");order<inputfile->paras.at("maxOrder")+inputfile->paras.at("DeltaOrder");order+=inputfile->paras.at("DeltaOrder"))
+                {
+
+                    std::cerr<<order<<":"<<enthalpyFunction[typendx][neibtypendx][Sndx]<<' ';   
+                    Sndx++;
+                }
+                std::cerr<<std::endl;
+            }
+
+            std::cerr<<"neighbor function:"<<std::endl;
+            Sndx=0;
+            for(double order=inputfile->paras.at("minOrder");order<inputfile->paras.at("maxOrder")+inputfile->paras.at("DeltaOrder");order+=inputfile->paras.at("DeltaOrder"))
+            {
+                std::cerr<<order<<":"<<neighbourFunction[typendx][Sndx]<<' ';   
+                Sndx++;
+            }
+            std::cerr<<std::endl;
+
+            std::cerr<<"entropy function:"<<std::endl;
+            Sndx=0;
+            for(double order=inputfile->paras.at("minOrder");order<inputfile->paras.at("maxOrder")+inputfile->paras.at("DeltaOrder");order+=inputfile->paras.at("DeltaOrder"))
+            {
+                std::cerr<<order<<":"<<entropyFunction[typendx][Sndx]<<' ';   
+                Sndx++;
+            }
+            std::cerr<<std::endl;
+        }
+    #endif
 }
 
 

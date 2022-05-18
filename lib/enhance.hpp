@@ -20,10 +20,43 @@ namespace enhance
     inline int    random_int(int, int);
 
     inline float fastExp(float x);
-    double sigmoid(std::vector<double>& coeff, double x);
+
+    /**
+     * NOTE: Primarily used for neighbor rescaling of DPPC (function of temperature)
+     * NOTE: This function is similar to sigmoid, but introduced to discern from sigmoid used for neighbor scaling function
+     * logistic function of form:
+     *    f(S) = Nmax + ( deltaN / (1+exp(-k(T-transitionT))) )
+     * @param[in] coeff list of coeffs: <Nmax> <deltaN> <k> <transitionT>
+     * @param[in] T function variable
+     */
+    double sigmoid(std::vector<double>& coeff, double T);
+
+    /**
+     * @param[in] coeff list of coefficients for parametrizing polynomial of degree coeff.size-1 (ascending order)
+     * @param[in] x function variable
+     */
     double polynom(std::vector<double>& coeff, double x);
 
-    
+    /**
+     * NOTE: Primarily used for PL-PL interactions (function of order)
+     * NOTE: This function is similar to sigmoid, but introduced to discern from sigmoid used for neighbor scaling function
+     * logistic function of form:
+     *    f(S) = Emax + ( Egain / (1+exp(-k(S-S0))) )
+     * @param[in] coeff list of coeffs: <Emax> <Egain> <k> <S0>
+     * @param[in] S function variable
+     */
+    double logistic(std::vector<double>& coeff, double x);
+
+    /**
+     * NOTE: Primarily used for PL-CHOL interaction
+     * lennard jones function of form:
+     *      Q = [(S0 - Sshift) / (S - Sshift)]**k
+     *      f(S) = -E0 * Q * (Q - 2)
+     * @param[in] coeff list of coeffs: <S0> <Sshift> <k> <E0>
+     * @param[in] S function variable
+     */
+    double lennard(std::vector<double>& coeff, double x);
+
 
 
 

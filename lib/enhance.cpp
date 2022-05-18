@@ -48,11 +48,22 @@ namespace enhance
         return y;
     }
 
-    double sigmoid(std::vector<double>& coeff, double x)
+    double sigmoid(std::vector<double>& coeff, double T)
     {
         if(coeff.size()!=4) throw std::invalid_argument("need 4 parameters for sigmoid");
-        return coeff[0]  / (1 + std::exp(-coeff[1]  * (x - coeff[2] ))) + coeff[3];  
+        return coeff[0] + (coeff[1] / ( 1+std::exp(-coeff[2]*(T-coeff[3])) ) );  
+    }
+
+    double logistic(std::vector<double>& coeff, double S)
+    {
+        if(coeff.size()!=4) throw std::invalid_argument("need 4 parameters for logistic");
+        return coeff[0] + (coeff[1] / ( 1+std::exp(-coeff[2]*(S-coeff[3])) ) );  
     }
     
-    
+    double lennard(std::vector<double>& coeff, double S)
+    {
+        if(coeff.size()!=4) throw std::invalid_argument("need 4 parameters for lennard");
+        double Q = std::pow( ( (coeff[0] - coeff[1]) / (S - coeff[1]) ), coeff[2]);
+        return -coeff[3] * Q * (Q-2);
+    }
 }
