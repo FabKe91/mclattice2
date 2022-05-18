@@ -48,10 +48,10 @@ namespace enhance
         return y;
     }
 
-    double sigmoid(std::vector<double>& coeff, double x)
+    double sigmoid(std::vector<double>& coeff, double T)
     {
         if(coeff.size()!=4) throw std::invalid_argument("need 4 parameters for sigmoid");
-        return coeff[0]  / (1 + std::exp(-coeff[1]  * (x - coeff[2] ))) + coeff[3];  
+        return coeff[0] + (coeff[1] / ( 1+std::exp(-coeff[2]*(T-coeff[3])) ) );  
     }
 
     double logistic(std::vector<double>& coeff, double S)
@@ -60,14 +60,6 @@ namespace enhance
         return coeff[0] + (coeff[1] / ( 1+std::exp(-coeff[2]*(S-coeff[3])) ) );  
     }
     
-    /**
-     * NOTE: Primarily used for PL-CHOL interaction
-     * lennard jones function of form:
-     *      Q = [(S0 - Sshift) / (S - Sshift)]**k
-     *      f(S) = -E0 * Q * (Q - 2)
-     * @param[in] coeff list of coeffs: <S0> <Sshift> <k> <E0>
-     * @param[in] S function variable
-     */
     double lennard(std::vector<double>& coeff, double S)
     {
         if(coeff.size()!=4) throw std::invalid_argument("need 4 parameters for lennard");

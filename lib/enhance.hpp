@@ -22,10 +22,14 @@ namespace enhance
     inline float fastExp(float x);
 
     /**
-     * NOTE: Primarily used for neighbor rescaling
-     * NOTE: Currently unused
+     * NOTE: Primarily used for neighbor rescaling of DPPC (function of temperature)
+     * NOTE: This function is similar to sigmoid, but introduced to discern from sigmoid used for neighbor scaling function
+     * logistic function of form:
+     *    f(S) = Nmax + ( deltaN / (1+exp(-k(T-transitionT))) )
+     * @param[in] coeff list of coeffs: <Nmax> <deltaN> <k> <transitionT>
+     * @param[in] T function variable
      */
-    double sigmoid(std::vector<double>& coeff, double x);
+    double sigmoid(std::vector<double>& coeff, double T);
 
     /**
      * @param[in] coeff list of coefficients for parametrizing polynomial of degree coeff.size-1 (ascending order)
@@ -34,10 +38,9 @@ namespace enhance
     double polynom(std::vector<double>& coeff, double x);
 
     /**
-     * NOTE: Primarily used for PL-PL interactions
+     * NOTE: Primarily used for PL-PL interactions (function of order)
      * NOTE: This function is similar to sigmoid, but introduced to discern from sigmoid used for neighbor scaling function
      * logistic function of form:
-     *    denom = 1 + ( exp(-k(S-S0)) )
      *    f(S) = Emax + ( Egain / (1+exp(-k(S-S0))) )
      * @param[in] coeff list of coeffs: <Emax> <Egain> <k> <S0>
      * @param[in] S function variable
