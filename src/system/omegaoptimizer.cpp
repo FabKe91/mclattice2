@@ -171,7 +171,7 @@ void OmegaOptimizer::calcCurrentOrderDistr(int orderCalcRuns)//doing orderCalcRu
     
     for(int t=0;t<orderCalcRuns;t++) 
     {
-        std::cout<<"at "<<t<<"\r"<<std::flush;
+        //std::cout<<"at "<<t<<"\r"<<std::flush;
 
         doSystemloop();
         thisLoopOrderDistr=lipidsystem.getOrderDistr();
