@@ -15,13 +15,13 @@ class LipidProperties
 public:
     LipidProperties();
     void readParas(std::shared_ptr<InputFile>);
-    double** neighbourFunction;
+    double*** neighbourFunction;
     double** entropyFunction;
     double** selfEnergieFunction;
     double**** enthalpyFunction;
     double*** lipidCholEnergieFunction;
     double* cholCholEnergie;
-    double* cholLipidNeigh; //N^CL(N^CC)
+    double** cholLipidNeigh; //N^CL(N^CC)
     
     
     void updateKBT();

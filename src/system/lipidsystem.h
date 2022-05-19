@@ -37,7 +37,7 @@ public:
     void fluctuate(int ID);
     void fluctuateBack(int ID);
 
-    inline double calcPairEnthalpy(int ID_1,int ID_2, std::array<3, int> Ncholneighbors);
+    inline double calcPairEnthalpy(int ID_1,int ID_2, std::array<int, 3> Ncholneighbors);
     
     int** map;
 
@@ -59,7 +59,7 @@ private:
 
 };
 
-double Lipidsystem::calcPairEnthalpy(int ID_1,int ID_2, std::array<3, int> Ncholneighbors)
+double Lipidsystem::calcPairEnthalpy(int ID_1,int ID_2, std::array<int, 3> Ncholneighbors)
 { 
     #ifndef NDEBUG
     std::cout<<"Lipidsystem::calcPairEnthalpy"<<std::endl;
@@ -70,15 +70,15 @@ double Lipidsystem::calcPairEnthalpy(int ID_1,int ID_2, std::array<3, int> Nchol
     int order1=lipids[ID_1].getOrder();
     int order2=lipids[ID_2].getOrder();
     
-    int pairCholNeighs = Ncholneighbors[0] + Ncholneighbors[1] - Ncholneighbors[2]
+    int pairCholNeighs = Ncholneighbors[0] + Ncholneighbors[1] - Ncholneighbors[2];
 
     if (type1>=type2) 
     {
-        return lipidproperties->enthalpyFunction[type1][type2][pairCholNeighs][(int)((order1+order2)/2)]*(lipidproperties->neighbourFunction[type1][Ncholneighbors[0]][order1]+lipidproperties->neighbourFunction[type2][Ncholneighbors[1]][order2])/8;
+        return lipidproperties->enthalpyFunction[type1][type2][pairCholNeighs][std::min(order1, order2)] * (lipidproperties->neighbourFunction[type1][Ncholneighbors[0]][order1] + lipidproperties->neighbourFunction[type2][Ncholneighbors[1]][order2]) / 8;
     }
     else
     {
-        return lipidproperties->enthalpyFunction[type2][type1][pairCholNeighs][(int)((order1+order2)/2)]*(lipidproperties->neighbourFunction[type1][Ncholneighbors[0]][order1]+lipidproperties->neighbourFunction[type2][Ncholneighbors[2]][order2])/8;
+        return lipidproperties->enthalpyFunction[type2][type1][pairCholNeighs][std::min(order1, order2)] * (lipidproperties->neighbourFunction[type1][Ncholneighbors[0]][order1] + lipidproperties->neighbourFunction[type2][Ncholneighbors[1]][order2]) / 8;
     }
 
 }

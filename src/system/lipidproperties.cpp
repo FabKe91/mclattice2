@@ -39,25 +39,29 @@ void LipidProperties::readParas(std::shared_ptr<InputFile> _inputfile)
 
    
     //array construction
-    neighbourFunction= new double*[inputfile->nType];
+    neighbourFunction= new double**[inputfile->nType];
     entropyFunction= new double*[inputfile->nType];
     selfEnergieFunction= new double*[inputfile->nType];
     lipidCholEnergieFunction= new double**[inputfile->nType];
     enthalpyFunction= new double***[inputfile->nType];
-    cholLipidNeigh= new double[5];
+    cholLipidNeigh= new double*[inputfile->nType];
     cholCholEnergie= new double[7];
     
     
     
     for(int i=0;i<inputfile->nType;i++)
     {
-        neighbourFunction[i]= new double[(int)inputfile->paras.at("maxOrderIndex")+1];
         entropyFunction[i]= new double[(int)inputfile->paras.at("maxOrderIndex")+1];
         selfEnergieFunction[i]= new double[(int)inputfile->paras.at("maxOrderIndex")+1];
+        neighbourFunction[i]= new double*[5];
         lipidCholEnergieFunction[i]= new double*[6];
         enthalpyFunction[i]= new double**[i+1];
+        cholLipidNeigh[i]= new double[5];
         
-        
+
+        for(int j=0;j<5;j++)
+            neighbourFunction[i][j]= new double[(int)inputfile->paras.at("maxOrderIndex")+1];
+
         for(int j=0;j<6;j++)
             lipidCholEnergieFunction[i][j]= new double[(int)inputfile->paras.at("maxOrderIndex")+1];
 
@@ -74,39 +78,33 @@ void LipidProperties::readParas(std::shared_ptr<InputFile> _inputfile)
     
     //set array values
     
-    for(int i=0;i<5;i++)
-    {
-        cholLipidNeigh[i]=enhance::polynom(inputfile->cholLipidNeighPara[i],inputfile->paras.at("T"));
-    }
     for(int i=0;i<7;i++)
     {
         cholCholEnergie[i]=enhance::polynom(inputfile->CholCholEnergiePara,i);
     }
     
     
-//     for(int i=0;i<inputfile->nType;i++)
-//     {
-//         for(int j=0;j<5;j++)
-//         {
-//             neighbourFunction[i][j]=enhance::polynom(inputfile->LipidLipidNeighPara[i][j],inputfile->paras.at("T"));
-//         }
-//     }
-//     
-    
     for(int i=0;i<inputfile->nType;i++)
     {
+
+        for(int j=0;j<5;j++)
+        {
+            if (std::get<0>(inputfile->types[i]) =="DPPC") cholLipidNeigh[i][j]=enhance::sigmoid(inputfile->cholLipidNeighPara[i][j],inputfile->paras.at("T"));
+            else if (std::get<0>(inputfile->types[i]) =="DUPC") cholLipidNeigh[i][j]=enhance::polynom(inputfile->cholLipidNeighPara[i][j],inputfile->paras.at("T"));
+            else throw std::invalid_argument("no NN-LC funktion found for type: " + std::get<0>(inputfile->types[i]) );
+        }
+
         int k=0;
         for(double order=inputfile->paras.at("minOrder");order<inputfile->paras.at("maxOrder")+inputfile->paras.at("DeltaOrder");order+=inputfile->paras.at("DeltaOrder"))
         {   
             
-            // Now the neighbor functions only depend on T
-
             for(int j=0;j<6;j++)
             {
-                if (inputfile->types[i].typeName=="DPPC")   neighbourFunction[i][j][k]=enhance::sigmoid(inputfile->neighbourPara[i], inputfile->paras.at("T"));
-                else if (inputfile->types[i].typeName=="DUPC")   neighbourFunction[i][j][k]=enhance::polynom(inputfile->neighbourPara[i], inputfile->paras.at("T"));
-                else throw std::invalid_argument("no NN funktion found for type: "+inputfile->types[i].typeName);
+                if (std::get<0>(inputfile->types[i]) =="DPPC")   neighbourFunction[i][j][k]=enhance::sigmoid(inputfile->LipidLipidNeighPara[i][j], inputfile->paras.at("T"));
+                else if (std::get<0>(inputfile->types[i]) == "DUPC")   neighbourFunction[i][j][k]=enhance::polynom(inputfile->LipidLipidNeighPara[i][j], inputfile->paras.at("T"));
+                else throw std::invalid_argument("no NN funktion found for type: " + std::get<0>(inputfile->types[i]) );
             }
+
 
             entropyFunction[i][k]=enhance::polynom(inputfile->entropyPara[i],order);
             selfEnergieFunction[i][k]=enhance::polynom(inputfile->selfEnergiePara[i],order);
@@ -128,33 +126,72 @@ void LipidProperties::readParas(std::shared_ptr<InputFile> _inputfile)
 
     #ifndef NDEBUG
         // Print out the evaluated input functions
-        std::cerr<<"enthalpy function:"<<std::endl;
         int Sndx;
         for (int typendx=0; typendx<inputfile->nType; typendx++)
         {
+            std::cerr<<"Functions of Type: "<<std::get<0>(inputfile->types[typendx]);
+            std::cerr<<"enthalpy function:"<<std::endl;
             for (int neibtypendx=0; neibtypendx<=typendx; neibtypendx++)
             {
-                std::cerr<<"Type-Type: "<<inputfile->types[typendx].typeName<<"-"<<inputfile->types[neibtypendx].typeName<<std::endl;
+                std::cerr<<"... with Type: "<<std::get<0>(inputfile->types[neibtypendx])<<std::endl;
 
+                for (int Nc=0; Nc<7; Nc++)
+                {
+                    std::cerr<<"Nc="<<Nc<<std::endl;
+                    Sndx=0;
+                    for(double order=inputfile->paras.at("minOrder");order<inputfile->paras.at("maxOrder")+inputfile->paras.at("DeltaOrder");order+=inputfile->paras.at("DeltaOrder"))
+                    {
+
+                        std::cerr<<order<<":"<<enthalpyFunction[typendx][neibtypendx][Nc][Sndx]<<' ';   
+                        Sndx++;
+                    }
+                    std::cerr<<std::endl;
+                }
+            }
+            std::cerr<<"... with CHOL (E[L-C](S_L, Nc) )"<<std::endl;
+            for(int Nc=0;Nc<6;Nc++)
+            {
                 Sndx=0;
                 for(double order=inputfile->paras.at("minOrder");order<inputfile->paras.at("maxOrder")+inputfile->paras.at("DeltaOrder");order+=inputfile->paras.at("DeltaOrder"))
                 {
 
-                    std::cerr<<order<<":"<<enthalpyFunction[typendx][neibtypendx][Sndx]<<' ';   
+                    std::cerr<<order<<":"<<lipidCholEnergieFunction[typendx][Nc][Sndx]<<' ';   
+                    Sndx++;
+                }
+                std::cerr<<std::endl;
+
+            }
+
+            std::cerr<<"neighbor function:"<<std::endl;
+            for (int Nc=0; Nc<7; Nc++)
+            {
+                std::cerr<<"Nc="<<Nc<<std::endl;
+                Sndx=0;
+                for(double order=inputfile->paras.at("minOrder");order<inputfile->paras.at("maxOrder")+inputfile->paras.at("DeltaOrder");order+=inputfile->paras.at("DeltaOrder"))
+                {
+                    std::cerr<<order<<":"<<neighbourFunction[typendx][Sndx]<<' ';   
                     Sndx++;
                 }
                 std::cerr<<std::endl;
             }
 
-            std::cerr<<"neighbor function:"<<std::endl;
-            Sndx=0;
-            for(double order=inputfile->paras.at("minOrder");order<inputfile->paras.at("maxOrder")+inputfile->paras.at("DeltaOrder");order+=inputfile->paras.at("DeltaOrder"))
+            std::cerr<<"Functions of CHOL "<<std::endl;
+            std::cerr<<"N[L of C](Type, Nc)"<<std::endl;
+
+            for(int Nc=0;Nc<5;Nc++)
             {
-                std::cerr<<order<<":"<<neighbourFunction[typendx][Sndx]<<' ';   
-                Sndx++;
+                std::cerr<<Nc<<":"<<cholLipidNeigh[typendx][Nc]<<' ';
             }
             std::cerr<<std::endl;
 
+            std::cerr<<"self energy function:"<<std::endl;
+            Sndx=0;
+            for(double order=inputfile->paras.at("minOrder");order<inputfile->paras.at("maxOrder")+inputfile->paras.at("DeltaOrder");order+=inputfile->paras.at("DeltaOrder"))
+            {
+                std::cerr<<order<<":"<<selfEnergieFunction[typendx][Sndx]<<' ';   
+                Sndx++;
+            }
+            std::cerr<<std::endl;
             std::cerr<<"entropy function:"<<std::endl;
             Sndx=0;
             for(double order=inputfile->paras.at("minOrder");order<inputfile->paras.at("maxOrder")+inputfile->paras.at("DeltaOrder");order+=inputfile->paras.at("DeltaOrder"))
@@ -163,7 +200,16 @@ void LipidProperties::readParas(std::shared_ptr<InputFile> _inputfile)
                 Sndx++;
             }
             std::cerr<<std::endl;
+
         }
+
+        std::cerr<<"E[CC](Nc)"<<std::endl;
+        for(int i=0;i<7;i++)
+        {
+            std::cerr<<i<<":"<<cholCholEnergie[i]<<' ';
+        }
+        std::cerr<<std::endl;
+
     #endif
 }
 

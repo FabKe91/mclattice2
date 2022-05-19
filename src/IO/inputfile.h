@@ -23,9 +23,8 @@ public:
     std::vector<std::vector<std::vector<double>>> lipidCholEnergiePara;
     std::vector<std::vector<std::vector<std::vector<double>>>> enthalpyPara;
     
-    
-    std::vector<std::vector<double>>  cholLipidNeighPara;
-    std::vector<std::vector<std::vector<double>>> LipidLipidNeighPara; //not used
+    std::vector<std::vector<std::vector<double>>> LipidLipidNeighPara;
+    std::vector<std::vector<std::vector<double>>> cholLipidNeighPara;
     std::vector<double> CholCholEnergiePara;
     
     InputFile();

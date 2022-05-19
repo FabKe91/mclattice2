@@ -53,6 +53,7 @@ InputFile::InputFile()
             std::vector<std::vector<double>> vec2;
             
             LipidLipidNeighPara.push_back(vec2);
+            cholLipidNeighPara.push_back(vec2);
             entropyPara.push_back(vec);
             selfEnergiePara.push_back(vec);
             lipidCholEnergiePara.push_back(vec2);
@@ -77,10 +78,10 @@ InputFile::InputFile()
 
     
     #ifndef NDEBUG
-    std::cout<<"reading fitParameters.txt..."<<std::endl;
+    std::cout<<"reading fitParameters.prm..."<<std::endl;
     #endif
     
-    std::ifstream parameterFile("fitParameters.txt");
+    std::ifstream parameterFile("fitParameters.prm");
 
     while (std::getline(parameterFile, line))
     {   
@@ -98,7 +99,7 @@ InputFile::InputFile()
         }
 
         std::istringstream iss(line);
-        if(!(iss>>string)) throw std::invalid_argument( "fitParameters.txt: cant read line: "+line );
+        if(!(iss>>string)) throw std::invalid_argument( "fitParameters.prm: cant read line: "+line );
 
         else if(string=="LipidLipidNeighPara")
         {
@@ -151,16 +152,18 @@ InputFile::InputFile()
 
         }
         else if(string=="CholLipidNeigh")
+
         {
-            std::vector<double> vec;
-            cholLipidNeighPara.push_back(vec);
+            iss>>string;
             iss>>val;
+            
+            std::vector<double> vec;
             while(iss>>val2)
             {
-            cholLipidNeighPara[val].push_back(val2);
+                vec.push_back(val2);
             }
-                
-        }
+            cholLipidNeighPara[typeMap.at(string)].push_back(vec);
+        }        
         else if(string=="Enthalpy")
         {
             std::vector<std::vector<double>> vec;
@@ -190,7 +193,7 @@ InputFile::InputFile()
         }
         else
         {
-            throw std::invalid_argument( "fitParameters.txt: can't read line: "+line );
+            throw std::invalid_argument( "fitParameters.prm: can't read line: "+line );
         }
     }
     
@@ -204,11 +207,11 @@ InputFile::InputFile()
     for(int i=0;i<nType;i++)
     {
 //         if(neighbourPara[i].size()==0) throw std::invalid_argument( "missing neighbourPara" );        
-        if(entropyPara[i].size()==0) throw std::invalid_argument( "no entropy given, can't run jet" );
-        if(selfEnergiePara[i].size()==0) throw std::invalid_argument("no selfEnergie given, can't run jet");
+        if(entropyPara[i].size()==0) throw std::invalid_argument( "Setup failed. No entropy given." );
+        if(selfEnergiePara[i].size()==0) throw std::invalid_argument("Setup failed. No selfEnergie given.");
         for(int j=0;j<=i;j++)
         {
-            if(enthalpyPara[i][j].size()==0) throw std::invalid_argument( "missing enthalpyPara" );
+            if(enthalpyPara[i][j].size()==0) throw std::invalid_argument( "Setup failed. Missing enthalpyPara" );
         }
         
     }
