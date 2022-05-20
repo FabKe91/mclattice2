@@ -70,7 +70,7 @@ void OmegaOptimizer::setupOptimization(std::string typeName)
 void OmegaOptimizer::optimizeOmega()
 {
     #ifndef NDEBUG
-    std::cout<<"OmegaOptimizer::optimizeOmega"<<std::endl;
+    std::cerr<<"OmegaOptimizer::optimizeOmega"<<std::endl;
     #endif
 
     //     initual guess
@@ -157,7 +157,7 @@ void OmegaOptimizer::optimizeOmega()
 void OmegaOptimizer::runUntilEquilibrium()
 { 
     #ifndef NDEBUG
-    std::cout<<"OmegaOptimizer::runUntilEquilibrium"<<std::endl;
+    std::cerr<<"OmegaOptimizer::runUntilEquilibrium"<<std::endl;
     #endif
     
     int meanOrder=0; //for convergence check

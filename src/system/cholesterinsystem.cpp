@@ -40,7 +40,7 @@ void CholesterinSystem::setup(std::shared_ptr<InputFile> _inputfile)
 void CholesterinSystem::swap(int ID0, int ID1)
 {
     #ifndef NDEBUG
-    std::cout<<"CholesterinSystem::swap"<<std::endl;
+    std::cerr<<"CholesterinSystem::swap"<<std::endl;
     #endif
     
 //     std::cout<<"ID0 "<<ID0<<" ID1 "<<ID1<<std::endl;
@@ -90,7 +90,7 @@ void CholesterinSystem::printMap()
 void CholesterinSystem::setOccupation(boost::multi_array<int, 2> data)
 {
     #ifndef NDEBUG
-    std::cout<<"CholesterinSystem::setOccupation"<<std::endl;
+    std::cerr<<"CholesterinSystem::setOccupation"<<std::endl;
     #endif
     for(int i=0;i<inputfile->width;i++)
         for(int j=0;j<inputfile->height;j++)

@@ -104,7 +104,7 @@ void DataFile::createAttribute(std::string attrName, double val, hid_t& file)
 void DataFile::writeStep()
 {
     #ifndef NDEBUG
-    std::cout<<"DataFile::writeStep"<<std::endl;
+    std::cerr<<"DataFile::writeStep"<<std::endl;
     #endif
 
     bufferLen++;
@@ -121,7 +121,7 @@ void DataFile::writeStep()
 void DataFile::flush()
 {
     #ifndef NDEBUG
-    std::cout<<"DataFile::flush"<<std::endl;
+    std::cerr<<"DataFile::flush"<<std::endl;
     #endif
     auto startTime = std::chrono::system_clock::now();
 
@@ -159,7 +159,7 @@ template<typename INTorFloat>
 void DataFile::extendDataset(std::string datasetName, const boost::multi_array<INTorFloat,3>& data_array, hid_t& file)
 {  
     #ifndef NDEBUG
-    std::cout<<"DataFile::extendDataset"<<std::endl;
+    std::cerr<<"DataFile::extendDataset"<<std::endl;
     #endif
 
 

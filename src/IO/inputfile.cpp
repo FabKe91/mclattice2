@@ -3,8 +3,8 @@
 InputFile::InputFile()
 {
     #ifndef NDEBUG
-    std::cout<<"InputFile::InputFile"<<std::endl;
-    std::cout<<"reading in.txt..."<<std::endl;
+    std::cerr<<"InputFile::InputFile"<<std::endl;
+    std::cerr<<"reading in.txt..."<<std::endl;
     #endif
     
     std::ifstream infile("in.txt");
@@ -18,7 +18,7 @@ InputFile::InputFile()
     while (std::getline(infile, line))
     {   
         #ifndef NDEBUG
-        std::cout<<line<<std::endl;
+        std::cerr<<line<<std::endl;
         #endif      
 
         //remove comments
@@ -50,7 +50,8 @@ InputFile::InputFile()
             
             
             std::vector<double> vec;
-            std::vector<std::vector<double>> vec2;
+            std::vector< std::vector<double> > vec2;
+            std::vector< std::vector< std::vector<double> > > vec3;
             
             LipidLipidNeighPara.push_back(vec2);
             cholLipidNeighPara.push_back(vec2);
@@ -78,7 +79,7 @@ InputFile::InputFile()
 
     
     #ifndef NDEBUG
-    std::cout<<"reading fitParameters.prm..."<<std::endl;
+    std::cerr<<"reading fitParameters.prm..."<<std::endl;
     #endif
     
     std::ifstream parameterFile("fitParameters.prm");
@@ -86,7 +87,7 @@ InputFile::InputFile()
     while (std::getline(parameterFile, line))
     {   
         #ifndef NDEBUG
-        std::cout<<line<<std::endl;
+        std::cerr<<line<<std::endl;
         #endif      
 
         //remove comments
@@ -112,6 +113,23 @@ InputFile::InputFile()
                 vec.push_back(val2);
             }
             LipidLipidNeighPara[typeMap.at(string)].push_back(vec);
+
+            #ifndef NDEBUG
+            int rowndx = 0;
+            std::cerr<<"LipidLipidNeighPara:"<<std::endl;
+            for (std::vector<double> Ncrow: LipidLipidNeighPara[typeMap.at(string)])
+            {
+                std::cerr<<rowndx<<":"<<std::endl;
+                for (double val: Ncrow)
+                {
+                std::cerr<<val<<" ";
+                }
+                std::cerr<<std::endl;
+                rowndx++;
+            }
+            std::cerr<<std::endl;
+            #endif
+
         }        
         else if(string=="Entropy")
         {
@@ -137,6 +155,12 @@ InputFile::InputFile()
             {
                 CholCholEnergiePara.push_back(val);
             }
+
+            #ifndef NDEBUG
+            std::cerr<<"ECC parameters: ";
+            for (double val: CholCholEnergiePara) {std::cerr<<val<<" ";}
+            std::cerr<<std::endl;
+            #endif
         }        
         else if(string=="LipidCholEnergie")
         {
@@ -163,7 +187,25 @@ InputFile::InputFile()
                 vec.push_back(val2);
             }
             cholLipidNeighPara[typeMap.at(string)].push_back(vec);
+
+            #ifndef NDEBUG
+            int rowndx = 0;
+            std::cerr<<"cholLipidNeighPara:"<<std::endl;
+            for (std::vector<double> Ncrow: cholLipidNeighPara[typeMap.at(string)])
+            {
+                std::cerr<<rowndx<<":"<<std::endl;
+                for (double val: Ncrow)
+                {
+                std::cerr<<val<<" ";
+                }
+                std::cerr<<std::endl;
+                rowndx++;
+            }
+            std::cerr<<std::endl;
+            #endif
+
         }        
+
         else if(string=="Enthalpy")
         {
             std::vector<std::vector<double>> vec;
@@ -216,7 +258,7 @@ InputFile::InputFile()
         
     }
     #ifndef NDEBUG
-    std::cout<<"InputFile::InputFile   finished reading"<<std::endl;
+    std::cerr<<"InputFile::InputFile   finished reading"<<std::endl;
     #endif
     
 }

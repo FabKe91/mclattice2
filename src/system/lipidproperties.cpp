@@ -39,6 +39,9 @@ void LipidProperties::readParas(std::shared_ptr<InputFile> _inputfile)
 
    
     //array construction
+    #ifndef NDEBUG
+    std::cerr<<"LipidProperties:: array construction"<<std::endl;
+    #endif
     neighbourFunction= new double**[inputfile->nType];
     entropyFunction= new double*[inputfile->nType];
     selfEnergieFunction= new double*[inputfile->nType];
@@ -77,10 +80,13 @@ void LipidProperties::readParas(std::shared_ptr<InputFile> _inputfile)
     
     
     //set array values
+    #ifndef NDEBUG
+    std::cerr<<"LipidProperties::setting array values"<<std::endl;
+    #endif
     
     for(int i=0;i<7;i++)
     {
-        cholCholEnergie[i]=enhance::polynom(inputfile->CholCholEnergiePara,i);
+        cholCholEnergie[i]=enhance::polynom(inputfile->CholCholEnergiePara, i);
     }
     
     
@@ -98,7 +104,7 @@ void LipidProperties::readParas(std::shared_ptr<InputFile> _inputfile)
         for(double order=inputfile->paras.at("minOrder");order<inputfile->paras.at("maxOrder")+inputfile->paras.at("DeltaOrder");order+=inputfile->paras.at("DeltaOrder"))
         {   
             
-            for(int j=0;j<6;j++)
+            for(int j=0;j<5;j++)
             {
                 if (std::get<0>(inputfile->types[i]) =="DPPC")   neighbourFunction[i][j][k]=enhance::sigmoid(inputfile->LipidLipidNeighPara[i][j], inputfile->paras.at("T"));
                 else if (std::get<0>(inputfile->types[i]) == "DUPC")   neighbourFunction[i][j][k]=enhance::polynom(inputfile->LipidLipidNeighPara[i][j], inputfile->paras.at("T"));
@@ -129,7 +135,7 @@ void LipidProperties::readParas(std::shared_ptr<InputFile> _inputfile)
         int Sndx;
         for (int typendx=0; typendx<inputfile->nType; typendx++)
         {
-            std::cerr<<"Functions of Type: "<<std::get<0>(inputfile->types[typendx]);
+            std::cerr<<"Functions of Type: "<<std::get<0>(inputfile->types[typendx])<<std::endl;
             std::cerr<<"enthalpy function:"<<std::endl;
             for (int neibtypendx=0; neibtypendx<=typendx; neibtypendx++)
             {
@@ -151,6 +157,8 @@ void LipidProperties::readParas(std::shared_ptr<InputFile> _inputfile)
             std::cerr<<"... with CHOL (E[L-C](S_L, Nc) )"<<std::endl;
             for(int Nc=0;Nc<6;Nc++)
             {
+
+                std::cerr<<"Nc="<<Nc<<std::endl;
                 Sndx=0;
                 for(double order=inputfile->paras.at("minOrder");order<inputfile->paras.at("maxOrder")+inputfile->paras.at("DeltaOrder");order+=inputfile->paras.at("DeltaOrder"))
                 {
@@ -163,13 +171,13 @@ void LipidProperties::readParas(std::shared_ptr<InputFile> _inputfile)
             }
 
             std::cerr<<"neighbor function:"<<std::endl;
-            for (int Nc=0; Nc<7; Nc++)
+            for (int Nc=0; Nc<5; Nc++)
             {
                 std::cerr<<"Nc="<<Nc<<std::endl;
                 Sndx=0;
                 for(double order=inputfile->paras.at("minOrder");order<inputfile->paras.at("maxOrder")+inputfile->paras.at("DeltaOrder");order+=inputfile->paras.at("DeltaOrder"))
                 {
-                    std::cerr<<order<<":"<<neighbourFunction[typendx][Sndx]<<' ';   
+                    std::cerr<<order<<":"<<neighbourFunction[typendx][Nc][Sndx]<<' ';   
                     Sndx++;
                 }
                 std::cerr<<std::endl;

@@ -159,6 +159,7 @@ def add_Ecc(f, parafilename="fitparameters_ECC_Nc.txt"):
     ''' linear fit '''
     sep = "\t"
     print("reading: ", parafilename)
+    print("warning: Taking Ecc parameters from DPPC systems!") 
 
     f.write("#linear - Ecc(Nc):\n")
 
@@ -174,7 +175,7 @@ def add_Ecc(f, parafilename="fitparameters_ECC_Nc.txt"):
 
     for pl in PLLIST:
         df = dat.loc[(dat.cholconc == CHOLCONC) & (dat.PL == pl)].drop(columns=["cholconc", "PL"])
-        outstr = ' '.join(["CholCholEnergie", pl, _read_poly_parafile(df), "\n"]) 
+        outstr = ' '.join(["CholCholEnergie", _read_poly_parafile(df), "\n"]) 
         f.write(outstr)
     f.write("\n")
 
@@ -230,12 +231,12 @@ def add_NLL(f, lipidtype, parafilename="fitparameters_NofT_Nc_{}.txt"):
     if lipidtype == "DPPC":
         for Nc in range(5):
             df = dat.loc[(dat.cholconc == CHOLCONC) & (dat.PL == lipidtype) & (dat.Nc == Nc)].drop(columns=["cholconc", "PL", "Nc"])
-            outstr = ' '.join(["LipidLipidNeighPara", lipidtype, _read_sigmoid_parafile(df), "\n"]) 
+            outstr = ' '.join(["LipidLipidNeighPara", lipidtype, str(Nc), _read_sigmoid_parafile(df), "\n"]) 
             f.write(outstr)
     elif lipidtype == "DUPC":
         for Nc in range(5):
             df = dat.loc[(dat.cholconc == CHOLCONC) & (dat.PL == lipidtype) & (dat.Nc == Nc)].drop(columns=["cholconc", "PL", "Nc"])
-            outstr = ' '.join(["LipidLipidNeighPara", lipidtype, _read_poly_parafile(df), "\n"]) 
+            outstr = ' '.join(["LipidLipidNeighPara", lipidtype, str(Nc), _read_poly_parafile(df), "\n"]) 
             f.write(outstr)
     else:
         raise ValueError(f"Unknown lipidtype: {lipidtype}")
@@ -268,12 +269,12 @@ def add_NLC(f, lipidtype, parafilename="fitparameters_NofT_Nc_CHOL-{}.txt"):
     if lipidtype == "DPPC":
         for Nc in range(5):
             df = dat.loc[(dat.cholconc == CHOLCONC) & (dat.PL == lipidtype) & (dat.Nc == Nc)].drop(columns=["cholconc", "PL", "Nc"])
-            outstr = ' '.join(["CholLipidNeigh", lipidtype, _read_sigmoid_parafile(df), "\n"]) 
+            outstr = ' '.join(["CholLipidNeigh", lipidtype, str(Nc), _read_sigmoid_parafile(df), "\n"]) 
             f.write(outstr)
     elif lipidtype == "DUPC":
         for Nc in range(5):
             df = dat.loc[(dat.cholconc == CHOLCONC) & (dat.PL == lipidtype) & (dat.Nc == Nc)].drop(columns=["cholconc", "PL", "Nc"])
-            outstr = ' '.join(["CholLipidNeigh", lipidtype, _read_poly_parafile(df), "\n"]) 
+            outstr = ' '.join(["CholLipidNeigh", lipidtype, str(Nc),  _read_poly_parafile(df), "\n"]) 
             f.write(outstr)
     else:
         raise ValueError(f"Unknown lipidtype: {lipidtype}")

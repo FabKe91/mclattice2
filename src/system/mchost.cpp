@@ -57,7 +57,7 @@ void MCHost::setup()
 void MCHost::setupForRestart()
 {
     #ifndef NDEBUG
-    std::cout<<"MCHost::setupForRestart"<<std::endl;
+    std::cerr<<"MCHost::setupForRestart"<<std::endl;
     #endif
     
     
@@ -138,7 +138,7 @@ void MCHost::run()
 void MCHost::doSystemloop() //loop one time over all lipids
 {
     #ifndef NDEBUG
-    std::cout<<"MCHost::doSystemloop"<<std::endl;
+    std::cerr<<"MCHost::doSystemloop"<<std::endl;
     #endif
     
     std::shuffle(IDs.begin(), IDs.end(), enhance::rand_engine);
@@ -291,7 +291,7 @@ std::array<int, 3> MCHost::findCholPairCholNeighbours(int ID1, int ID2)
 double MCHost::calcSwapEnthalpy()
 {
     #ifndef NDEBUG
-    std::cout<<"MCHost::calcSwapEnthalpy"<<std::endl;
+    std::cerr<<"MCHost::calcSwapEnthalpy"<<std::endl;
     #endif
 
     double H=0;
@@ -325,7 +325,7 @@ double MCHost::calcSwapEnthalpy()
     }   
 
     #ifndef NDEBUG
-    std::cout<<"H "<<H<<std::endl;
+    std::cerr<<"H "<<H<<std::endl;
     #endif
     
     return H;
@@ -339,8 +339,8 @@ double MCHost::calcSwapEnthalpy()
 double MCHost::calcHostFreeEnerg()
 {
     #ifndef NDEBUG
-    std::cout<<"MCHost::calcHostFreeEnerg"<<std::endl;
-    std::cout<<"hostID "<<hostID<<" HOST_posX "<<HOST_posX<<" HOST_posY "<<HOST_posY<<std::endl;
+    std::cerr<<"MCHost::calcHostFreeEnerg"<<std::endl;
+    std::cerr<<"hostID "<<hostID<<" HOST_posX "<<HOST_posX<<" HOST_posY "<<HOST_posY<<std::endl;
     #endif
     double G=0;
     
@@ -362,9 +362,9 @@ double MCHost::calcHostFreeEnerg()
     }
    
     #ifndef NDEBUG
-    std::cout<<"H "<<G<<std::endl;
-    std::cout<<"kB T S "<<-inputfile->kBT*lipidproperties->entropyFunction[HOST_LIPID.getType()][HOST_LIPID.getOrder()]<<std::endl;
-    std::cout<<"self E "<<lipidproperties->selfEnergieFunction[HOST_LIPID.getType()][HOST_LIPID.getOrder()]<<std::endl;
+    std::cerr<<"H "<<G<<std::endl;
+    std::cerr<<"kB T S "<<-inputfile->kBT*lipidproperties->entropyFunction[HOST_LIPID.getType()][HOST_LIPID.getOrder()]<<std::endl;
+    std::cerr<<"self E "<<lipidproperties->selfEnergieFunction[HOST_LIPID.getType()][HOST_LIPID.getOrder()]<<std::endl;
     #endif
 
     G+=lipidproperties->selfEnergieFunction[HOST_LIPID.getType()][HOST_LIPID.getOrder()]-inputfile->kBT*lipidproperties->entropyFunction[HOST_LIPID.getType()][HOST_LIPID.getOrder()];
@@ -376,7 +376,7 @@ double MCHost::calcHostFreeEnerg()
 double MCHost::calcCholSwapEnerg()
 {
     #ifndef NDEBUG
-    std::cout<<"MCHost::calcCholSwapEnerg"<<std::endl;
+    std::cerr<<"MCHost::calcCholSwapEnerg"<<std::endl;
     #endif
 
     double E=0;

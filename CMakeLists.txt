@@ -15,7 +15,7 @@ include_directories("./src/")
 # Standard
 #set(CMAKE_CXX_FLAGS "-std=c++11 -O3 -DNDEBUG")
 # Debug
-set(CMAKE_CXX_FLAGS "-std=c++11 -O0 -DDEBUG")
+set(CMAKE_CXX_FLAGS "-std=c++11 -O0 -DDEBUG -g")
 
 #set(CMAKE_CXX_FLAGS "-std=c++11 -O0 -DDEBUG -g")
 #set(CMAKE_CXX_FLAGS "-std=c++11")

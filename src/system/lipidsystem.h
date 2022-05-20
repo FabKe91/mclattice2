@@ -62,7 +62,7 @@ private:
 double Lipidsystem::calcPairEnthalpy(int ID_1,int ID_2, std::array<int, 3> Ncholneighbors)
 { 
     #ifndef NDEBUG
-    std::cout<<"Lipidsystem::calcPairEnthalpy"<<std::endl;
+    std::cerr<<"Lipidsystem::calcPairEnthalpy"<<std::endl;
     #endif
     
     int type1=lipids[ID_1].getType();
