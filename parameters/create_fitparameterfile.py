@@ -112,7 +112,10 @@ def add_Eplpl(f, parafilename="fitparameters_EPLPL_Nc.txt"):
     for plpair in PLPLPAIRS:
         for Nc in range(7):
             df = dat.loc[(dat.cholconc == CHOLCONC) & (dat.pair == plpair) & (dat.Nc == Nc)]
-            outstr = ' '.join(["Enthalpy", plpair.replace("_"," "), str(Nc), _read_logistic_parafile(df), "\n"]) 
+            if df.empty:
+                outstr = ' '.join(["Enthalpy", plpair.replace("_"," "), str(Nc), "MISSING", "\n"]) 
+            else:
+                outstr = ' '.join(["Enthalpy", plpair.replace("_"," "), str(Nc), _read_logistic_parafile(df), "\n"]) 
             f.write(outstr)
 
     f.write("\n")
@@ -148,7 +151,10 @@ def add_Eplc(f, parafilename="fitparameters_EPLC_Nc.txt"):
     for plcpair in PLCPAIRS:
         for Nc in range(6):
             df = dat.loc[(dat.cholconc == CHOLCONC) & (dat.pair == plcpair) & (dat.Nc == Nc)]
-            outstr = ' '.join(["LipidCholEnergie", plcpair.replace(f"_{CHOLNAME}", ""), str(Nc), _read_lennard_parafile(df), "\n"]) 
+            if df.empty:
+                outstr = ' '.join(["LipidCholEnergie", plcpair.replace(f"_{CHOLNAME}", ""), str(Nc), "MISSING", "\n"]) 
+            else:
+                outstr = ' '.join(["LipidCholEnergie", plcpair.replace(f"_{CHOLNAME}", ""), str(Nc), _read_lennard_parafile(df), "\n"]) 
             f.write(outstr)
     f.write("\n")
 
@@ -158,8 +164,9 @@ def add_Eplc(f, parafilename="fitparameters_EPLC_Nc.txt"):
 def add_Ecc(f, parafilename="fitparameters_ECC_Nc.txt"):
     ''' linear fit '''
     sep = "\t"
+    from_lipid = "DPPC"
     print("reading: ", parafilename)
-    print("warning: Taking Ecc parameters from DPPC systems!") 
+    print(f"warning: Taking Ecc parameters from {from_lipid} systems!") 
 
     f.write("#linear - Ecc(Nc):\n")
 
@@ -173,10 +180,13 @@ def add_Ecc(f, parafilename="fitparameters_ECC_Nc.txt"):
         print("Failed to read Ecc file")
         raise ValueError(f"Separator {sep} incorrect")
 
-    for pl in PLLIST:
-        df = dat.loc[(dat.cholconc == CHOLCONC) & (dat.PL == pl)].drop(columns=["cholconc", "PL"])
+    #for pl in PLLIST:
+    df = dat.loc[(dat.cholconc == CHOLCONC) & (dat.PL == from_lipid)].drop(columns=["cholconc", "PL"])
+    if df.empty:
+        outstr = ' '.join(["CholCholEnergie", "MISSING", "\n"]) 
+    else:
         outstr = ' '.join(["CholCholEnergie", _read_poly_parafile(df), "\n"]) 
-        f.write(outstr)
+    f.write(outstr)
     f.write("\n")
 
 
@@ -231,12 +241,18 @@ def add_NLL(f, lipidtype, parafilename="fitparameters_NofT_Nc_{}.txt"):
     if lipidtype == "DPPC":
         for Nc in range(5):
             df = dat.loc[(dat.cholconc == CHOLCONC) & (dat.PL == lipidtype) & (dat.Nc == Nc)].drop(columns=["cholconc", "PL", "Nc"])
-            outstr = ' '.join(["LipidLipidNeighPara", lipidtype, str(Nc), _read_sigmoid_parafile(df), "\n"]) 
+            if df.empty:
+                outstr = ' '.join(["LipidLipidNeighPara", lipidtype, str(Nc), "MISSING", "\n"]) 
+            else:
+                outstr = ' '.join(["LipidLipidNeighPara", lipidtype, str(Nc), _read_sigmoid_parafile(df), "\n"]) 
             f.write(outstr)
     elif lipidtype == "DUPC":
         for Nc in range(5):
             df = dat.loc[(dat.cholconc == CHOLCONC) & (dat.PL == lipidtype) & (dat.Nc == Nc)].drop(columns=["cholconc", "PL", "Nc"])
-            outstr = ' '.join(["LipidLipidNeighPara", lipidtype, str(Nc), _read_poly_parafile(df), "\n"]) 
+            if df.empty:
+                outstr = ' '.join(["LipidLipidNeighPara", lipidtype, str(Nc), "MISSING", "\n"]) 
+            else:
+                outstr = ' '.join(["LipidLipidNeighPara", lipidtype, str(Nc), _read_poly_parafile(df), "\n"]) 
             f.write(outstr)
     else:
         raise ValueError(f"Unknown lipidtype: {lipidtype}")
@@ -269,12 +285,19 @@ def add_NLC(f, lipidtype, parafilename="fitparameters_NofT_Nc_CHOL-{}.txt"):
     if lipidtype == "DPPC":
         for Nc in range(5):
             df = dat.loc[(dat.cholconc == CHOLCONC) & (dat.PL == lipidtype) & (dat.Nc == Nc)].drop(columns=["cholconc", "PL", "Nc"])
-            outstr = ' '.join(["CholLipidNeigh", lipidtype, str(Nc), _read_sigmoid_parafile(df), "\n"]) 
+            if df.empty:
+                outstr = ' '.join(["CholLipidNeigh", lipidtype, str(Nc), "MISSING", "\n"]) 
+            else:
+                outstr = ' '.join(["CholLipidNeigh", lipidtype, str(Nc), _read_sigmoid_parafile(df), "\n"]) 
+
             f.write(outstr)
     elif lipidtype == "DUPC":
         for Nc in range(5):
             df = dat.loc[(dat.cholconc == CHOLCONC) & (dat.PL == lipidtype) & (dat.Nc == Nc)].drop(columns=["cholconc", "PL", "Nc"])
-            outstr = ' '.join(["CholLipidNeigh", lipidtype, str(Nc),  _read_poly_parafile(df), "\n"]) 
+            if df.empty:
+                outstr = ' '.join(["CholLipidNeigh", lipidtype, str(Nc), "MISSING", "\n"]) 
+            else:
+                outstr = ' '.join(["CholLipidNeigh", lipidtype, str(Nc),  _read_poly_parafile(df), "\n"]) 
             f.write(outstr)
     else:
         raise ValueError(f"Unknown lipidtype: {lipidtype}")
@@ -283,6 +306,10 @@ def add_NLC(f, lipidtype, parafilename="fitparameters_NofT_Nc_CHOL-{}.txt"):
 
 def add_entropy(f, parafilename="fitparameters_entropies.txt"):
     ''' '''
+    print("adding dummy entropy")
+    f.write("#DUMMY ENTROPY\n")
+    for pl in PLLIST:
+        f.write(f"Entropy {pl} 0.0 1.0 1.0\n")
 
 def add_pscd(f, parafilename="fitparameter_pscd.txt"):
     ''' '''
@@ -302,10 +329,10 @@ if __name__ == "__main__":
         add_Ecc(f)
         add_selfE(f)
         add_NLL(f, "DPPC")
-        add_NLC(f, "DPPC")
         add_NLL(f, "DUPC")
+        add_NLC(f, "DPPC")
         add_NLC(f, "DUPC")
-        #add_entropy(f)
+        add_entropy(f)
         #add_pscd(f)
 
         f.write("\n")
