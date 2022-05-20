@@ -226,8 +226,13 @@ std::array<int, 3> MCHost::findLipidPairCholNeighbours(int ID1, int ID2)
     //     if (numberCholNeigh==6) std::cout<<"6 lipid pair"<<hostID<<std::endl;
 
     LipidPairCholNeighbors[0] = hostNc;
-    LipidPairCholNeighbors[1] = hostNc;
+    LipidPairCholNeighbors[1] = neibNc;
     LipidPairCholNeighbors[2] = mutualNc;
+
+    #ifndef NDEBUG
+    std::cerr<<"MCHost::findLipidPairCholNeighbours"<<std::endl;
+    std::cerr<<"hostNc: "<<hostNc<<" neibNc: "<<neibNc<<" mutualNc: "<<mutualNc<<std::endl;
+    #endif 
 
     return LipidPairCholNeighbors;
 }
@@ -244,19 +249,33 @@ std::array<int, 3> MCHost::findLipidCholPairCholNeighbours(int lipidID, int chol
     
     for(int i=0;i<4;i++)
     {
-        //numberCholNeigh+=cholesterinsystem.chols[cholCholNeigh[i]].occupied;
         neibNc+=cholesterinsystem.chols[cholCholNeigh[i]].occupied;
-        hostNc+=cholesterinsystem.chols[lipidCholNeigh[i]].occupied;
+
+        if ( lipidCholNeigh[i] != cholID )
+        {
+            hostNc+=cholesterinsystem.chols[lipidCholNeigh[i]].occupied;
+        }
+
         if (IDinArrayLen4(lipidCholNeigh[i],cholCholNeigh) and lipidCholNeigh[i] != cholID)
         {
             //numberCholNeigh+=cholesterinsystem.chols[lipidCholNeigh[i]].occupied;
             mutualNc+=cholesterinsystem.chols[lipidCholNeigh[i]].occupied;
         }
+
     }
 
     LipidCholPairCholNeighbors[0] = hostNc;
-    LipidCholPairCholNeighbors[1] = hostNc;
+    LipidCholPairCholNeighbors[1] = neibNc;
     LipidCholPairCholNeighbors[2] = mutualNc;
+
+    #ifndef NDEBUG
+    std::cerr<<"MCHost::findLipidCholPairCholNeighbours"<<std::endl;
+    std::cerr<<" cholID "<<cholID<<" hostNc: "<<hostNc<<" neibNc: "<<neibNc<<" mutualNc "<<mutualNc<<std::endl;
+    for(int i=0;i<4;i++) {std::cerr<<"cc-"<<i<<":"<<cholCholNeigh[i]<<"="<<cholesterinsystem.chols[cholCholNeigh[i]].occupied<<" ";}
+    std::cerr<<std::endl;
+    for(int i=0;i<4;i++) {std::cerr<<"lc-"<<i<<":"<<lipidCholNeigh[i]<<"="<<cholesterinsystem.chols[lipidCholNeigh[i]].occupied<<" ";}
+    std::cerr<<std::endl;
+    #endif 
 
     //if (numberCholNeigh==5) std::cout<<"5 chol lipid pair"<<hostID <<std::endl;
     return LipidCholPairCholNeighbors;
@@ -282,8 +301,13 @@ std::array<int, 3> MCHost::findCholPairCholNeighbours(int ID1, int ID2)
     }
 
     CholPairCholNeighbors[0] = hostNc;
-    CholPairCholNeighbors[1] = hostNc;
+    CholPairCholNeighbors[1] = neibNc;
     CholPairCholNeighbors[2] = mutualNc;
+
+    #ifndef NDEBUG
+    std::cerr<<"MCHost::findCholPairCholNeighbours"<<std::endl;
+    std::cerr<<"hostNc:"<<hostNc<<"neibNc:"<<neibNc<<"mutualNc"<<mutualNc<<std::endl;
+    #endif 
     //if (numberCholNeigh==6) std::cout<<"6 chol pair"<<hostID<<std::endl;
     return CholPairCholNeighbors;
 }
@@ -303,7 +327,7 @@ double MCHost::calcSwapEnthalpy()
     for(int i=0;i<4;i++)//H^LC
     {
         std::array<int, 3> hostCholPairCholNeighbors=findLipidCholPairCholNeighbours(hostID, lipidHostCholNeighbours[i]);
-        std::array<int, 3> partnerCholPairCholNeighbors=findLipidCholPairCholNeighbours(partnerID, lipidHostCholNeighbours[i]);
+        std::array<int, 3> partnerCholPairCholNeighbors=findLipidCholPairCholNeighbours(partnerID, lipidPartnerCholNeighbours[i]);
         int hostCholPairCholNeighbors_tot = hostCholPairCholNeighbors[0] + hostCholPairCholNeighbors[1] - hostCholPairCholNeighbors[2];
         int partnerCholPairCholNeighbors_tot = partnerCholPairCholNeighbors[0] + partnerCholPairCholNeighbors[1] - partnerCholPairCholNeighbors[2];
 
@@ -349,11 +373,15 @@ double MCHost::calcHostFreeEnerg()
     for(int i=0;i<4;i++)//H^LC
     {
 
-        std::array<int, 3> CholPairCholNeighbors=findLipidCholPairCholNeighbours(hostID, lipidHostCholNeighbours[i]);
-        int CholPairCholNeighbors_tot = CholPairCholNeighbors[0] + CholPairCholNeighbors[1] - CholPairCholNeighbors[2];
+        std::array<int, 3> LipidCholPairCholNeighbors=findLipidCholPairCholNeighbours(hostID, lipidHostCholNeighbours[i]);
+        int LipidCholPairCholNeighbors_tot = LipidCholPairCholNeighbors[0] + LipidCholPairCholNeighbors[1] - LipidCholPairCholNeighbors[2];
+
+        #ifndef NDEBUG
+        std::cerr<<"LipidCholPairCholNeighbors_tot"<<LipidCholPairCholNeighbors_tot<<std::endl;
+        #endif
 
         if (cholesterinsystem.chols[lipidHostCholNeighbours[i]].occupied)//H^LC host
-            G+=lipidproperties->lipidCholEnergieFunction[HOST_LIPID.getType()][CholPairCholNeighbors_tot][HOST_LIPID.getOrder()]*lipidproperties->cholLipidNeigh[HOST_LIPID.getType()][getNumberCholNeighOfChol(lipidHostCholNeighbours[i])]/4;
+            G+=lipidproperties->lipidCholEnergieFunction[HOST_LIPID.getType()][LipidCholPairCholNeighbors_tot][HOST_LIPID.getOrder()]*lipidproperties->cholLipidNeigh[HOST_LIPID.getType()][getNumberCholNeighOfChol(lipidHostCholNeighbours[i])]/4;
     }    
         
     for(int i=0;i<4;i++)//H^LL
