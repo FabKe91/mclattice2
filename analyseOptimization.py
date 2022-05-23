@@ -84,13 +84,16 @@ for i in range (OptimizeOut.shape[0]):
 fit_paras = np.polyfit(
         order[20:-20], 
         OptimizeOut[-1,20:-20] - max(OptimizeOut[-1,:]),
-        12
+        DEGREEFIT
         )[::-1]
 
-for fp in fit_paras:
-    print(fp,end=" ")
-print()
-print(fit_paras)
+with open(LASTFITNAME, "w") as fitf:
+    for fp in fit_paras:
+        print(fp,end=" ", file=fitf)
+    print(file=fitf)
+
+print("Fit parameters:", ' '.join([str(round(i,4)) for i in fit_paras]))
+
 ax = sns.lineplot(x=order, y=polynom(fit_paras,order), label="fit", zorder=100, palette=palr, ax=axs[1], color=palr[0], lw=1.0)
 
 ax.set_ylim(-50, 5)

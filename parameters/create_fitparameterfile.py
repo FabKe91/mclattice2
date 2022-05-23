@@ -1,13 +1,26 @@
+'''
+Assembles a file with all necessary parameter entries for lipids in <PLLIST>
+CHOLCONC: The concentration of CHOL where the input functions were extracted from
+TEMPERATURE: The temperature at which omega was derived
+MCLATTICE_VERSION: The version of the software that was used to determine omega. Can be one of ["smin_oldN", "smin_newN", "chollattice"]
+
+'''
 import sys
 import pandas as pd 
 
-if len(sys.argv) != 3+1:
-    print("Input arguments required: <CHOLCONC> <T> <outputfilename>")
+_mclattice_versions =  ["smin_oldN", "smin_newN", "chollattice"]
+
+if len(sys.argv) != 4+1:
+    print("Input arguments required: <CHOLCONC> <TEMPERATURE> <MCLATTICE_VERSION> <outputfilename>")
+    print("mclattice version can be one of", *_mclattice_versions)
     sys.exit()
+
 
 CHOLCONC    = int(sys.argv[1])
 TEMPERATURE = int(sys.argv[2])
-OUTFNAME = sys.argv[3]
+MCLATTICE_VERSION = str(sys.argv[3]) 
+
+OUTFNAME = sys.argv[4]
 
 PLLIST = ["DPPC", "DUPC"]
 CHOLNAME = "CHL1"
@@ -15,7 +28,14 @@ CHOLNAME = "CHL1"
 PLPLPAIRS = ["DPPC_DPPC", "DUPC_DUPC", "DUPC_DPPC"]
 PLCPAIRS = ["DPPC_CHL1", "DUPC_CHL1"]
 
-#######################################
+
+##################################################################
+##################################################################
+################## Define input functions ########################
+##################################################################
+##################################################################
+
+
 
 def _read_logistic_parafile(df):
     '''
@@ -75,9 +95,10 @@ def _read_poly_parafile(df):
     return ' '.join([str(df[col].iloc[0]) for col in df.columns])
 
 
-
-
-### ##########################
+##################################################################
+##################################################################
+##################################################################
+##################################################################
 
 def add_Eplpl(f, parafilename="fitparameters_EPLPL_Nc.txt"):
     '''
@@ -304,25 +325,57 @@ def add_NLC(f, lipidtype, parafilename="fitparameters_NofT_Nc_CHOL-{}.txt"):
     f.write("\n")
 
 
-def add_entropy(f, parafilename="fitparameters_entropies.txt"):
+def add_entropy(f, parafilename="fitparameters_entropy.txt"):
     ''' '''
-    print("adding dummy entropy")
-    f.write("#DUMMY ENTROPY\n")
+    print("adding entropy function")
+    f.write("# Entropy functions fitted with polynomials in varying degree\n")
+    sep = " "
+    paramdict = {}
+
+    with open(parafilename, "r") as paraf:
+        lines = paraf.readlines()
+        for line in lines[1:]:
+
+            commentndx = line.find("#")
+
+            if commentndx > -1 :
+                line = line[:commentndx] # Remove comments
+
+            line = line.rstrip()
+            if not line:
+                continue
+
+            cols = line.split(sep)
+            paramtuple = (cols[0], cols[1], cols[2])
+            params_str = ' '.join(cols[3:])
+            paramdict[paramtuple] = params_str
+
     for pl in PLLIST:
-        f.write(f"Entropy {pl} 0.0 1.0 1.0\n")
+        try:
+            param_str = paramdict[ (MCLATTICE_VERSION, "c"+str(CHOLCONC), pl) ]
+        except KeyError:
+            param_str = "MISSING"
+        f.write(f"Entropy {pl} {param_str}\n")
+    f.write("\n")
+
+
+
 
 def add_pscd(f, parafilename="fitparameter_pscd.txt"):
     ''' '''
 
 
-###############################
+##################################################################
+##################################################################
+##################################################################
+##################################################################
 
 
 
 if __name__ == "__main__":
 
     with open(OUTFNAME, "w") as f:
-        f.write(f"# Parameters from c{CHOLCONC} and T{TEMPERATURE}\n\n")
+        f.write(f"# Parameters from c{CHOLCONC} set and entropy optimized with program version {MCLATTICE_VERSION} for T={TEMPERATURE}\n\n")
 
         add_Eplpl(f)
         add_Eplc(f)
