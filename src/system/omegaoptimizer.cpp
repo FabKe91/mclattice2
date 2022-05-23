@@ -123,7 +123,7 @@ void OmegaOptimizer::optimizeOmega()
         }
         
         //following 2 loops only because zero division error from above, making entropyFunction constant in that case
-        for(int i=inputfile->paras.at("minOrderIndex");i<=(int)inputfile->paras.at("maxOrderIndex");i++) 
+        for(int i=0;i<=(int)inputfile->paras.at("maxOrderIndex");i++) 
         {
             if (currentOrderDistr[i]==0 and lipidproperties->entropyFunction[type][i] < 0.0)
             { 
