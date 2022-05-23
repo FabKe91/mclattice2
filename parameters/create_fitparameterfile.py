@@ -346,13 +346,14 @@ def add_entropy(f, parafilename="fitparameters_entropy.txt"):
                 continue
 
             cols = line.split(sep)
-            paramtuple = (cols[0], cols[1], cols[2])
-            params_str = ' '.join(cols[3:])
+            #           prog_ver  temp.      cholc.    pl
+            paramtuple = (cols[0], cols[1], cols[2], cols[3])
+            params_str = ' '.join(cols[4:])
             paramdict[paramtuple] = params_str
 
     for pl in PLLIST:
         try:
-            param_str = paramdict[ (MCLATTICE_VERSION, "c"+str(CHOLCONC), pl) ]
+            param_str = paramdict[ (MCLATTICE_VERSION, str(TEMPERATURE), "c"+str(CHOLCONC), pl) ]
         except KeyError:
             param_str = "MISSING"
         f.write(f"Entropy {pl} {param_str}\n")
