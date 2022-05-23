@@ -88,7 +88,7 @@ void OmegaOptimizer::optimizeOmega()
     int run=0;
     double DeltaEnthr=0; 
     double alpha=0.1;
-    int orderCalcRuns=200;  //number of runs to calc OrderDistr
+    int orderCalcRuns=1000;  //number of runs to calc OrderDistr
     double lastMDDiff=INFINITY;
     
     while(true)
@@ -123,20 +123,27 @@ void OmegaOptimizer::optimizeOmega()
         }
         
         //following 2 loops only because zero division error from above, making entropyFunction constant in that case
-        for(int i=1;i<=(int)inputfile->paras.at("maxOrderIndex");i++) 
+        for(int i=inputfile->paras.at("minOrderIndex");i<=(int)inputfile->paras.at("maxOrderIndex");i++) 
         {
-            if (currentOrderDistr[i]==0)
+            if (currentOrderDistr[i]==0 and lipidproperties->entropyFunction[type][i] < 0.0)
             { 
-                lipidproperties->entropyFunction[type][i]= lipidproperties->entropyFunction[type][i-1];                           
+                lipidproperties->entropyFunction[type][i]= lipidproperties->entropyFunction[type][i] * (1.0 + alpha / 10.0);                           
             }
         }
-        for(int i=(int)inputfile->paras.at("maxOrderIndex")-1;i>=0;i--) 
-        {
-            if (currentOrderDistr[i]==0)
-            { 
-                lipidproperties->entropyFunction[type][i]= lipidproperties->entropyFunction[type][i+1];                           
-            }
-        }
+        //for(int i=1;i<=(int)inputfile->paras.at("maxOrderIndex");i++) 
+        //{
+        //    if (currentOrderDistr[i]==0)
+        //    { 
+        //        lipidproperties->entropyFunction[type][i]= lipidproperties->entropyFunction[type][i-1];                           
+        //    }
+        //}
+        //for(int i=(int)inputfile->paras.at("maxOrderIndex")-1;i>=0;i--) 
+        //{
+        //    if (currentOrderDistr[i]==0)
+        //    { 
+        //        lipidproperties->entropyFunction[type][i]= lipidproperties->entropyFunction[type][i+1];                           
+        //    }
+        //}
 
         OmegaOut<<"\n";
         DistrOut<<"\n";
