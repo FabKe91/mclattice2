@@ -332,11 +332,11 @@ double MCHost::calcSwapEnthalpy()
         int partnerCholPairCholNeighbors_tot = partnerCholPairCholNeighbors[0] + partnerCholPairCholNeighbors[1] - partnerCholPairCholNeighbors[2];
 
         if (cholesterinsystem.chols[lipidHostCholNeighbours[i]].occupied)//H^LC host
-            // H += LC[h_i, c_i](Nc, S) * N[h_i, c_i](Nc, T) / 4
-            H+=lipidproperties->lipidCholEnergieFunction[HOST_LIPID.getType()][hostCholPairCholNeighbors_tot][HOST_LIPID.getOrder()] * lipidproperties->cholLipidNeigh[HOST_LIPID.getType()][getNumberCholNeighOfChol(lipidHostCholNeighbours[i])] / 4;
+            // H += LC[h_i, c_i](Nc, S)/2 * N[h_i, c_i](Nc, T) / 4
+            H+=lipidproperties->lipidCholEnergieFunction[HOST_LIPID.getType()][hostCholPairCholNeighbors_tot][HOST_LIPID.getOrder()] * lipidproperties->cholLipidNeigh[HOST_LIPID.getType()][getNumberCholNeighOfChol(lipidHostCholNeighbours[i])] / 8;
 
         if (cholesterinsystem.chols[lipidPartnerCholNeighbours[i]].occupied)//H^LC partner
-            H+=lipidproperties->lipidCholEnergieFunction[PARTNER_LIPID.getType()][partnerCholPairCholNeighbors_tot][PARTNER_LIPID.getOrder()] * lipidproperties->cholLipidNeigh[PARTNER_LIPID.getType()][getNumberCholNeighOfChol(lipidPartnerCholNeighbours[i])] / 4;
+            H+=lipidproperties->lipidCholEnergieFunction[PARTNER_LIPID.getType()][partnerCholPairCholNeighbors_tot][PARTNER_LIPID.getOrder()] * lipidproperties->cholLipidNeigh[PARTNER_LIPID.getType()][getNumberCholNeighOfChol(lipidPartnerCholNeighbours[i])] / 8;
     }
     
     
@@ -381,7 +381,7 @@ double MCHost::calcHostFreeEnerg()
         #endif
 
         if (cholesterinsystem.chols[lipidHostCholNeighbours[i]].occupied)//H^LC host
-            G+=lipidproperties->lipidCholEnergieFunction[HOST_LIPID.getType()][LipidCholPairCholNeighbors_tot][HOST_LIPID.getOrder()]*lipidproperties->cholLipidNeigh[HOST_LIPID.getType()][getNumberCholNeighOfChol(lipidHostCholNeighbours[i])]/4;
+            G+=lipidproperties->lipidCholEnergieFunction[HOST_LIPID.getType()][LipidCholPairCholNeighbors_tot][HOST_LIPID.getOrder()]*lipidproperties->cholLipidNeigh[HOST_LIPID.getType()][getNumberCholNeighOfChol(lipidHostCholNeighbours[i])]/8;
     }    
         
     for(int i=0;i<4;i++)//H^LL
@@ -465,7 +465,7 @@ double MCHost::calcCholSwapEnerg()
         int cholpairCholNeighbors_tot = cholpairCholNeighbors[0] + cholpairCholNeighbors[1] - cholpairCholNeighbors[2];
         if (cholesterinsystem.chols[cholHostCholNeighbours[i]].occupied)
         {
-            E+=lipidproperties->cholCholEnergie[cholpairCholNeighbors_tot];
+            E+=lipidproperties->cholCholEnergie[cholpairCholNeighbors_tot] / 2;
         }
     }
     
@@ -474,7 +474,7 @@ double MCHost::calcCholSwapEnerg()
         std::array<int, 3> lipidCholPairCholNeighbours = findLipidCholPairCholNeighbours(cholHostLipidNeighbours[i], cholHostID);
         int lipidCholPairCholNeighbours_tot = lipidCholPairCholNeighbours[0] + lipidCholPairCholNeighbours[1] - lipidCholPairCholNeighbours[2];
         if (!IDinArrayLen4(cholHostLipidNeighbours[i],cholPartnerLipidNeighbours))
-            E+=lipidproperties->lipidCholEnergieFunction[lipidsystem.lipids[cholHostLipidNeighbours[i]].getType()][lipidCholPairCholNeighbours_tot][lipidsystem.lipids[cholHostLipidNeighbours[i]].getOrder()] * lipidproperties->cholLipidNeigh[lipidsystem.lipids[cholHostLipidNeighbours[i]].getType()][getNumberCholNeighOfChol(cholHostID)] / 4;
+            E+=lipidproperties->lipidCholEnergieFunction[lipidsystem.lipids[cholHostLipidNeighbours[i]].getType()][lipidCholPairCholNeighbours_tot][lipidsystem.lipids[cholHostLipidNeighbours[i]].getOrder()] * lipidproperties->cholLipidNeigh[lipidsystem.lipids[cholHostLipidNeighbours[i]].getType()][getNumberCholNeighOfChol(cholHostID)] / 8;
     }
     
 

@@ -74,11 +74,11 @@ double Lipidsystem::calcPairEnthalpy(int ID_1,int ID_2, std::array<int, 3> Nchol
 
     if (type1>=type2) 
     {
-        return lipidproperties->enthalpyFunction[type1][type2][pairCholNeighs][std::min(order1, order2)] * (lipidproperties->neighbourFunction[type1][Ncholneighbors[0]][order1] + lipidproperties->neighbourFunction[type2][Ncholneighbors[1]][order2]) / 8;
+        return lipidproperties->enthalpyFunction[type1][type2][pairCholNeighs][std::min(order1, order2)] * (lipidproperties->neighbourFunction[type1][Ncholneighbors[0]][order1] + lipidproperties->neighbourFunction[type2][Ncholneighbors[1]][order2]) / 16;
     }
     else
     {
-        return lipidproperties->enthalpyFunction[type2][type1][pairCholNeighs][std::min(order1, order2)] * (lipidproperties->neighbourFunction[type1][Ncholneighbors[0]][order1] + lipidproperties->neighbourFunction[type2][Ncholneighbors[1]][order2]) / 8;
+        return lipidproperties->enthalpyFunction[type2][type1][pairCholNeighs][std::min(order1, order2)] * (lipidproperties->neighbourFunction[type1][Ncholneighbors[0]][order1] + lipidproperties->neighbourFunction[type2][Ncholneighbors[1]][order2]) / 16;
     }
 
 }

@@ -7,6 +7,11 @@ CholesterinSystem::CholesterinSystem()
 
 void CholesterinSystem::setup(std::shared_ptr<InputFile> _inputfile)
 {
+
+    #ifndef NDEBUG
+    std::cerr<<"CholesterinSystem::setup"<<std::endl;
+    #endif
+    
     inputfile=_inputfile;
     map =new  int*[inputfile->width];
     for(int i=0;i<inputfile->width;i++)
